@@ -9,4 +9,4 @@
 - Store / Load Buffering
 - 6-Stage Pipeline
 
-![Pipeline Diagram](Dataflow2.svg)
+![Pipeline Diagram](Dataflowf2.svg)
