@@ -10,4 +10,5 @@
 - 6-Stage Pipeline
 
 ## Dataflow Diagram
-![Pipeline Diagram](FinalPipeline.drawio.svg)
+![Pipeline](Pipeline.png)
+
