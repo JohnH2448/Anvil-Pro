@@ -4,9 +4,9 @@
 - Precise Trap / Exception Support
 - M-Mode RV32I + Zicsr
 - Harvard Split BRAM IMEM + External DMEM
-- 128-Bit/Cycle Instruction Prefetch Queue
+- 256-Bit Custom "Walking Window" Prefetch
 - Single LSU (Wishbone Classic)
-- Store / Load Buffering
+- Store / Load Buffering + Queue
 - 6-Stage Pipeline
 
 ## Dataflow Diagram
