@@ -1,0 +1,17 @@
+verilator -Wall -Wno-fatal \
+  --cc \
+  Core/Package/Configuration.sv \
+  Core/Package/Enumerations.sv \
+  Core/Package/Payloads.sv \
+  Test/Subsystems/FetchTest.sv \
+  Core/Memory/*.sv \
+  Core/Pipeline/*.sv \
+  --top-module Top \
+  --exe Test/Harnesses/FetchTestHarness.cpp \
+  --Mdir Verilator
+
+export PATH=/usr/bin:/bin:$PATH
+hash -r
+make -C Verilator -f VTop.mk -j"$(nproc)"
+
+./Verilator/VTop

@@ -1,7 +1,3 @@
-import Configuration::*;
-import Payloads::*;
-import Enumerations::*;
-
 package Enumerations;
 
     typedef enum logic [2:0] {

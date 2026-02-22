@@ -8,33 +8,47 @@ module InstructionMemory (
     input logic clock,
     input logic reset,
     input logic redirect,
+    input logic [31:0] redirectVector,
 
-    // Read Interface
-    input logic [31:0] readAddress,
-    output logic [127:0] readData,
-    output logic readValid
+    // Read Interface (Port A)
+    input logic [31:0] readAddressA,
+    output logic [127:0] readDataA,
+
+    // Read Interface (Port B)
+    input logic [31:0] readAddressB,
+    output logic [127:0] readDataB
 );
 
     // 256 x 128-bit instruction memory
     logic [127:0] memory [0:255];
 
-    // Registered index
-    logic [7:0] readIndex_q;
+    // Registered indices
+    logic [7:0] readIndexA_q;
+    logic [7:0] readIndexB_q;
+
+    // Internal Next Window
+    logic [31:0] redirectAddress;
+    logic [31:0] nextAddress;
+    assign redirectAddress = reset ? resetVector : redirectVector;
+    assign nextAddress = reset ? resetVector + 32'd16 : redirectVector + 32'd16;
 
     // Memory Load for Sim
-    initial $readmemh("Instructions.hex", memory);
+    initial $readmemh("Core/Memory/Instructions.hex", memory);
 
+    // BRAM Inference
     always_ff @(posedge clock) begin
         if (reset || redirect) begin
-            readValid <= 1'b0;
-            readData <= '0;
-            readIndex_q <= '0;
+            readIndexA_q <= redirectAddress[11:4];
+            readIndexB_q <= nextAddress[11:4];
+            readDataA <= memory[redirectAddress[11:4]];
+            readDataB <= memory[nextAddress[11:4]];
         end else begin
-            readIndex_q <= readAddress[11:4];
-            readData <= memory[readIndex_q];
-            readValid <= 1'b1;
+            readIndexA_q <= readAddressA[11:4];
+            readIndexB_q <= readAddressB[11:4];
+            readDataA <= memory[readAddressA[11:4]];
+            readDataB <= memory[readAddressB[11:4]];
         end
     end
 
-
 endmodule
+

@@ -7,48 +7,81 @@ module Top (
     input logic clock,
     input logic reset,
     input logic redirect,
-    input logic instructionConsumed1,
-    input logic instructionConsumed2
+    input logic assert1,
+    input logic assert2,
+    output logic [31:0] instruction1,
+    output logic [31:0] instruction2
 );
 
     // Static Redirect Vector for Testing
     logic [31:0] redirectVector;
     assign redirectVector = 32'd40;
 
-    // Queue Driven Signals
-    logic [31:0] alignedAddress;
-    logic [31:0] instruction1;
-    logic [31:0] instruction2;
-    logic instructionReady1;
-    logic instructionReady2;
-
     // BRAM Driven Signals
-    logic instructionFetchDataValid;
-    logic [127:0] instructionFetchData;
+    logic [127:0] lowFetchData;
+    logic [127:0] highFetchData;
 
-    PrefetchQueue prefetchQueue (
+    // Load Address Lines
+    logic [31:0] lowFetchAddress;
+    logic [31:0] highFetchAddress;
+
+    // Program Counter Outputs
+    logic [31:0] programCounter;
+    logic [31:0] programCounterP4;
+
+    // Fetch from Walking Window
+    logic [31:0] requestPC1;
+    logic [31:0] requestPC2;
+
+    // Bad Data
+    logic badData;
+
+    WalkingWindow walkingWindow (
         .clock (clock),
         .reset (reset),
         .redirect (redirect),
         .redirectVector (redirectVector),
-        .instructionFetchData (instructionFetchData),
-        .instructionFetchDataValid (instructionFetchDataValid),
-        .alignedAddress (alignedAddress),
+        .lowFetchData (lowFetchData),
+        .highFetchData (highFetchData),
+        .lowFetchAddress (lowFetchAddress),
+        .highFetchAddress (highFetchAddress),
         .instruction1 (instruction1),
-        .instructionReady1 (instructionReady1),
         .instruction2 (instruction2),
-        .instructionReady2 (instructionReady2),
         .instructionConsumed1 (instructionConsumed1),
-        .instructionConsumed2 (instructionConsumed2)
+        .instructionConsumed2 (instructionConsumed2),
+        .programCounter (programCounter),
+        .requestPC1 (requestPC1),
+        .requestPC2 (requestPC2),
+        .badData (badData)
     );
 
     InstructionMemory instructionMemory (
         .clock (clock),
         .reset (reset),
         .redirect (redirect),
-        .readData (instructionFetchData),
-        .readValid (instructionFetchDataValid),
-        .readAddress (alignedAddress)
+        .redirectVector (redirectVector),
+        .readAddressA (lowFetchAddress),
+        .readDataA (lowFetchData),
+        .readAddressB (highFetchAddress),
+        .readDataB (highFetchData)
     );
 
-endmodule 
+    DecodeIssue decodeIssue (
+        .clock (clock),
+        .reset (reset),
+        .redirect (redirect),
+        .redirectVector (redirectVector),
+        .instruction1 (instruction1),
+        .instruction2 (instruction2),
+        .assert1 (assert1),
+        .assert2 (assert2),
+        .programCounter (programCounter),
+        .instructionConsumed1 (instructionConsumed1),
+        .instructionConsumed2 (instructionConsumed2),
+        .requestPC1 (requestPC1),
+        .requestPC2 (requestPC2),
+        .badData (badData)
+    );
+
+
+endmodule
