@@ -1,3 +1,4 @@
+# Anvil-Pro: A Superscalar RISC-V Processor
 ## Overview
 Anvil-Pro is a dual-issue RISC-V RV32I + Zicsr softcore targeting FPGA platforms. The core supports M-mode execution, a strict Harvard memory architecture, and a Wishbone Classic data interface for external memory integration.
 
