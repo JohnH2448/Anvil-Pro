@@ -6,7 +6,8 @@ package Payloads;
     typedef struct packed {
         logic [3:0] ageTag;
         logic isLoad;
-        logic busy;
+        logic resultReady;
+        logic resultCommitted;
     } RegisterStatusEntry_;
 
     // Ring Buffer for Prefetch Queue

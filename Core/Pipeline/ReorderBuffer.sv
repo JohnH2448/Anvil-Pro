@@ -124,3 +124,4 @@ endmodule
 // all ROB entries are implicitly valid
 // no forwarding from store to loads. not much optimization and complex
 // use Dhrystone for IPC estimates
+// the only forwarding path should be both EX to both OS assuming no slot0/1 dependenceis
