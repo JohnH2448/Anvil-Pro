@@ -121,9 +121,8 @@ module DecodeIssue (
 endmodule
 
 // ============ ISSUER MUST ============
-// Deposit RD and PC to ROB
+// Deposit Rd and PC to ROB
 // On No WB, hardwire rd=x0
-// Respect "badData" and not issue instruction 2 if high
 
 // ============ ISSUE RULES ============
 // Slot 0 is always older
@@ -132,6 +131,14 @@ endmodule
 // No issues on dependencies on loads that are !ready
 // ROB must have space for new instructions
 // No slot 0 + slot 1 dependencies
+// Respect garbage data flag from fetch and refuse instruction 2 issuance
 // No dual redirect issues
 // Block WAW to prevent forwarding complications
 // Assess Memory Queue fullness as x-1 to accomindate in flight
+
+// no slot 1 slot 2 dependencies is VERY restrictive and kills IPC
+// potential solutions:
+// rd=0 bypass
+// weird data level check on carry chain length and forward if short
+// fix this later after timing analysis. more room if execute is short
+// gate by op type to determine speed?
