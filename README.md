@@ -10,7 +10,11 @@
 - 6-Stage Pipeline
 
 ## Overview
-Anvil-Pro is a performance-oriented RISC-V softcore designed for powerful and lightweight FPGA compute. It supports the base RV32I + Zicsr ISA, M-mode execution, Harvard-style split memory, and a single, adaptable Wishbone Classic DMEM bus. Michroarchitecturally, it utilizes a 6-stage pipeline, an in-order commit reorder buffer, single LSU synchronizationIt is optimized for minimal fabric usage, synchronous BRAM IMEM, external RAM chip for liberal DMEM capacity. The core is provided as synthesizable SystemVerilog, and is can be used for performance FPGA compute, reference simulation, research and education, and as a foundation for custom RISC-V system designs.
+Anvil-Pro is a dual-issue RISC-V RV32I + Zicsr softcore targeting FPGA platforms. The core supports M-mode execution, a strict Harvard memory architecture, and a Wishbone Classic data interface for external memory integration.
+
+The microarchitecture implements a 6-stage pipeline with in-order commit via a reorder buffer, a single load/store unit with buffered memory queueing, and a 256-bit BRAM-backed “Walking Window” instruction prefetch subsystem. Instruction memory is implemented using inferred synchronous BRAM, while data memory is accessed through an external Wishbone interface.
+
+The design is optimized for efficient FPGA fabric utilization, competitive performace, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom RISC-V system integration.
 
 ## Frontend
 ### Fetch Methodology
