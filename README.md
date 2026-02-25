@@ -40,15 +40,24 @@ Under strict in-order issue, issue refusal and traditional stall models exhibit 
 ### Issuer Contract
 The issuer guarantees that any dispatched instruction group satisfies the following invariants:
 ```bash
-- Slot 0 must be older # Dramaticly simplifies control and forward logic
-- LSU access must be through slot 0 # For a single LSU, drain is the bottleneck rather than fill
-- Memory queue must have slots available including older in pipeline requests (x-1 = capacity) # Prevents stalls on full queue
-- No dependencies on unresolved loads # Prevents stalls for arbitrary load times
-- ROB must have slots available # Mandatory to functionality
-- No slot 0 + slot 1 dependencies # Prevents double execute combinational path
-- No slot 1 issues when badData flag is active # Ensures all instructions are valid
-- No same cycle dual redirect issues # Simplifies redirect conflicts
-- No Write-after-Write hazards in a cycle # prevents age wise forwarding
+# Dramaticly simplifies control and forward logic
+- Slot 0 must be older
+# For a single LSU, drain is the bottleneck rather than fill
+- LSU access must be through slot 0
+# Prevents stalls on full queue (x-1 = capacity)
+- Memory queue must have slots available including older in pipeline requests
+# Prevents stalls for arbitrary load times
+- No dependencies on unresolved loads
+# Mandatory to functionality
+- ROB must have slots available
+ # Prevents double execute combinational path
+- No slot 0 + slot 1 dependencies
+# Ensures all instructions are valid
+- No slot 1 issues when badData flag is active
+# Simplifies redirect conflicts
+- No same cycle dual redirect issues
+# prevents age wise forwarding
+- No Write-after-Write hazards in a cycle
 ```
 
 ## Backend
