@@ -1,5 +1,5 @@
 ## Architectural Roadmap
-- 2-Issue Superscalar Front-End
+- Dual-Issue Superscalar Front-End
 - In-Order Commit ROB
 - Precise Trap / Exception Support
 - M-Mode RV32I + Zicsr
@@ -10,9 +10,7 @@
 - 6-Stage Pipeline
 
 ## Overview
-sds
-
-Anvil-Pro specifically targets FPGA platforms, and is optimized around FPGA specific mechanics such as synchronous BRAM and bus routing to an external RAM chip. 
+Anvil-Pro is a performance-oriented RISC-V softcore designed for powerful and lightweight FPGA compute. It supports the base RV32I + Zicsr ISA, M-mode execution, Harvard-style split memory, and a single, adaptable Wishbone Classic DMEM bus. Michroarchitecturally, it utilizes a 6-stage pipeline, an in-order commit reorder buffer, single LSU synchronizationIt is optimized for minimal fabric usage, synchronous BRAM IMEM, external RAM chip for liberal DMEM capacity. The core is provided as synthesizable SystemVerilog, and is can be used for performance FPGA compute, reference simulation, research and education, and as a foundation for custom RISC-V system designs.
 
 ## Frontend
 ### Fetch Methodology
@@ -48,6 +46,8 @@ The issuer guarantees that any dispatched instruction group satisfies the follow
 - No same cycle dual redirect issues # Simplifies redirect conflicts
 - No Write-after-Write hazards in a cycle # prevents age wise forwarding
 ```
+
+## Backend
 
 ## Dataflow Diagram
 ![Pipeline](Pipeline.png)
