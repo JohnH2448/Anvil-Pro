@@ -1,3 +1,10 @@
+## Overview
+Anvil-Pro is a dual-issue RISC-V RV32I + Zicsr softcore targeting FPGA platforms. The core supports M-mode execution, a strict Harvard memory architecture, and a Wishbone Classic data interface for external memory integration.
+
+The microarchitecture implements a 6-stage pipeline with in-order commit via a reorder buffer, a LSU with buffered memory queueing, and a 256-bit “Walking Window” fetch system. Instruction memory is implemented using inferred synchronous BRAM, while data memory is accessed through an external Wishbone interface.
+
+The design is optimized for efficient FPGA fabric utilization, competitive performace, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom RISC-V system integration.
+
 ## Architectural Roadmap
 - Dual-Issue Superscalar Front-End
 - In-Order Commit ROB
@@ -8,13 +15,6 @@
 - Single LSU (Wishbone Classic)
 - Store / Load Buffering + Queue
 - 6-Stage Pipeline
-
-## Overview
-Anvil-Pro is a dual-issue RISC-V RV32I + Zicsr softcore targeting FPGA platforms. The core supports M-mode execution, a strict Harvard memory architecture, and a Wishbone Classic data interface for external memory integration.
-
-The microarchitecture implements a 6-stage pipeline with in-order commit via a reorder buffer, a single load/store unit with buffered memory queueing, and a 256-bit BRAM-backed “Walking Window” instruction prefetch subsystem. Instruction memory is implemented using inferred synchronous BRAM, while data memory is accessed through an external Wishbone interface.
-
-The design is optimized for efficient FPGA fabric utilization, competitive performace, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom RISC-V system integration.
 
 ## Frontend
 ### Fetch Methodology
