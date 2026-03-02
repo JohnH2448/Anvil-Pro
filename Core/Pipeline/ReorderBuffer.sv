@@ -91,7 +91,6 @@ module ReorderBuffer (
             freeSlots <= calculatedNextFreeSlots;
         end
     end
-
 endmodule
 
 // EX to EX bypass cross stage
