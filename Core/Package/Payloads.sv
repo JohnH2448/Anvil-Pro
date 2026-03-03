@@ -4,11 +4,18 @@ package Payloads;
 
     // Scoreboard Entry
     typedef struct packed {
-        logic [3:0] ageTag;
+        logic [3:0] register;
         logic isLoad;
         logic resultReady;
         logic resultCommitted;
     } RegisterStatusEntry_;
+
+    // Scoreboard Output
+    typedef struct packed {
+        logic isLoad;
+        logic resultReady;
+        logic resultCommitted;
+    } RegisterStatusOutput_;
 
     // Ring Buffer for Prefetch Queue
     typedef struct packed {
@@ -32,7 +39,6 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         logic [3:0] ageTag;
-        logic valid;
     } UpperIssuerOperandPayload_;
 
     // For Lower Slot
@@ -46,7 +52,6 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         logic [3:0] ageTag;
-        logic valid;
     } LowerIssuerOperandPayload_;
 
     // For Upper Slot with Memory Support
