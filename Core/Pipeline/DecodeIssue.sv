@@ -4,10 +4,6 @@ import Enumerations::*;
 
 module DecodeIssue (
 
-    // Test Inputs
-    input logic assert1,
-    input logic assert2,
-
     // Standard
     input logic clock,
     input logic reset,
@@ -26,7 +22,14 @@ module DecodeIssue (
     output logic [31:0] requestPC1,
     output logic [31:0] requestPC2,
     input logic [31:0] programCounter,
-    input logic badData
+    input logic badData,
+
+    // Issue Outputs
+    output UpperIssuerOperandPayload_ payload1,
+    output LowerIssuerOperandPayload_ payload2,
+
+    // ROB Communication
+    input logic nextFreeSlots
 
 );
 
@@ -88,33 +91,77 @@ module DecodeIssue (
         end
     end
 
-    // Test Assertions
-    always_comb begin
-        if (instructionsValid) begin
-            if (assert1 && assert2) begin
-                if (internalBadData) begin
-                    instructionConsumed1 = 1'b1;
-                    instructionConsumed2 = 1'b0;
-                end else begin
-                    instructionConsumed1 = 1'b1;
-                    instructionConsumed2 = 1'b1;
-                end
-            end else if (assert1) begin
-                instructionConsumed1 = 1'b1;
-                instructionConsumed2 = 1'b0;
-            end else begin
-                instructionConsumed1 = 1'b0;
-                instructionConsumed2 = 1'b0;
-            end
-        end
-    end
+    // Decode Producer 1
+    logic illegal1;
+    UpperIssuerOperandPayload_ tempPayload1;
+    logic [4:0] destinationRegister1;
 
-    // Test Prints
-    always_ff @(posedge clock) begin
-        if (instructionConsumed1 && instructionConsumed2) begin
-            $display("Issued %h, PC: %h\nIssued %h, PC: %h", IR1, PC1, IR2, PC2);
-        end else if (instructionConsumed1) begin
-            $display("Issued %h, PC: %h", IR1, PC1);
+    Decoder decoder1 (
+        .instruction(IR1),
+        .programCounter(PC1),
+        .payload(tempPayload1),
+        .destinationRegister(destinationRegister1),
+        .illegal(illegal1)
+    );
+
+    // Decode Producer 1
+    logic illegal2;
+    UpperIssuerOperandPayload_ tempPayload2;
+    logic [4:0] destinationRegister2;
+
+    Decoder decoder2 (
+        .instruction(IR2),
+        .programCounter(PC2),
+        .payload(tempPayload2),
+        .destinationRegister(destinationRegister2),
+        .illegal(illegal2)
+    );
+
+    // Issuer Helper Signals
+    logic block1;
+    logic block2;
+
+    // Issuer Contract Logic
+    always_comb begin
+        // Zero Initialize
+        instructionConsumed1 = 1'b0;
+        instructionConsumed2 = 1'b0;
+        block1 = 1'b0;
+        block2 = 1'b0;
+        // Both Instructions Valid
+        if (instructionsValid) begin
+            // Memory Ops Must Always Issue in Slot 0
+            if (tempPayload2.memoryOperation != MEM_NONE) begin
+                block2 = 1'b1;
+            end
+            // Block WAW To Simplify Forwarding/RST Logic, Can Be Relaxed Later
+            if (destinationRegister1 == destinationRegister2) begin
+                block2 = 1'b1;
+            end
+            // Block Slot 0 + Slot 1 Dependencies, Can Be Relaxed with Bypass Logic Later
+            if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0) || 
+            (tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0) ||
+            (tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) ||
+            (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0)) begin
+                block2 = 1'b1;
+            end
+            // Block Dual Redirects
+            if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType != JUMP_NONE) && 
+                (tempPayload2.branchType != BR_NONE || tempPayload2.jumpType != JUMP_NONE)) begin
+                block2 = 1'b1;
+            end
+            // Block Issue on Bad Fetch
+            if (internalBadData) begin
+                block2 = 1'd1;
+            end
+            // ROB Capacity Gating
+            if (nextFreeSlots == 5'd1) begin
+                block2 = 1'b1;
+            end else if (nextFreeSlots == 5'd0) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
+            end
+
         end
     end
 
@@ -125,20 +172,15 @@ endmodule
 // On No WB, hardwire rd=x0
 
 // ============ ISSUE RULES ============
-// Slot 0 is always older
-// Memory must flow through slot 0
 // Memory Queue must have space for new memory ops
 // No issues on dependencies on loads that are !ready
-// ROB must have space for new instructions
-// No slot 0 + slot 1 dependencies
-// Respect garbage data flag from fetch and refuse instruction 2 issuance
-// No dual redirect issues
-// Block WAW to prevent forwarding complications
 // Assess Memory Queue fullness as x-1 to accomindate in flight
+// slot 1 can never be to an non-ready rd MAYBE?????
+// neither slot can be to an rd that is being loaded.
 
+// must impliment ownerTags in RST to ensure the last two rules hold
 // no slot 1 slot 2 dependencies is VERY restrictive and kills IPC
 // potential solutions:
-// rd=0 bypass
 // weird data level check on carry chain length and forward if short
 // fix this later after timing analysis. more room if execute is short
 // gate by op type to determine speed?

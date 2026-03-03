@@ -36,10 +36,10 @@ module Decoder (
                     10'b0000000110: payload.aluOperation = ALU_OR;
                     10'b0000000100: payload.aluOperation = ALU_XOR;
                     10'b0000000001: payload.aluOperation = ALU_SLL;
-                    10'b0000000010: payload.aluOperation = ALU_SRL;
-                    10'b0100000010: payload.aluOperation = ALU_SRA;
-                    10'b0000000011: payload.aluOperation = ALU_SLT;
-                    10'b0000001011: payload.aluOperation = ALU_SLTU;
+                    10'b0000000101: payload.aluOperation = ALU_SRL;
+                    10'b0100000101: payload.aluOperation = ALU_SRA;
+                    10'b0000000010: payload.aluOperation = ALU_SLT;
+                    10'b0000000011: payload.aluOperation = ALU_SLTU;
                     default: illegal = 1'b1;
                 endcase
             end
@@ -181,7 +181,7 @@ module Decoder (
                 payload.aluSource = ALU_RS1_IMM;
                 payload.jumpType = JUMP_JALR;
                 payload.immediate = {{20{instruction[31]}},instruction[31:20]};
-                if (instruction[14:12] != 2'b000) begin
+                if (instruction[14:12] != 3'b000) begin
                     illegal = 1'b1;
                 end
             end
@@ -195,6 +195,10 @@ module Decoder (
             end
 
         endcase
+        if (illegal) begin
+            destinationRegister = 5'd0;
+            payload.memoryOperation = MEM_NONE;
+        end
         // Age Tags + Valid Assigned By Issuer
     end
 

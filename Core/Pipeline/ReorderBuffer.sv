@@ -118,9 +118,11 @@ endmodule
 // or commited. Goal is no backend stalls ever. stall comes from
 // issue refusal. There should be no bubbles corresponding to valid
 // entries in ROB. flushing should be rare and specific, no drop-ins.
-// On flush, clear ROB entries and also invalidate in flight. do both
-// to prevent age tag edge case mistnterpretation. 
+// On flush, clear ROB entries
 // all ROB entries are implicitly valid
 // no forwarding from store to loads. not much optimization and complex
 // use Dhrystone for IPC estimates
 // the only forwarding path should be both EX to both OS assuming no slot0/1 dependenceis
+// age tag system so I dont need to actually flush in pipeline
+// rst can only clear
+
