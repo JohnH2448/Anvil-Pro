@@ -5,6 +5,7 @@ import Enumerations::*;
 // Scoreboard Entry
 typedef struct packed {
     logic isLoad;
+    logic [4:0] ageTag;
     logic resultReady;
     logic resultCommitted;
 } RegisterStatusEntry_;
@@ -12,6 +13,7 @@ typedef struct packed {
 // Scoreboard Output
 typedef struct packed {
     logic resultReady;
+    logic [4:0] ageTag;
     logic resultCommitted;
 } RegisterStatusOutput_;
 
@@ -44,26 +46,34 @@ module RegisterStatusTable (
     output logic upperInFlightLoad2,
     output logic lowerInFlightLoad1,
     output logic lowerInFlightLoad2,
+    output logic destRegLoad1,
+    output logic destRegLoad2,
 
     // Write Signals From Issue
     input logic instructionConsumed1,
     input logic instructionConsumed2,
-    input logic [4:0] destinationRegister1,
-    input logic [4:0] destinationRegister2,
+    input logic [4:0] rstDestinationRegister1,
+    input logic [4:0] rstDestinationRegister2,
     input logic isLoad1,
     input logic isLoad2,
+    input logic [4:0] ageTag1,
+    input logic [4:0] ageTag2,
 
     // Retire Signals From ROB
     input logic retire1,
     input logic retire2,
     input logic [4:0] retireRegister1,
     input logic [4:0] retireRegister2,
+    input logic [4:0] retireAgeTag1,
+    input logic [4:0] retireAgeTag2,
 
     // Ready Signals From ROB
     input logic ready1,
     input logic ready2,
     input logic [4:0] readyRegister1,
-    input logic [4:0] readyRegister2
+    input logic [4:0] readyRegister2,
+    input logic [4:0] readyAgeTag1,
+    input logic [4:0] readyAgeTag2
 );
 
     // Register Status Table Declaration
@@ -83,45 +93,62 @@ module RegisterStatusTable (
             // Issuer Writes
             if (instructionConsumed1) begin
                 // New Issue 1 Write
-                registerStatusTable[destinationRegister1].isLoad <= isLoad1;
-                registerStatusTable[destinationRegister1].resultReady <= 1'd0;
-                registerStatusTable[destinationRegister1].resultCommitted <= 1'd0;
+                registerStatusTable[rstDestinationRegister1].ageTag <= ageTag1;
+                registerStatusTable[rstDestinationRegister1].isLoad <= isLoad1;
+                registerStatusTable[rstDestinationRegister1].resultReady <= 1'd0;
+                registerStatusTable[rstDestinationRegister1].resultCommitted <= 1'd0;
+            end else if (ready1) begin
+                // Instruction Ready 1
+                if (registerStatusTable[readyRegister1].ageTag == readyAgeTag1) begin
+                    registerStatusTable[readyRegister1].resultReady <= 1'd1;
+                    registerStatusTable[readyRegister1].resultCommitted <= 1'd1;
+                end
+            end else if (retire1) begin
+                // Instruction Retired From ROB 1
+                if (registerStatusTable[retireRegister1].ageTag == retireAgeTag1) begin
+                    registerStatusTable[retireRegister1].resultReady <= 1'd1;
+                    registerStatusTable[retireRegister1].resultCommitted <= 1'd1;
+                end
             end
             if (instructionConsumed2) begin
                 // New Issue 2 Write
-                registerStatusTable[destinationRegister2].isLoad <= isLoad2;
-                registerStatusTable[destinationRegister2].resultReady <= 1'd0;
-                registerStatusTable[destinationRegister2].resultCommitted <= 1'd0;
-            end
-            // Retirement Writes
-            if (retire1) begin
-                // Instruction Retired From ROB 1
-                registerStatusTable[retireRegister1].resultReady <= 1'd1;
-                registerStatusTable[retireRegister1].resultCommitted <= 1'd1;
-            end
-            if (retire2) begin
-                // Instruction Retired From ROB 2
-                registerStatusTable[retireRegister2].resultReady <= 1'd1;
-                registerStatusTable[retireRegister2].resultCommitted <= 1'd1;
-            end
-            // Result Ready Writes
-            if (ready1) begin
-                // Instruction Ready 1
-                registerStatusTable[readyRegister1].resultReady <= 1'd1;
-                registerStatusTable[readyRegister1].resultCommitted <= 1'd1;
-            end
-            if (ready2) begin
+                registerStatusTable[rstDestinationRegister2].ageTag <= ageTag2;
+                registerStatusTable[rstDestinationRegister2].isLoad <= isLoad2;
+                registerStatusTable[rstDestinationRegister2].resultReady <= 1'd0;
+                registerStatusTable[rstDestinationRegister2].resultCommitted <= 1'd0;
+            end if (ready2) begin
                 // Instruction Ready 2
-                registerStatusTable[readyRegister2].resultReady <= 1'd1;
-                registerStatusTable[readyRegister2].resultCommitted <= 1'd1;
+                if (registerStatusTable[readyRegister2].ageTag == readyAgeTag2) begin
+                    registerStatusTable[readyRegister2].resultReady <= 1'd1;
+                    registerStatusTable[readyRegister2].resultCommitted <= 1'd1;
+                end
+            end if (retire2) begin
+                // Instruction Retired From ROB 2
+                if (registerStatusTable[retireRegister2].ageTag == retireAgeTag2) begin
+                    registerStatusTable[retireRegister2].resultReady <= 1'd1;
+                    registerStatusTable[retireRegister2].resultCommitted <= 1'd1;
+                end
             end
         end
     end
 
     // Large Index Block
     always_comb begin
+        // Destination Register isLoad Check 1
+        if (rstDestinationRegister1 != 5'd0) begin
+            destRegLoad1 = registerStatusTable[rstDestinationRegister1].isLoad && !registerStatusTable[rstDestinationRegister1].resultReady;
+        end else begin
+            destRegLoad1 = 1'b0;
+        end
+        // Destination Register isLoad Check 2
+        if (rstDestinationRegister2 != 5'd0) begin
+            destRegLoad2 = registerStatusTable[rstDestinationRegister2].isLoad && !registerStatusTable[rstDestinationRegister2].resultReady;
+        end else begin
+            destRegLoad2 = 1'b0;
+        end
         // Upper Source Register 1
         if (upperSourceRegister1 != 5'd0) begin
+            upperSource1Status.ageTag = registerStatusTable[upperSourceRegister1].ageTag;
             upperSource1Status.resultReady = registerStatusTable[upperSourceRegister1].resultReady;
             upperSource1Status.resultCommitted = registerStatusTable[upperSourceRegister1].resultCommitted;
         end else begin
@@ -130,6 +157,7 @@ module RegisterStatusTable (
         end
         // Upper Source Register 2
         if (upperSourceRegister2 != 5'd0) begin
+            upperSource2Status.ageTag = registerStatusTable[upperSourceRegister2].ageTag;
             upperSource2Status.resultReady = registerStatusTable[upperSourceRegister2].resultReady;
             upperSource2Status.resultCommitted = registerStatusTable[upperSourceRegister2].resultCommitted;
         end else begin
@@ -138,6 +166,7 @@ module RegisterStatusTable (
         end
         // Lower Source Register 1
         if (lowerSourceRegister1 != 5'd0) begin
+            lowerSource1Status.ageTag = registerStatusTable[lowerSourceRegister1].ageTag;
             lowerSource1Status.resultReady = registerStatusTable[lowerSourceRegister1].resultReady;
             lowerSource1Status.resultCommitted = registerStatusTable[lowerSourceRegister1].resultCommitted;
         end else begin
@@ -146,13 +175,13 @@ module RegisterStatusTable (
         end
         // Lower Source Register 2
         if (lowerSourceRegister2 != 5'd0) begin
+            lowerSource2Status.ageTag = registerStatusTable[lowerSourceRegister2].ageTag;
             lowerSource2Status.resultReady = registerStatusTable[lowerSourceRegister2].resultReady;
             lowerSource2Status.resultCommitted = registerStatusTable[lowerSourceRegister2].resultCommitted;
         end else begin
             lowerSource2Status.resultReady = 1'b1;
             lowerSource2Status.resultCommitted = 1'b1;
         end
-
         // Upper Issuer Register 1
         if (upperIssuerRegister1 != 5'd0) begin
             upperInFlightLoad1 = registerStatusTable[upperIssuerRegister1].isLoad && !registerStatusTable[upperIssuerRegister1].resultReady;
@@ -180,5 +209,4 @@ module RegisterStatusTable (
     end
 
 endmodule
-
 // May be wise to split into two tables. Issuer only needs 1 bit
