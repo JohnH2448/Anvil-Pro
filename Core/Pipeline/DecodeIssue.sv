@@ -29,9 +29,66 @@ module DecodeIssue (
     output LowerIssuerOperandPayload_ payload2,
 
     // ROB Communication
-    input logic nextFreeSlots
+    input logic nextFreeSlots,
+
+    // Read From RST
+    output logic [4:0] upperIssuerRegister1,
+    output logic [4:0] upperIssuerRegister2,
+    output logic [4:0] lowerIssuerRegister1,
+    output logic [4:0] lowerIssuerRegister2,
+
+    // From RST
+    input logic upperInFlightLoad1,
+    input logic upperInFlightLoad2,
+    input logic lowerInFlightLoad1,
+    input logic lowerInFlightLoad2,
+    input logic destRegLoad1,
+    input logic destRegLoad2,
+
+    // Write To RST
+    output logic [4:0] rstDestinationRegister1,
+    output logic [4:0] rstDestinationRegister2,
+    output logic isLoad1,
+    output logic isLoad2,
+    output logic [4:0] ageTag1,
+    output logic [4:0] ageTag2
 
 );
+
+    // Generated Age Tags
+    logic [4:0] issue1AgeTag;
+    logic [4:0] issue2AgeTag;
+
+    // Decode Producer 2
+    logic illegal2;
+    UpperIssuerOperandPayload_ tempPayload2;
+    logic [4:0] destinationRegister2;
+
+    // Decode Producer 1
+    logic illegal1;
+    UpperIssuerOperandPayload_ tempPayload1;
+    logic [4:0] destinationRegister1;
+
+    // To RST
+    // Upper Issue Slot Source Registers + rd
+    assign upperIssuerRegister1 = tempPayload1.sourceRegister1;
+    assign upperIssuerRegister2 = tempPayload1.sourceRegister2;
+    assign rstDestinationRegister1 = destinationRegister1;
+
+    // Lower Issue Slot Source Registers + rd
+    assign lowerIssuerRegister1 = tempPayload2.sourceRegister1;
+    assign lowerIssuerRegister2 = tempPayload2.sourceRegister2;
+    assign rstDestinationRegister2 = destinationRegister2;
+
+    // Extra Issuer Data to RST
+    assign isLoad1 = tempPayload1.memoryOperation == MEM_LOAD;
+    assign isLoad2 = tempPayload2.memoryOperation == MEM_LOAD;
+    assign ageTag1 = issue1AgeTag;
+    assign ageTag2 = issue2AgeTag;
+    
+    // Final Payloads Passed to OS
+    UpperIssuerOperandPayload_ finalUpperPayload;
+    LowerIssuerOperandPayload_ finalLowerPayload;
 
     // Registered Instructions and PCs for Decode
     logic [31:0] IR1;
@@ -91,11 +148,6 @@ module DecodeIssue (
         end
     end
 
-    // Decode Producer 1
-    logic illegal1;
-    UpperIssuerOperandPayload_ tempPayload1;
-    logic [4:0] destinationRegister1;
-
     Decoder decoder1 (
         .instruction(IR1),
         .programCounter(PC1),
@@ -103,11 +155,6 @@ module DecodeIssue (
         .destinationRegister(destinationRegister1),
         .illegal(illegal1)
     );
-
-    // Decode Producer 1
-    logic illegal2;
-    UpperIssuerOperandPayload_ tempPayload2;
-    logic [4:0] destinationRegister2;
 
     Decoder decoder2 (
         .instruction(IR2),
@@ -124,8 +171,6 @@ module DecodeIssue (
     // Issuer Contract Logic
     always_comb begin
         // Zero Initialize
-        instructionConsumed1 = 1'b0;
-        instructionConsumed2 = 1'b0;
         block1 = 1'b0;
         block2 = 1'b0;
         // Both Instructions Valid
@@ -161,10 +206,60 @@ module DecodeIssue (
                 block1 = 1'b1;
                 block2 = 1'b1;
             end
-
+            // Block Issue On Unready Load rs's or rd's. Calculated in RST
+            if (upperInFlightLoad1 || upperInFlightLoad2 || destRegLoad1) begin
+                block1 = 1'b1;
+            end
+            if (lowerInFlightLoad1 || lowerInFlightLoad2 || destRegLoad2) begin
+                block2 = 1'b1;
+            end
+        end else begin
+            block1 = 1'b1;
+            block2 = 1'b1;
         end
     end
 
+    // Final Payload Assignment
+    always_comb begin
+        // Instruction Consumption Descision
+        instructionConsumed1 = block1;
+        instructionConsumed2 = block2;
+        // Payload Construction
+        if (instructionConsumed1 && instructionConsumed2) begin
+            // Upper Payload
+            finalUpperPayload = tempPayload1;
+            finalUpperPayload.ageTag <= issue1AgeTag;
+            // Lower Payload Splice
+            finalLowerPayload.programCounter <= tempPayload2.programCounter;
+            finalLowerPayload.sourceRegister1 <= tempPayload2.sourceRegister1;
+            finalLowerPayload.sourceRegister2 <= tempPayload2.sourceRegister2;
+            finalLowerPayload.immediate <= tempPayload2.immediate;
+            finalLowerPayload.aluSource <= tempPayload2.aluSource;
+            finalLowerPayload.branchType <= tempPayload2.branchType;
+            finalLowerPayload.aluOperation <= tempPayload2.aluOperation;
+            finalLowerPayload.jumpType <= tempPayload2.jumpType;
+            finalLowerPayload.ageTag <= issue2AgeTag;
+        end else if (instructionConsumed1) begin
+            // Can be removed
+            finalUpperPayload = '0;
+            finalLowerPayload = '0;
+        end
+    end
+
+    // Age Tag Generation
+    always_ff @(posedge clock) begin
+        if (reset) begin
+            issue1AgeTag <= '0;
+            issue2AgeTag <= 5'd1;
+        end else begin
+            if (instructionConsumed1 && instructionConsumed2) begin
+                issue1AgeTag = issue1AgeTag + 5'd1;
+                issue2AgeTag = issue2AgeTag + 5'd1;
+            end else if (instructionConsumed1) begin
+                issue1AgeTag = issue1AgeTag + 5'd1;
+            end
+        end
+    end
 endmodule
 
 // ============ ISSUER MUST ============
@@ -173,12 +268,9 @@ endmodule
 
 // ============ ISSUE RULES ============
 // Memory Queue must have space for new memory ops
-// No issues on dependencies on loads that are !ready
 // Assess Memory Queue fullness as x-1 to accomindate in flight
 // slot 1 can never be to an non-ready rd MAYBE?????
-// neither slot can be to an rd that is being loaded.
 
-// must impliment ownerTags in RST to ensure the last two rules hold
 // no slot 1 slot 2 dependencies is VERY restrictive and kills IPC
 // potential solutions:
 // weird data level check on carry chain length and forward if short

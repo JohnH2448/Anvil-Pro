@@ -4,16 +4,16 @@ package Payloads;
 
     // Scoreboard Entry
     typedef struct packed {
-        logic [3:0] register;
         logic isLoad;
+        logic [4:0] ageTag;
         logic resultReady;
         logic resultCommitted;
     } RegisterStatusEntry_;
 
     // Scoreboard Output
     typedef struct packed {
-        logic isLoad;
         logic resultReady;
+        logic [4:0] ageTag;
         logic resultCommitted;
     } RegisterStatusOutput_;
 
@@ -38,7 +38,7 @@ package Payloads;
         BranchType_ branchType; 
         AluOperation_ aluOperation;
         JumpType_ jumpType;
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
     } UpperIssuerOperandPayload_;
 
     // For Lower Slot
@@ -51,7 +51,7 @@ package Payloads;
         BranchType_ branchType; 
         AluOperation_ aluOperation;
         JumpType_ jumpType;
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
     } LowerIssuerOperandPayload_;
 
     // For Upper Slot with Memory Support
@@ -65,7 +65,7 @@ package Payloads;
         MemoryOperation_ memoryOperation;
         logic [1:0] memoryWidth;
         logic memorySigned;
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
         logic valid;
     } UpperOperandExecutePayload_;
 
@@ -77,7 +77,7 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         BranchType_ branchType;
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
         logic valid;
     } LowerOperandExecutePayload_;
 
@@ -88,13 +88,13 @@ package Payloads;
         MemoryOperation_ memoryOperation;
         logic [1:0] memoryWidth;
         logic memorySigned;
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
         logic valid; // mem queue doesnt accept invalids
     } ExecuteMemoryPayload_;
 
     // Instruction from Pipeline to ROB
     typedef struct packed {
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
         logic [31:0] instructionResult;
         logic valid;
     } InputInstruction_;
@@ -103,7 +103,7 @@ package Payloads;
     typedef struct packed {
         logic [31:0] programCounter;
         logic [4:0] destinationRegister;
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
         logic isStore;
         logic confirm;
     } IssuedIntruction_;
@@ -113,7 +113,7 @@ package Payloads;
         logic [31:0] programCounter;
         logic [31:0] instructionResult;
         logic [4:0] destinationRegister;
-        logic [3:0] ageTag;
+        logic [4:0] ageTag;
         logic isStore;
         logic resultsReady;
     } QueueEntry_;
