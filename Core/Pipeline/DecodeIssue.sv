@@ -29,7 +29,7 @@ module DecodeIssue (
     output LowerIssuerOperandPayload_ payload2,
 
     // ROB Communication
-    input logic nextFreeSlots,
+    input logic [4:0] nextFreeSlots,
 
     // Read From RST
     output logic [4:0] upperIssuerRegister1,
@@ -51,7 +51,11 @@ module DecodeIssue (
     output logic isLoad1,
     output logic isLoad2,
     output logic [4:0] ageTag1,
-    output logic [4:0] ageTag2
+    output logic [4:0] ageTag2,
+
+    // Instruction Packets to ROB
+    output IssuedIntruction_ instructionPacket1,
+    output IssuedIntruction_ instructionPacket2
 
 );
 
@@ -222,8 +226,14 @@ module DecodeIssue (
     // Final Payload Assignment
     always_comb begin
         // Instruction Consumption Descision
-        instructionConsumed1 = block1;
-        instructionConsumed2 = block2;
+        instructionConsumed1 = 1'd0;
+        instructionConsumed2 = 1'd0;
+        if (!block1 && !block2) begin
+            instructionConsumed1 = 1'd1;
+            instructionConsumed2 = 1'd1;
+        end else if (!block1) begin
+            instructionConsumed1 = 1'd1;
+        end
         // Payload Construction
         if (instructionConsumed1 && instructionConsumed2) begin
             // Upper Payload
@@ -253,11 +263,39 @@ module DecodeIssue (
             issue2AgeTag <= 5'd1;
         end else begin
             if (instructionConsumed1 && instructionConsumed2) begin
-                issue1AgeTag = issue1AgeTag + 5'd1;
-                issue2AgeTag = issue2AgeTag + 5'd1;
+                issue1AgeTag = issue1AgeTag + 5'd2;
+                issue2AgeTag = issue2AgeTag + 5'd2;
             end else if (instructionConsumed1) begin
                 issue1AgeTag = issue1AgeTag + 5'd1;
+                issue2AgeTag = issue2AgeTag + 5'd1;
             end
+        end
+    end
+
+    // Instruction Packet Construction
+    always_comb begin
+        instructionPacket1 = '0;
+        instructionPacket2 = '0;
+        if (instructionConsumed1 && instructionConsumed2) begin
+            // Instruction 1 to ROB
+            instructionPacket1.programCounter = PC1;
+            instructionPacket1.destinationRegister = destinationRegister1;
+            instructionPacket1.ageTag = issue1AgeTag;
+            instructionPacket1.isStore = (tempPayload1.memoryOperation == MEM_STORE);
+            instructionPacket1.confirm = 1'd1;
+            // Instruction 2 to ROB
+            instructionPacket2.programCounter = PC2;
+            instructionPacket2.destinationRegister = destinationRegister2;
+            instructionPacket2.ageTag = issue2AgeTag;
+            instructionPacket2.isStore = (tempPayload2.memoryOperation == MEM_STORE);
+            instructionPacket2.confirm = 1'd1;
+        end else if (instructionConsumed1) begin
+            // Instruction 1 to ROB
+            instructionPacket1.programCounter = PC1;
+            instructionPacket1.destinationRegister = destinationRegister1;
+            instructionPacket1.ageTag = issue1AgeTag;
+            instructionPacket1.isStore = (tempPayload1.memoryOperation == MEM_STORE);
+            instructionPacket1.confirm = 1'd1;
         end
     end
 endmodule
