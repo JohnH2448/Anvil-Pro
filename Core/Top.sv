@@ -68,8 +68,8 @@ module Top (
         .completedMemory(), // input
         .completedInstruction1(), // input
         .completedInstruction2(), // input
-        .issuedInstruction1(), // input
-        .issuedInstruction2(), // input
+        .issuedInstruction1(instructionPacket1), // input
+        .issuedInstruction2(instructionPacket2), // input
 
         .resolvedInstruction1(resolvedInstruction1), // output
         .resolvedInstruction2(resolvedInstruction2), // output
