@@ -9,4 +9,4 @@ import Enumerations::*;
 // bus live to maintain transaction for ack.
 // actually with inter queue forwarding this may not be necissary.
 // unless theres a case im missing, rob doesnt need ack to commit stores
-// so longas the bus transaction holds until ack. 
+// so long as the bus transaction holds until ack. 

@@ -2,21 +2,6 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
-// Scoreboard Entry
-typedef struct packed {
-    logic isLoad;
-    logic [4:0] ageTag;
-    logic resultReady;
-    logic resultCommitted;
-} RegisterStatusEntry_;
-
-// Scoreboard Output
-typedef struct packed {
-    logic resultReady;
-    logic [4:0] ageTag;
-    logic resultCommitted;
-} RegisterStatusOutput_;
-
 module RegisterStatusTable (
 
     // Standard
@@ -116,13 +101,13 @@ module RegisterStatusTable (
                 registerStatusTable[rstDestinationRegister2].isLoad <= isLoad2;
                 registerStatusTable[rstDestinationRegister2].resultReady <= 1'd0;
                 registerStatusTable[rstDestinationRegister2].resultCommitted <= 1'd0;
-            end if (ready2) begin
+            end else if (ready2) begin
                 // Instruction Ready 2
                 if (registerStatusTable[readyRegister2].ageTag == readyAgeTag2) begin
                     registerStatusTable[readyRegister2].resultReady <= 1'd1;
                     registerStatusTable[readyRegister2].resultCommitted <= 1'd1;
                 end
-            end if (retire2) begin
+            end else if (retire2) begin
                 // Instruction Retired From ROB 2
                 if (registerStatusTable[retireRegister2].ageTag == retireAgeTag2) begin
                     registerStatusTable[retireRegister2].resultReady <= 1'd1;

@@ -91,6 +91,12 @@ module ReorderBuffer (
             freeSlots <= calculatedNextFreeSlots;
         end
     end
+
+    // Instruction Resolution
+    always_comb begin
+        
+    end
+
 endmodule
 
 // EX to EX bypass cross stage
