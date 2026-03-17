@@ -8,5 +8,7 @@ import Enumerations::*;
 // basically stall mem queue but forward to loads if needed. must keep
 // bus live to maintain transaction for ack.
 // actually with inter queue forwarding this may not be necissary.
-// unless theres a case im missing, rob doesnt need ack to commit stores
-// so long as the bus transaction holds until ack. 
+// unless theres a case im missing, rob doesnt need ack 
+
+// to start, rob will wait for ack. optimize later with above
+// StoreACK to ROB must be broadcast in this domain by Queue until next edge

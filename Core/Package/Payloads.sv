@@ -66,7 +66,6 @@ package Payloads;
         logic [1:0] memoryWidth;
         logic memorySigned;
         logic [4:0] ageTag;
-        logic valid;
     } UpperOperandExecutePayload_;
 
     // For Lower Slot 
@@ -78,7 +77,6 @@ package Payloads;
         JumpType_ jumpType;
         BranchType_ branchType;
         logic [4:0] ageTag;
-        logic valid;
     } LowerOperandExecutePayload_;
 
     // Upper Slot to Memory
@@ -89,14 +87,13 @@ package Payloads;
         logic [1:0] memoryWidth;
         logic memorySigned;
         logic [4:0] ageTag;
-        logic valid; // mem queue doesnt accept invalids
     } ExecuteMemoryPayload_;
 
     // Instruction from Pipeline to ROB
     typedef struct packed {
         logic [4:0] ageTag;
         logic [31:0] instructionResult;
-        logic valid;
+        logic accept;
     } InputInstruction_;
 
     // Instruction from Issuer to ROB
@@ -115,7 +112,7 @@ package Payloads;
         logic [4:0] destinationRegister;
         logic [4:0] ageTag;
         logic isStore;
-        logic resultsReady;
+        logic resultsReady; // On store ack, set high
     } QueueEntry_;
 
     // ROB Output to Regiser File
