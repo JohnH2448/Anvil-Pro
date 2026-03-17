@@ -30,7 +30,13 @@ module ReorderBuffer (
     input logic [4:0] upperTagIndex1,
     input logic [4:0] upperTagIndex2,
     input logic [4:0] lowerTagIndex1,
-    input logic [4:0] lowerTagIndex2
+    input logic [4:0] lowerTagIndex2,
+
+    // Forward Outputs
+    output logic [31:0] upperForward1,
+    output logic [31:0] upperForward2,
+    output logic [31:0] lowerForward1,
+    output logic [31:0] lowerForward2
 );
 
     // Retired Instructions Per Cycle
@@ -112,19 +118,27 @@ module ReorderBuffer (
         if ((entries > 5'd1) && reorderBuffer[0].resultsReady && reorderBuffer[1].resultsReady) begin
             // Commit Slot 0 and 1
             retireCount = 2'b10;
-            // Slot 0 Packet
-            if (reorderBuffer[0].destinationRegister != 5'd0) begin
-                resolvedInstruction1.ageTag = reorderBuffer[0].ageTag;
-                resolvedInstruction1.instructionResult = reorderBuffer[0].instructionResult;
-                resolvedInstruction1.destinationRegister = reorderBuffer[0].destinationRegister;
+            if ((reorderBuffer[0].destinationRegister != 5'd0) && (reorderBuffer[0].destinationRegister == reorderBuffer[1].destinationRegister)) begin
+                // Packet 1 Gets Packet 2 Data and Drops Packet 2 On Conflict
+                resolvedInstruction1.ageTag = reorderBuffer[1].ageTag;
+                resolvedInstruction1.instructionResult = reorderBuffer[1].instructionResult;
+                resolvedInstruction1.destinationRegister = reorderBuffer[1].destinationRegister;
                 resolvedInstruction1.valid = 1'd1; 
-            end
-            // Slot 1 Packet
-            if (reorderBuffer[1].destinationRegister != 5'd0) begin
-                resolvedInstruction2.ageTag = reorderBuffer[1].ageTag;
-                resolvedInstruction2.instructionResult = reorderBuffer[1].instructionResult;
-                resolvedInstruction2.destinationRegister = reorderBuffer[1].destinationRegister;
-                resolvedInstruction2.valid = 1'd1; 
+            end else begin
+                // Slot 0 Packet
+                if (reorderBuffer[0].destinationRegister != 5'd0) begin
+                    resolvedInstruction1.ageTag = reorderBuffer[0].ageTag;
+                    resolvedInstruction1.instructionResult = reorderBuffer[0].instructionResult;
+                    resolvedInstruction1.destinationRegister = reorderBuffer[0].destinationRegister;
+                    resolvedInstruction1.valid = 1'd1; 
+                end
+                // Slot 1 Packet
+                if (reorderBuffer[1].destinationRegister != 5'd0) begin
+                    resolvedInstruction2.ageTag = reorderBuffer[1].ageTag;
+                    resolvedInstruction2.instructionResult = reorderBuffer[1].instructionResult;
+                    resolvedInstruction2.destinationRegister = reorderBuffer[1].destinationRegister;
+                    resolvedInstruction2.valid = 1'd1; 
+                end
             end
         end else if ((entries > 5'd0) && reorderBuffer[0].resultsReady) begin
             // Commit Slot 0
@@ -158,9 +172,42 @@ module ReorderBuffer (
         end
     end
 
+    // Index Grid Builder for Forwarding
+    logic forwardGrid [0:15][0:3];
+    logic [4:0] ageVector;
+    always_comb begin
+        for (int row=0; row<4; row++) begin
+            // Select Correct Age Vector
+            unique case (row)
+                0: ageVector = upperTagIndex1;
+                1: ageVector = upperTagIndex2;
+                2: ageVector = lowerTagIndex1;
+                3: ageVector = lowerTagIndex2;
+            endcase
+            // Loop Over ROB and Build Grid
+            for (int index=0; index<16; index++) begin
+                forwardGrid[index][row] =
+                    (index < int'(entries)) &&
+                    (reorderBuffer[index].ageTag == ageVector);
+            end
+        end
+    end
+
     // Forward Quad Index Unit
     always_comb begin
-        
+        upperForward1 = '0;
+        upperForward2 = '0;
+        lowerForward1 = '0;
+        lowerForward2 = '0;
+
+        // Pulls Unique 1 From Each Row and Grabs Value 
+        for (int index = 0; index < 16; index++) begin
+            if (forwardGrid[index][0]) upperForward1 = reorderBuffer[index].instructionResult;
+            if (forwardGrid[index][1]) upperForward2 = reorderBuffer[index].instructionResult;
+            if (forwardGrid[index][2]) lowerForward1 = reorderBuffer[index].instructionResult;
+            if (forwardGrid[index][3]) lowerForward2 = reorderBuffer[index].instructionResult;
+        end
+
     end
 
 endmodule
@@ -197,4 +244,3 @@ endmodule
 // the only forwarding path should be both EX to both OS assuming no slot0/1 dependenceis
 // age tag system so I dont need to actually flush in pipeline
 // rst can only clear
-
