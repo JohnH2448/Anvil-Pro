@@ -206,11 +206,3 @@ module Top (
     );
 
 endmodule
-
-    // ROB Output to Regiser File
-    typedef struct packed {
-        logic [31:0] instructionResult;
-        logic [4:0] destinationRegister;
-        logic [4:0] ageTag;
-        logic valid;
-    } RetiredInstruction_;

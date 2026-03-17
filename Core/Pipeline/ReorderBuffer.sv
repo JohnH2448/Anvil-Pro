@@ -21,7 +21,16 @@ module ReorderBuffer (
     output logic triggerStore,
 
     // Issuer Control Signals For Decisions
-    output logic [4:0] nextFreeSlots
+    output logic [4:0] nextFreeSlots,
+
+    // Store ACK
+    input logic storeACK,
+
+    // Quad Index Forward Requests From OS
+    input logic [4:0] upperTagIndex1,
+    input logic [4:0] upperTagIndex2,
+    input logic [4:0] lowerTagIndex1,
+    input logic [4:0] lowerTagIndex2
 );
 
     // Retired Instructions Per Cycle
@@ -93,6 +102,63 @@ module ReorderBuffer (
     end
 
     // Instruction Resolution
+    logic [4:0] entries;
+    assign entries = 5'd16 - freeSlots;
+    always_comb begin
+        resolvedInstruction1 = '0;
+        resolvedInstruction2 = '0;
+        retireCount = 2'b00;
+        triggerStore = 1'd0;
+        if ((entries > 5'd1) && reorderBuffer[0].resultsReady && reorderBuffer[1].resultsReady) begin
+            // Commit Slot 0 and 1
+            retireCount = 2'b10;
+            // Slot 0 Packet
+            if (reorderBuffer[0].destinationRegister != 5'd0) begin
+                resolvedInstruction1.ageTag = reorderBuffer[0].ageTag;
+                resolvedInstruction1.instructionResult = reorderBuffer[0].instructionResult;
+                resolvedInstruction1.destinationRegister = reorderBuffer[0].destinationRegister;
+                resolvedInstruction1.valid = 1'd1; 
+            end
+            // Slot 1 Packet
+            if (reorderBuffer[1].destinationRegister != 5'd0) begin
+                resolvedInstruction2.ageTag = reorderBuffer[1].ageTag;
+                resolvedInstruction2.instructionResult = reorderBuffer[1].instructionResult;
+                resolvedInstruction2.destinationRegister = reorderBuffer[1].destinationRegister;
+                resolvedInstruction2.valid = 1'd1; 
+            end
+        end else if ((entries > 5'd0) && reorderBuffer[0].resultsReady) begin
+            // Commit Slot 0
+            retireCount = 2'b01;
+            // Slot 0 Packet
+            if (reorderBuffer[0].destinationRegister != 5'd0) begin
+                resolvedInstruction1.ageTag = reorderBuffer[0].ageTag;
+                resolvedInstruction1.instructionResult = reorderBuffer[0].instructionResult;
+                resolvedInstruction1.destinationRegister = reorderBuffer[0].destinationRegister;
+                resolvedInstruction1.valid = 1'd1; 
+            end
+        end else if ((entries > 5'd0) && reorderBuffer[0].isStore) begin
+            // Launch Store
+            triggerStore = 1'd1;
+        end
+    end
+
+    // Store ACK FSM
+    logic outgoingStore;
+    always_ff @(posedge clock) begin
+        if (reset) begin
+            outgoingStore <= 1'd0;
+        end else begin
+            if (triggerStore && !outgoingStore) begin
+                outgoingStore <= 1'd1;
+            end
+            if (outgoingStore && storeACK) begin
+                outgoingStore <= 1'd0;
+                reorderBuffer[0].resultsReady <= 1'd1;
+            end
+        end
+    end
+
+    // Forward Quad Index Unit
     always_comb begin
         
     end

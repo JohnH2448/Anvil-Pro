@@ -185,14 +185,15 @@ module DecodeIssue (
             end
             // Block WAW To Simplify Forwarding/RST Logic, Can Be Relaxed Later
             if (destinationRegister1 == destinationRegister2) begin
-                block2 = 1'b1;
+                block2 = 1'b1; 
             end
-            // Block Slot 0 + Slot 1 Dependencies, Can Be Relaxed with Bypass Logic Later
-            if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0) || 
-            (tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0) ||
-            (tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) ||
-            (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0)) begin
-                block2 = 1'b1;
+            // Slot 0/1 Dependency Param Gated Generator
+            if (!crossLaneExBypass) begin : BYPASS_PARAM
+                // Block Slot 0 + Slot 1 Dependencies
+                if ((tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) ||
+                (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0)) begin
+                    block2 = 1'b1;
+                end
             end
             // Block Dual Redirects
             if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType != JUMP_NONE) && 
