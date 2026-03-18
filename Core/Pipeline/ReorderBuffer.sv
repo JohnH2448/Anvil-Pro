@@ -195,6 +195,7 @@ module ReorderBuffer (
 
     // Forward Quad Index Unit
     always_comb begin
+
         upperForward1 = '0;
         upperForward2 = '0;
         lowerForward1 = '0;
@@ -211,6 +212,8 @@ module ReorderBuffer (
     end
 
 endmodule
+
+// Potential Incoming from Ex Bypass to OS. Basically Ex/OS Forwarding But Logic is Here
 
 // EX to EX bypass cross stage
 // forward else
