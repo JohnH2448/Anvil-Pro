@@ -1,5 +1,7 @@
 # Anvil-Pro: A Superscalar RISC-V Processor
 ![Pipeline](Docs/Pipeline.png)
+
+---
 ## Overview
 Anvil-Pro is a dual-issue RISC-V RV32I + Zicsr softcore targeting FPGA platforms. The core supports M-mode execution, a strict Harvard memory architecture, and a Wishbone Classic data interface for external memory integration.
 
@@ -18,6 +20,7 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - Store / Load Buffering + Queue
 - 6-Stage Pipeline
 
+---
 ## Frontend
 ### Fetch Methodology
 Anvil-Pro’s front end is designed to sustain a 2-wide issue demand while minimizing redirect penalty and keeping FPGA fabric cost low. Sharing an external instruction interface with the DMEM subsystem was evaluated and rejected: bus arbitration and protocol state add latency, introduce additional control complexity, and reduce deterministic control of fetch timing. Instead, Anvil-Pro uses a strict Harvard organization. IMEM is implemented as inferred synchronous BRAM, allowing instruction fetch to run independently of LSU traffic.
@@ -65,7 +68,7 @@ The issuer guarantees that any dispatched instruction group satisfies the follow
 # prevents age wise forwarding
 - No Write-after-Write hazards in a cycle
 ```
-
+---
 ## Backend
 Anvil-Pro contains a relatively simple backend compared to other implementations. It features two pipelines, each with an operand-selection stage and an execute stage. Depending on the operation type, these stages feed either the reorder buffer or a unified memory queue.
 
