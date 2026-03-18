@@ -67,5 +67,9 @@ The issuer guarantees that any dispatched instruction group satisfies the follow
 ```
 
 ## Backend
+Anvil-Pro contains a relatively simple backend compared to other implementations. It features two pipelines, each with an operand-selection stage and an execute stage. Depending on the operation type, these stages feed either the reorder buffer or a unified memory queue.
 
+The memory queue is buffered and non-blocking, which allows the pipelines to continue flowing even while older operations remain queued. This is enabled by a simplified out-of-order mechanism, even though the overall design remains conceptually in-order. In particular, the reorder buffer is used both to track forwarding and to guarantee in-order commit, allowing the design to maintain correctness while supporting a buffered memory queue.
+
+Operations issue under the assumption that stall conditions do not occur, and that slot 0 is always older than slot 1. As a result, the forwarding logic is relatively simple. With EX/EX bypass disabled, each source register has three possible forwarding sources. The operand-select mux checks the RST to determine whether data should come from the register file, the ROB entry indicated by the age tag, slot 1 execute, or slot 2 execute. This avoids excessive fanout and FPGA routing complexity while still preserving correct age-ordered data selection.
 
