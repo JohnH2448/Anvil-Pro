@@ -63,8 +63,6 @@ The issuer guarantees that any dispatched instruction group satisfies the follow
 - No slot 0 + slot 1 dependencies
 # Ensures all instructions are valid
 - No slot 1 issues when badData flag is active
-# Simplifies redirect conflicts
-- No same cycle dual redirect issues
 # prevents age wise forwarding
 - No Write-after-Write hazards in a cycle
 ```
