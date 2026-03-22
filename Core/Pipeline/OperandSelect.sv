@@ -106,7 +106,10 @@ module OperandSelect (
         lowerOperand2 = '0;
 
         // Upper Source Register 1
-        if (upperSource1Status.resultCommitted) begin
+        if (payload1.sourceRegister1 == 5'd0) begin
+            // Hardwire x0 to Zero
+            upperOperand1 = 32'd0;
+        end else if (upperSource1Status.resultCommitted) begin
             // Use Fresh Register Data
             upperOperand1 = upperData1;
         end else if (upperSource1Status.resultReady) begin
@@ -121,7 +124,10 @@ module OperandSelect (
         end
 
         // Upper Source Register 2
-        if (upperSource2Status.resultCommitted) begin
+        if (payload1.sourceRegister2 == 5'd0) begin
+            // Hardwire x0 to Zero
+            upperOperand2 = 32'd0;
+        end else if (upperSource2Status.resultCommitted) begin
             // Use Fresh Register Data
             upperOperand2 = upperData2;
         end else if (upperSource2Status.resultReady) begin
@@ -136,7 +142,10 @@ module OperandSelect (
         end
 
         // Lower Source Register 1
-        if (lowerSource1Status.resultCommitted) begin
+        if (payload2.sourceRegister1 == 5'd0) begin
+            // Hardwire x0 to Zero
+            lowerOperand1 = 32'd0;
+        end else if (lowerSource1Status.resultCommitted) begin
             // Use Fresh Register Data
             lowerOperand1 = lowerData1;
         end else if (lowerSource1Status.resultReady) begin
@@ -151,7 +160,10 @@ module OperandSelect (
         end
 
         // Lower Source Register 2
-        if (lowerSource2Status.resultCommitted) begin
+        if (payload2.sourceRegister2 == 5'd0) begin
+            // Hardwire x0 to Zero
+            lowerOperand2 = 32'd0;
+        end else if (lowerSource2Status.resultCommitted) begin
             // Use Fresh Register Data
             lowerOperand2 = lowerData2;
         end else if (lowerSource2Status.resultReady) begin

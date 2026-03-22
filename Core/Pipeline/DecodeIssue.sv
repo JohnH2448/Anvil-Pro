@@ -218,6 +218,11 @@ module DecodeIssue (
             if (lowerInFlightLoad1 || lowerInFlightLoad2 || destRegLoad2) begin
                 block2 = 1'b1;
             end
+            // Block Issue On Backwards Slot 0/1 Dependency to Fix RST Ownership Problems
+            if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0) ||
+                (tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
+                block2 = 1'b1;
+                end
         end else begin
             block1 = 1'b1;
             block2 = 1'b1;
