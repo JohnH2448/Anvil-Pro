@@ -86,7 +86,7 @@ module RegisterStatusTable (
                 // Instruction Ready 1
                 if (registerStatusTable[readyRegister1].ageTag == readyAgeTag1) begin
                     registerStatusTable[readyRegister1].resultReady <= 1'd1;
-                    registerStatusTable[readyRegister1].resultCommitted <= 1'd1;
+                    registerStatusTable[readyRegister1].resultCommitted <= 1'd0;
                 end
             end else if (retire1) begin
                 // Instruction Retired From ROB 1
@@ -105,7 +105,7 @@ module RegisterStatusTable (
                 // Instruction Ready 2
                 if (registerStatusTable[readyRegister2].ageTag == readyAgeTag2) begin
                     registerStatusTable[readyRegister2].resultReady <= 1'd1;
-                    registerStatusTable[readyRegister2].resultCommitted <= 1'd1;
+                    registerStatusTable[readyRegister2].resultCommitted <= 1'd0;
                 end
             end else if (retire2) begin
                 // Instruction Retired From ROB 2
