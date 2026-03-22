@@ -63,8 +63,6 @@ The issuer guarantees that any dispatched instruction group satisfies the follow
 - No slot 0 + slot 1 dependencies
 # Ensures all instructions are valid
 - No slot 1 issues when badData flag is active
-# Simplifies redirect conflicts
-- No same cycle dual redirect issues
 # prevents age wise forwarding
 - No Write-after-Write hazards in a cycle
 ```
@@ -74,5 +72,5 @@ Anvil-Pro contains a relatively simple backend compared to other implementations
 
 The memory queue is buffered and non-blocking, which allows the pipelines to continue flowing even while older operations remain queued. This is enabled by a simplified out-of-order mechanism, even though the overall design remains conceptually in-order. In particular, the reorder buffer is used both to track forwarding and to guarantee in-order commit, allowing the design to maintain correctness while supporting a buffered memory queue.
 
-Operations issue under the assumption that stall conditions do not occur, and that slot 0 is always older than slot 1. As a result, the forwarding logic is relatively simple. With EX/EX bypass disabled, each source register has three possible forwarding sources. The operand-select mux checks the RST to determine whether data should come from the register file, the ROB entry indicated by the age tag, slot 1 execute, or slot 2 execute. This avoids excessive fanout and FPGA routing complexity while still preserving correct age-ordered data selection.
+Operations issue under the assumption that stall conditions do not occur, and that slot 0 is always older than slot 1. As a result, the forwarding logic is relatively simple. With EX/EX bypass disabled, each source register has four possible data sources. The operand-select mux checks the RST to determine whether data should come from the register file, the ROB entry indicated by the age tag, slot 1 execute, and finally slot 0 execute. This avoids excessive fanout and FPGA routing complexity while still preserving correct age-ordered data selection.
 
