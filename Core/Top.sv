@@ -48,6 +48,32 @@ module Top (
     IssuedIntruction_ instructionPacket1;
     IssuedIntruction_ instructionPacket2;
 
+    // Operand Select Outputs
+    logic [4:0] upperSourceRegister1;
+    logic [4:0] upperSourceRegister2;
+    logic [4:0] lowerSourceRegister1;
+    logic [4:0] lowerSourceRegister2;
+    logic [4:0] upperAddress1;
+    logic [4:0] upperAddress2;
+    logic [4:0] lowerAddress1;
+    logic [4:0] lowerAddress2;
+    logic [4:0] upperTagIndex1;
+    logic [4:0] upperTagIndex2;
+    logic [4:0] lowerTagIndex1;
+    logic [4:0] lowerTagIndex2;
+
+    // Register File Outputs
+    logic [31:0] upperSourceData1;
+    logic [31:0] upperSourceData2;
+    logic [31:0] lowerSourceData1;
+    logic [31:0] lowerSourceData2;
+
+    // Reorder Buffer Outputs
+    logic [31:0] upperROBData1;
+    logic [31:0] upperROBData2;
+    logic [31:0] lowerROBData1;
+    logic [31:0] lowerROBData2;
+
     // Walking Window Outputs
     logic [31:0] lowFetchAddress;
     logic [31:0] highFetchAddress;
@@ -75,7 +101,19 @@ module Top (
         .resolvedInstruction2(resolvedInstruction2), // output
         .triggerStore(triggerStore), // output
 
-        .nextFreeSlots(nextFreeSlots) // output
+        .nextFreeSlots(nextFreeSlots), // output
+
+        .storeACK(), // input
+
+        .upperTagIndex1(upperTagIndex1), // input
+        .upperTagIndex2(upperTagIndex2), // input
+        .lowerTagIndex1(lowerTagIndex1), // input
+        .lowerTagIndex2(lowerTagIndex2), // input
+
+        .upperForward1(upperROBData1), // output
+        .upperForward2(upperROBData2), // output
+        .lowerForward1(lowerROBData1), // output
+        .lowerForward2(lowerROBData2) // output
     );
 
     RegisterStatusTable registerStatusTable (
@@ -83,10 +121,10 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
 
-        .upperSourceRegister1(), // input
-        .upperSourceRegister2(), // input
-        .lowerSourceRegister1(), // input
-        .lowerSourceRegister2(), // input
+        .upperSourceRegister1(upperSourceRegister1), // input
+        .upperSourceRegister2(upperSourceRegister2), // input
+        .lowerSourceRegister1(lowerSourceRegister1), // input
+        .lowerSourceRegister2(lowerSourceRegister2), // input
 
         .upperSource1Status(upperSource1Status), // output
         .upperSource2Status(upperSource2Status), // output
@@ -127,6 +165,72 @@ module Top (
         .readyRegister2(), // input
         .readyAgeTag1(), // input
         .readyAgeTag2() // input
+    );
+
+    RegisterFile registerFile (
+
+        .clock(clock), // input
+        .reset(reset), // input
+
+        .upperSourceRegister1(upperAddress1), // input
+        .upperSourceRegister2(upperAddress2), // input
+        .lowerSourceRegister1(lowerAddress1), // input
+        .lowerSourceRegister2(lowerAddress2), // input
+
+        .upperSourceData1(upperSourceData1), // output
+        .upperSourceData2(upperSourceData2), // output
+        .lowerSourceData1(lowerSourceData1), // output
+        .lowerSourceData2(lowerSourceData2), // output
+
+        .resolvedInstruction1(resolvedInstruction1), // input
+        .resolvedInstruction2(resolvedInstruction2) // input
+    );
+
+    OperandSelect operandSelect (
+
+        .clock(clock), // input
+        .reset(reset), // input
+
+        .upperSourceRegister1(upperSourceRegister1), // output
+        .upperSourceRegister2(upperSourceRegister2), // output
+        .lowerSourceRegister1(lowerSourceRegister1), // output
+        .lowerSourceRegister2(lowerSourceRegister2), // output
+
+        .upperSource1Status(upperSource1Status), // input
+        .upperSource2Status(upperSource2Status), // input
+        .lowerSource1Status(lowerSource1Status), // input
+        .lowerSource2Status(lowerSource2Status), // input
+
+        .upperAddress1(upperAddress1), // output
+        .upperAddress2(upperAddress2), // output
+        .lowerAddress1(lowerAddress1), // output
+        .lowerAddress2(lowerAddress2), // output
+
+        .upperData1(upperSourceData1), // input
+        .upperData2(upperSourceData2), // input
+        .lowerData1(lowerSourceData1), // input
+        .lowerData2(lowerSourceData2), // input
+
+        .upperTagIndex1(upperTagIndex1), // output
+        .upperTagIndex2(upperTagIndex2), // output
+        .lowerTagIndex1(lowerTagIndex1), // output
+        .lowerTagIndex2(lowerTagIndex2), // output
+
+        .upperROBData1(upperROBData1), // input
+        .upperROBData2(upperROBData2), // input
+        .lowerROBData1(lowerROBData1), // input
+        .lowerROBData2(lowerROBData2), // input
+
+        .upperExData(), // input
+        .lowerExData(), // input
+        .upperExTag(), // input
+        .lowerExTag(), // input
+
+        .payload1(payload1), // input
+        .payload2(payload2), // input
+
+        .exPayload1(), // output
+        .exPayload2() // output
     );
 
     DecodeIssue decodeIssue (

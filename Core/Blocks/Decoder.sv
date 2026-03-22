@@ -141,7 +141,7 @@ module Decoder (
             OPCODE_BRANCH: begin
                 payload.sourceRegister1 = instruction[19:15];
                 payload.sourceRegister2 = instruction[24:20];
-                payload.aluSource = ALU_RS1_IMM;
+                payload.aluSource = ALU_RS1_RS2;
                 payload.immediate = {{19{instruction[31]}}, instruction[31], instruction[7], instruction[30:25], instruction[11:8], 1'b0};
                 // Branch Type Decoding
                 case (instruction[14:12])

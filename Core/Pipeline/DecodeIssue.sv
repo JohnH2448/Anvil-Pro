@@ -239,19 +239,28 @@ module DecodeIssue (
         if (instructionConsumed1 && instructionConsumed2) begin
             // Upper Payload
             finalUpperPayload = tempPayload1;
-            finalUpperPayload.ageTag <= issue1AgeTag;
+            finalUpperPayload.ageTag = issue1AgeTag;
+            finalUpperPayload.valid = 1'd1;
             // Lower Payload Splice
-            finalLowerPayload.programCounter <= tempPayload2.programCounter;
-            finalLowerPayload.sourceRegister1 <= tempPayload2.sourceRegister1;
-            finalLowerPayload.sourceRegister2 <= tempPayload2.sourceRegister2;
-            finalLowerPayload.immediate <= tempPayload2.immediate;
-            finalLowerPayload.aluSource <= tempPayload2.aluSource;
-            finalLowerPayload.branchType <= tempPayload2.branchType;
-            finalLowerPayload.aluOperation <= tempPayload2.aluOperation;
-            finalLowerPayload.jumpType <= tempPayload2.jumpType;
-            finalLowerPayload.ageTag <= issue2AgeTag;
+            finalLowerPayload.programCounter = tempPayload2.programCounter;
+            finalLowerPayload.sourceRegister1 = tempPayload2.sourceRegister1;
+            finalLowerPayload.sourceRegister2 = tempPayload2.sourceRegister2;
+            finalLowerPayload.immediate = tempPayload2.immediate;
+            finalLowerPayload.aluSource = tempPayload2.aluSource;
+            finalLowerPayload.branchType = tempPayload2.branchType;
+            finalLowerPayload.aluOperation = tempPayload2.aluOperation;
+            finalLowerPayload.jumpType = tempPayload2.jumpType;
+            finalLowerPayload.ageTag = issue2AgeTag;
+            finalLowerPayload.valid = 1'd1;
         end else if (instructionConsumed1) begin
-            // Can be removed
+            // Upper Payload
+            finalUpperPayload = tempPayload1;
+            finalUpperPayload.ageTag = issue1AgeTag;
+            finalUpperPayload.valid = 1'd1;
+            // Lower Payload
+            finalLowerPayload = '0;
+        end else begin
+            // Invalidate Both
             finalUpperPayload = '0;
             finalLowerPayload = '0;
         end
@@ -264,11 +273,11 @@ module DecodeIssue (
             issue2AgeTag <= 5'd1;
         end else begin
             if (instructionConsumed1 && instructionConsumed2) begin
-                issue1AgeTag = issue1AgeTag + 5'd2;
-                issue2AgeTag = issue2AgeTag + 5'd2;
+                issue1AgeTag <= issue1AgeTag + 5'd2;
+                issue2AgeTag <= issue2AgeTag + 5'd2;
             end else if (instructionConsumed1) begin
-                issue1AgeTag = issue1AgeTag + 5'd1;
-                issue2AgeTag = issue2AgeTag + 5'd1;
+                issue1AgeTag <= issue1AgeTag + 5'd1;
+                issue2AgeTag <= issue2AgeTag + 5'd1;
             end
         end
     end
@@ -299,6 +308,13 @@ module DecodeIssue (
             instructionPacket1.confirm = 1'd1;
         end
     end
+
+    // Instruction Payload Assignment
+    always_ff @(posedge clock) begin
+        payload1 <= finalUpperPayload;
+        payload2 <= finalLowerPayload;
+    end
+
 endmodule
 
 // ============ ISSUER MUST ============
@@ -309,6 +325,7 @@ endmodule
 // Memory Queue must have space for new memory ops
 // Assess Memory Queue fullness as x-1 to accomindate in flight
 // slot 1 can never be to an non-ready rd MAYBE?????
+// One CSR in pipe at a time
 
 // no slot 1 slot 2 dependencies is VERY restrictive and kills IPC
 // potential solutions:
