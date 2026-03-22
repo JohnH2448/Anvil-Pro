@@ -39,6 +39,7 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         logic [4:0] ageTag;
+        logic valid;
     } UpperIssuerOperandPayload_;
 
     // For Lower Slot
@@ -52,6 +53,7 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         logic [4:0] ageTag;
+        logic valid;
     } LowerIssuerOperandPayload_;
 
     // For Upper Slot with Memory Support
@@ -66,6 +68,7 @@ package Payloads;
         logic [1:0] memoryWidth;
         logic memorySigned;
         logic [4:0] ageTag;
+        logic valid;
     } UpperOperandExecutePayload_;
 
     // For Lower Slot 
@@ -77,6 +80,7 @@ package Payloads;
         JumpType_ jumpType;
         BranchType_ branchType;
         logic [4:0] ageTag;
+        logic valid;
     } LowerOperandExecutePayload_;
 
     // Upper Slot to Memory
