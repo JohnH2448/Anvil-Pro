@@ -259,10 +259,12 @@ module DecodeIssue (
         if (instructionConsumed1 && instructionConsumed2) begin
             // Upper Payload
             finalUpperPayload = tempPayload1;
+            finalUpperPayload.destinationRegister = destinationRegister1;
             finalUpperPayload.ageTag = issue1AgeTag;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload Splice
             finalLowerPayload.programCounter = tempPayload2.programCounter;
+            finalLowerPayload.destinationRegister = destinationRegister2;
             finalLowerPayload.sourceRegister1 = tempPayload2.sourceRegister1;
             finalLowerPayload.sourceRegister2 = tempPayload2.sourceRegister2;
             finalLowerPayload.immediate = tempPayload2.immediate;
@@ -276,6 +278,7 @@ module DecodeIssue (
         end else if (instructionConsumed1) begin
             // Upper Payload
             finalUpperPayload = tempPayload1;
+            finalUpperPayload.destinationRegister = destinationRegister1;
             finalUpperPayload.ageTag = issue1AgeTag;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload

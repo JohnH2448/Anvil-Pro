@@ -245,6 +245,7 @@ module OperandSelect (
         // Instruction 1 Passthrough Assignments
         exPayloadCandidate1.aluOperation = payload1.aluOperation;
         exPayloadCandidate1.jumpType = payload1.jumpType;
+        exPayloadCandidate1.destinationRegister = payload1.destinationRegister;
         exPayloadCandidate1.branchType = payload1.branchType;
         exPayloadCandidate1.memoryOperation = payload1.memoryOperation;
         exPayloadCandidate1.memoryWidth = payload1.memoryWidth;
@@ -255,6 +256,7 @@ module OperandSelect (
         // Instruction 2 Passthrough Assignments
         exPayloadCandidate2.aluOperation = payload2.aluOperation;
         exPayloadCandidate2.jumpType = payload2.jumpType;
+        exPayloadCandidate2.destinationRegister = payload2.destinationRegister;
         exPayloadCandidate2.branchType = payload2.branchType;
         exPayloadCandidate2.ageTag = payload2.ageTag;
         exPayloadCandidate2.valid = payload2.valid;
