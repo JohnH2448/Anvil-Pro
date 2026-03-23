@@ -41,6 +41,7 @@ module WalkingWindow (
     // Outgoing Addressed Window
     logic [31:0] lastLowWindow;
     logic [31:0] lastHighWindow;
+    integer debugCycle;
 
     // Automatic Window Logic
     assign lowFetchAddress = {programCounter[31:4], 4'b0000};
@@ -49,9 +50,13 @@ module WalkingWindow (
     // PC Control Block
     always_ff @(posedge clock) begin
         if (reset || redirect) begin
+            if (reset) begin
+                debugCycle <= 0;
+            end
             // PC Alteration on External Signal
             programCounter <= reset ? resetVector : redirectVector;
         end else begin
+            debugCycle <= debugCycle + 1;
             // Logical PC Incriminting
             if (instructionConsumed1 && instructionConsumed2) begin
                 programCounter <= programCounter + 32'd8;
@@ -126,6 +131,25 @@ module WalkingWindow (
             badData = 1'd1;
         end else begin
             badData = 1'd0;
+        end
+    end
+
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            $display(
+                "\n=== Fetch Cycle %0d ===\npc=%08h req1=%08h req2=%08h lowAddr=%08h highAddr=%08h bad=%0b\ninst1=%08h inst2=%08h consume1=%0b consume2=%0b",
+                debugCycle,
+                programCounter,
+                requestPC1,
+                requestPC2,
+                lowFetchAddress,
+                highFetchAddress,
+                badData,
+                instruction1,
+                instruction2,
+                instructionConsumed1,
+                instructionConsumed2
+            );
         end
     end
 endmodule

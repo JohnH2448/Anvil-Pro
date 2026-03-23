@@ -33,6 +33,7 @@ module Execute (
     logic redirect2;
     logic illegal1;
     logic illegal2;
+    integer debugCycle;
 
     // Redirect Priority Logic
     assign redirect = (redirect1 && !illegal1) || (redirect2 && !illegal2);
@@ -50,6 +51,8 @@ module Execute (
         // Base Assignments
         upperOperand1 = exPayload1.operand1;
         upperOperand2 = exPayload1.operand2;
+        result1 = '0;
+        result2 = '0;
         // Ex/Ex Bypass Gen Logic
         if (!crossLaneExBypass) begin
             lowerOperand1 = exPayload2.operand1;
@@ -187,6 +190,38 @@ module Execute (
             end else begin
                 resultPayload2.instructionResult = result2;
             end
+        end
+    end
+
+    always_ff @(posedge clock) begin
+        if (reset) begin
+            debugCycle <= 0;
+        end else begin
+            debugCycle <= debugCycle + 1;
+            $display(
+                "\n=== Execute Cycle %0d ===\nslot0 valid=%0b rd=x%02d tag=%02d op1=%08h op2=%08h result=%08h accept=%0b wb=%08h\nslot1 valid=%0b rd=x%02d tag=%02d op1=%08h op2=%08h result=%08h accept=%0b wb=%08h\nredirect=%0b vector=%08h illegal=(%0b,%0b)",
+                debugCycle,
+                exPayload1.valid,
+                exPayload1.destinationRegister,
+                exPayload1.ageTag,
+                upperOperand1,
+                upperOperand2,
+                result1,
+                resultPayload1.accept,
+                resultPayload1.instructionResult,
+                exPayload2.valid,
+                exPayload2.destinationRegister,
+                exPayload2.ageTag,
+                lowerOperand1,
+                lowerOperand2,
+                result2,
+                resultPayload2.accept,
+                resultPayload2.instructionResult,
+                redirect,
+                redirectVector,
+                illegal1,
+                illegal2
+            );
         end
     end
 
