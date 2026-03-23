@@ -173,16 +173,18 @@ module ReorderBuffer (
     end
 
     // Index Grid Builder for Forwarding
-    logic forwardGrid [0:15][0:3];
+    logic forwardGrid [0:15][0:5];
     logic [4:0] ageVector;
     always_comb begin
-        for (int row=0; row<4; row++) begin
+        for (int row=0; row<6; row++) begin
             // Select Correct Age Vector
             unique case (row)
                 0: ageVector = upperTagIndex1;
                 1: ageVector = upperTagIndex2;
                 2: ageVector = lowerTagIndex1;
                 3: ageVector = lowerTagIndex2;
+                4: ageVector = completedInstruction1.ageTag;
+                5: ageVector = completedInstruction2.ageTag;
             endcase
             // Loop Over ROB and Build Grid
             for (int index=0; index<16; index++) begin
@@ -209,6 +211,22 @@ module ReorderBuffer (
             if (forwardGrid[index][3]) lowerForward2 = reorderBuffer[index].instructionResult;
         end
 
+    end
+
+    // Write Ready Data to Correct Next Slot 
+    logic [4:0] nextOffsetIndex;
+    always_ff @(posedge clock) begin
+        nextOffsetIndex = {3'b000, retireCount};
+        for (logic [4:0] index = 5'd0; index < 5'd16; index++) begin
+            if (completedInstruction1.accept && forwardGrid[index][4]) begin
+                reorderBuffer[index - nextOffsetIndex].instructionResult <= completedInstruction1.instructionResult;
+                reorderBuffer[index - nextOffsetIndex].resultsReady <= 1'd1;
+            end
+            if (completedInstruction2.accept && forwardGrid[index][5]) begin
+                reorderBuffer[index - nextOffsetIndex].instructionResult <= completedInstruction2.instructionResult;
+                reorderBuffer[index - nextOffsetIndex].resultsReady <= 1'd1;
+            end
+        end
     end
 
 endmodule

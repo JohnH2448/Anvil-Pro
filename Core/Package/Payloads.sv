@@ -31,6 +31,7 @@ package Payloads;
         logic [4:0] sourceRegister2;
         logic [4:0] sourceRegister1;
         logic [31:0] immediate;
+        logic [4:0] destinationRegister;
         AluSource_ aluSource;
         MemoryOperation_ memoryOperation;
         logic [1:0] memoryWidth;
@@ -48,6 +49,7 @@ package Payloads;
         logic [4:0] sourceRegister2;
         logic [4:0] sourceRegister1;
         logic [31:0] immediate;
+        logic [4:0] destinationRegister;
         AluSource_ aluSource;
         BranchType_ branchType; 
         AluOperation_ aluOperation;
@@ -62,6 +64,7 @@ package Payloads;
         logic [31:0] operand1;
         logic [31:0] operand2;
         logic [31:0] extraField; // branch target, store data, etc
+        logic [4:0] destinationRegister;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         BranchType_ branchType;
@@ -77,6 +80,7 @@ package Payloads;
         logic [31:0] operand1;
         logic [31:0] operand2;
         logic [31:0] extraField; // branch target, store data, etc
+        logic [4:0] destinationRegister;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         BranchType_ branchType;
@@ -92,6 +96,7 @@ package Payloads;
         MemoryOperation_ memoryOperation;
         logic [1:0] memoryWidth;
         logic memorySigned;
+        logic [4:0] destinationRegister;
         logic [4:0] ageTag;
     } ExecuteMemoryPayload_;
 
@@ -99,6 +104,7 @@ package Payloads;
     typedef struct packed {
         logic [4:0] ageTag;
         logic [31:0] instructionResult;
+        logic [4:0] destinationRegister;
         logic accept;
     } InputInstruction_;
 

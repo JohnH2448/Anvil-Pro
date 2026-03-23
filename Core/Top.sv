@@ -15,6 +15,10 @@ module Top (
     RetiredInstruction_ resolvedInstruction2;
     logic triggerStore;
     logic [4:0] nextFreeSlots;
+    logic [31:0] upperROBData1;
+    logic [31:0] upperROBData2;
+    logic [31:0] lowerROBData1;
+    logic [31:0] lowerROBData2;
 
     // Register Status Table Outputs
     RegisterStatusOutput_ upperSource1Status;
@@ -49,6 +53,8 @@ module Top (
     IssuedIntruction_ instructionPacket2;
 
     // Operand Select Outputs
+    UpperOperandExecutePayload_ exPayload1;
+    LowerOperandExecutePayload_ exPayload2;
     logic [4:0] upperSourceRegister1;
     logic [4:0] upperSourceRegister2;
     logic [4:0] lowerSourceRegister1;
@@ -68,11 +74,12 @@ module Top (
     logic [31:0] lowerSourceData1;
     logic [31:0] lowerSourceData2;
 
-    // Reorder Buffer Outputs
-    logic [31:0] upperROBData1;
-    logic [31:0] upperROBData2;
-    logic [31:0] lowerROBData1;
-    logic [31:0] lowerROBData2;
+    // Execute Outputs
+    InputInstruction_ resultPayload1;
+    InputInstruction_ resultPayload2;
+    ExecuteMemoryPayload_ memPayload;
+    logic redirect;
+    logic [31:0] redirectVector;
 
     // Walking Window Outputs
     logic [31:0] lowFetchAddress;
@@ -92,8 +99,8 @@ module Top (
         .reset(reset), // input
 
         .completedMemory(), // input
-        .completedInstruction1(), // input
-        .completedInstruction2(), // input
+        .completedInstruction1(resultPayload1), // input
+        .completedInstruction2(resultPayload2), // input
         .issuedInstruction1(instructionPacket1), // input
         .issuedInstruction2(instructionPacket2), // input
 
@@ -159,12 +166,12 @@ module Top (
         .retireAgeTag1(resolvedInstruction1.ageTag), // input
         .retireAgeTag2(resolvedInstruction2.ageTag), // input
 
-        .ready1(), // input
-        .ready2(), // input
-        .readyRegister1(), // input
-        .readyRegister2(), // input
-        .readyAgeTag1(), // input
-        .readyAgeTag2() // input
+        .ready1(resultPayload1.accept), // input
+        .ready2(resultPayload2.accept), // input
+        .readyRegister1(resultPayload1.destinationRegister), // input
+        .readyRegister2(resultPayload2.destinationRegister), // input
+        .readyAgeTag1(resultPayload1.ageTag), // input
+        .readyAgeTag2(resultPayload2.ageTag) // input
     );
 
     RegisterFile registerFile (
@@ -190,6 +197,9 @@ module Top (
 
         .clock(clock), // input
         .reset(reset), // input
+
+        .redirect(redirect), // input
+        .redirectVector(redirectVector), // input
 
         .upperSourceRegister1(upperSourceRegister1), // output
         .upperSourceRegister2(upperSourceRegister2), // output
@@ -221,16 +231,33 @@ module Top (
         .lowerROBData1(lowerROBData1), // input
         .lowerROBData2(lowerROBData2), // input
 
-        .upperExData(), // input
-        .lowerExData(), // input
-        .upperExTag(), // input
-        .lowerExTag(), // input
+        .upperExData(resultPayload1.instructionResult), // input
+        .lowerExData(resultPayload2.instructionResult), // input
+        .upperExTag(resultPayload1.ageTag), // input
+        .lowerExTag(resultPayload2.ageTag), // input
 
         .payload1(payload1), // input
         .payload2(payload2), // input
 
-        .exPayload1(), // output
-        .exPayload2() // output
+        .exPayload1(exPayload1), // output
+        .exPayload2(exPayload2) // output
+    );
+
+    Execute execute (
+
+        .clock(clock), // input
+        .reset(reset), // input
+
+        .redirect(redirect), // output
+        .redirectVector(redirectVector), // output
+
+        .exPayload1(exPayload1), // input
+        .exPayload2(exPayload2), // input
+
+        .memPayload(memPayload), // output
+
+        .resultPayload1(resultPayload1), // output
+        .resultPayload2(resultPayload2) // output
     );
 
     DecodeIssue decodeIssue (
@@ -238,8 +265,8 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
 
-        .redirect(), // input
-        .redirectVector(), // input
+        .redirect(redirect), // input
+        .redirectVector(redirectVector), // input
 
         .instruction1(instruction1), // input
         .instruction2(instruction2), // input
@@ -282,8 +309,8 @@ module Top (
     WalkingWindow walkingWindow (
         .clock(clock), // input
         .reset(reset), // input
-        .redirect(), // input
-        .redirectVector(), // input
+        .redirect(redirect), // input
+        .redirectVector(redirectVector), // input
         .lowFetchData(lowFetchData), // input
         .highFetchData(highFetchData), // input
         .lowFetchAddress(lowFetchAddress), // output
@@ -301,8 +328,8 @@ module Top (
     InstructionMemory instructionMemory (
         .clock(clock), // input
         .reset(reset), // input
-        .redirect(), // input
-        .redirectVector(), // input
+        .redirect(redirect), // input
+        .redirectVector(redirectVector), // input
         .readAddressA(lowFetchAddress), // input
         .readDataA(lowFetchData), // output
         .readAddressB(highFetchAddress), // input

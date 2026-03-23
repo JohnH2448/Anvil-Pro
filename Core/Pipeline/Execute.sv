@@ -31,19 +31,19 @@ module Execute (
     logic [31:0] redirectVector2;
     logic redirect1;
     logic redirect2;
+    logic illegal1;
+    logic illegal2;
 
     // Redirect Priority Logic
-    assign redirect = redirect1 || redirect2;
-    assign redirectVector = redirect1 ? exPayload1.extraField : 
-    (redirect2 ? exPayload2.extraField : 32'd0);
+    assign redirect = (redirect1 && !illegal1) || (redirect2 && !illegal2);
+    assign redirectVector = (redirect1 && !illegal1) ? redirectVector1 : 
+    ((redirect2 && !illegal2) ? redirectVector2 : 32'd0);
 
     // Extra Signals
     logic [31:0] upperOperand1;
     logic [31:0] upperOperand2;
     logic [31:0] lowerOperand1;
     logic [31:0] lowerOperand2;
-
- 
 
     // Result Calculations
     always_comb begin
@@ -88,34 +88,104 @@ module Execute (
 
     // Redirect Calculations
     always_comb begin
-        if (decodeExecutePayload.valid && !executeMemoryControl.flush) begin
-            unique case (decodeExecutePayload.branchType)
-                BR_EQ: redirect = (brOp1 == brOp2);
-                BR_NE: redirect = (brOp1 != brOp2);
-                BR_LT: redirect = ($signed(brOp1) < $signed(brOp2));
-                BR_GE: redirect = ($signed(brOp1) >= $signed(brOp2));
-                BR_LTU: redirect = (brOp1 < brOp2);
-                BR_GEU: redirect = (brOp1 >= brOp2);
-                default: ;
+        illegal1 = 1'd0;
+        illegal2 = 1'd0;
+
+        // Upper Branch Eval, Illegal Gate, and JALR Mask
+        redirect1 = 1'd0;
+        redirectVector1 = exPayload1.extraField;
+        if (exPayload1.valid) begin
+            // Branch Evaluation
+            unique case (exPayload1.branchType)
+                BR_NONE: ;
+                BR_EQ: redirect1 = (upperOperand1 == upperOperand2);
+                BR_NE: redirect1 = (upperOperand1 != upperOperand2);
+                BR_LT: redirect1 = ($signed(upperOperand1) < $signed(upperOperand2));
+                BR_GE: redirect1 = ($signed(upperOperand1) >= $signed(upperOperand2));
+                BR_LTU: redirect1 = (upperOperand1 < upperOperand2);
+                BR_GEU: redirect1 = (upperOperand1 >= upperOperand2);
             endcase
-            unique case (decodeExecutePayload.jumpType)
-                default:;
-                JUMP_JAL: redirect = 1'd1;
-                JUMP_JALR: begin
-                    redirect = 1'd1;
-                end
+            // Jump Evaluation
+            unique case (exPayload1.jumpType)
+                JUMP_NONE: ;
+                JUMP_JAL: redirect1 = 1'd1;
+                JUMP_JALR: redirect1 = 1'd1;
             endcase
         end else begin
-            redirect = 1'd0;
+            redirect1 = 1'd0;
         end
-        if ((decodeExecutePayload.jumpType != JUMP_NONE || decodeExecutePayload.branchType != BR_NONE) && (decodeExecutePayload.valid == 1'b1) && (redirect == 1'd1) && (decodeExecutePayload.trapPayload.trapType == NONE)) begin
-            if (decodeExecutePayload.jumpType == JUMP_JALR) begin
-                branchData = {exPayload1.extraField[31:1], 1'b0};
+        // JALR Mask and Misalignment Detection
+        if ((exPayload1.jumpType != JUMP_NONE || exPayload1.branchType != BR_NONE) && exPayload1.valid) begin
+            if (exPayload1.jumpType == JUMP_JALR) begin
+                redirectVector1 = {result1[31:1], 1'b0};
             end else begin
-                branchData = exPayload1.extraField;
+                redirectVector1 = result1;
             end
-            if (branchData[1:0] != 2'b00) begin 
-                illegal = 1'b1;
+            if (redirectVector1[1:0] != 2'b00) begin 
+                illegal1 = 1'b1;
+            end
+        end
+
+        // Lower Branch Eval, Illegal Gate, and JALR Mask
+        redirect2 = 1'd0;
+        redirectVector2 = exPayload2.extraField;
+        if (exPayload2.valid) begin
+            // Branch Evaluation
+            unique case (exPayload2.branchType)
+                BR_NONE: ;
+                BR_EQ: redirect2 = (lowerOperand1 == lowerOperand2);
+                BR_NE: redirect2 = (lowerOperand1 != lowerOperand2);
+                BR_LT: redirect2 = ($signed(lowerOperand1) < $signed(lowerOperand2));
+                BR_GE: redirect2 = ($signed(lowerOperand1) >= $signed(lowerOperand2));
+                BR_LTU: redirect2 = (lowerOperand1 < lowerOperand2);
+                BR_GEU: redirect2 = (lowerOperand1 >= lowerOperand2);
+            endcase
+            // Jump Evaluation
+            unique case (exPayload2.jumpType)
+                JUMP_NONE: ;
+                JUMP_JAL: redirect2 = 1'd1;
+                JUMP_JALR: redirect2 = 1'd1;
+            endcase
+        end else begin
+            redirect2 = 1'd0;
+        end
+        // JALR Mask and Misalignment Detection
+        if ((exPayload2.jumpType != JUMP_NONE || exPayload2.branchType != BR_NONE) && exPayload2.valid) begin
+            if (exPayload2.jumpType == JUMP_JALR) begin
+                redirectVector2 = {result2[31:1], 1'b0};
+            end else begin
+                redirectVector2 = result2;
+            end
+            if (redirectVector2[1:0] != 2'b00) begin 
+                illegal2 = 1'b1;
+            end
+        end
+    end
+
+    // Packet Construction
+    always_comb begin
+        // Packet 1
+        resultPayload1 = '0;
+        if (exPayload1.valid) begin
+            resultPayload1.accept = 1'd1;
+            resultPayload1.ageTag = exPayload1.ageTag;
+            resultPayload1.destinationRegister = exPayload1.destinationRegister;
+            if (exPayload1.jumpType != JUMP_NONE) begin
+                resultPayload1.instructionResult = exPayload1.extraField;
+            end else begin
+                resultPayload1.instructionResult = result1;
+            end
+        end
+        // Packet 2
+        resultPayload2 = '0;
+        if (exPayload2.valid) begin
+            resultPayload2.accept = 1'd1;
+            resultPayload2.ageTag = exPayload2.ageTag;
+            resultPayload2.destinationRegister = exPayload2.destinationRegister;
+            if (exPayload2.jumpType != JUMP_NONE) begin
+                resultPayload2.instructionResult = exPayload2.extraField;
+            end else begin
+                resultPayload2.instructionResult = result2;
             end
         end
     end
