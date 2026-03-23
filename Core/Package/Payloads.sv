@@ -53,6 +53,7 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         logic [4:0] ageTag;
+        logic [1:0] bypassEnable;
         logic valid;
     } LowerIssuerOperandPayload_;
 
@@ -80,6 +81,7 @@ package Payloads;
         JumpType_ jumpType;
         BranchType_ branchType;
         logic [4:0] ageTag;
+        logic [1:0] bypassEnable;
         logic valid;
     } LowerOperandExecutePayload_;
 
