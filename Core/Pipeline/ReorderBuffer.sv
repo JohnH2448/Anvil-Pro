@@ -41,6 +41,7 @@ module ReorderBuffer (
 
     // Retired Instructions Per Cycle
     logic [1:0] retireCount;
+    integer debugCycle;
 
     // Full Buffer Declaration
     QueueEntry_ reorderBuffer [0:15];
@@ -61,11 +62,13 @@ module ReorderBuffer (
     always_ff @(posedge clock) begin
         // Reset Clear
         if (reset) begin
+            debugCycle <= 0;
             for (int i=0; i<16; i++) begin
                 reorderBuffer[i] <= '0;
             end
             freeSlots <= 5'd16;
         end else begin
+            debugCycle <= debugCycle + 1;
             // Queue Steps
             unique case (retireCount)
                 // No Retirement
@@ -226,6 +229,31 @@ module ReorderBuffer (
                 reorderBuffer[index - nextOffsetIndex].instructionResult <= completedInstruction2.instructionResult;
                 reorderBuffer[index - nextOffsetIndex].resultsReady <= 1'd1;
             end
+        end
+    end
+
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            $display(
+                "\n=== ROB Cycle %0d ===\nentries=%0d free=%0d retire=%0d tail=%0d store=%0b ack=%0b\n[00] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[01] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[02] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[03] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[04] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[05] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[06] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[07] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[08] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[09] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[10] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[11] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[12] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[13] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[14] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n[15] pc=%08h rd=x%02d tag=%02d ready=%0b store=%0b data=%08h\n",
+                debugCycle, entries, freeSlots, retireCount, nextTailPointer, triggerStore, storeACK,
+                reorderBuffer[0].programCounter, reorderBuffer[0].destinationRegister, reorderBuffer[0].ageTag, reorderBuffer[0].resultsReady, reorderBuffer[0].isStore, reorderBuffer[0].instructionResult,
+                reorderBuffer[1].programCounter, reorderBuffer[1].destinationRegister, reorderBuffer[1].ageTag, reorderBuffer[1].resultsReady, reorderBuffer[1].isStore, reorderBuffer[1].instructionResult,
+                reorderBuffer[2].programCounter, reorderBuffer[2].destinationRegister, reorderBuffer[2].ageTag, reorderBuffer[2].resultsReady, reorderBuffer[2].isStore, reorderBuffer[2].instructionResult,
+                reorderBuffer[3].programCounter, reorderBuffer[3].destinationRegister, reorderBuffer[3].ageTag, reorderBuffer[3].resultsReady, reorderBuffer[3].isStore, reorderBuffer[3].instructionResult,
+                reorderBuffer[4].programCounter, reorderBuffer[4].destinationRegister, reorderBuffer[4].ageTag, reorderBuffer[4].resultsReady, reorderBuffer[4].isStore, reorderBuffer[4].instructionResult,
+                reorderBuffer[5].programCounter, reorderBuffer[5].destinationRegister, reorderBuffer[5].ageTag, reorderBuffer[5].resultsReady, reorderBuffer[5].isStore, reorderBuffer[5].instructionResult,
+                reorderBuffer[6].programCounter, reorderBuffer[6].destinationRegister, reorderBuffer[6].ageTag, reorderBuffer[6].resultsReady, reorderBuffer[6].isStore, reorderBuffer[6].instructionResult,
+                reorderBuffer[7].programCounter, reorderBuffer[7].destinationRegister, reorderBuffer[7].ageTag, reorderBuffer[7].resultsReady, reorderBuffer[7].isStore, reorderBuffer[7].instructionResult,
+                reorderBuffer[8].programCounter, reorderBuffer[8].destinationRegister, reorderBuffer[8].ageTag, reorderBuffer[8].resultsReady, reorderBuffer[8].isStore, reorderBuffer[8].instructionResult,
+                reorderBuffer[9].programCounter, reorderBuffer[9].destinationRegister, reorderBuffer[9].ageTag, reorderBuffer[9].resultsReady, reorderBuffer[9].isStore, reorderBuffer[9].instructionResult,
+                reorderBuffer[10].programCounter, reorderBuffer[10].destinationRegister, reorderBuffer[10].ageTag, reorderBuffer[10].resultsReady, reorderBuffer[10].isStore, reorderBuffer[10].instructionResult,
+                reorderBuffer[11].programCounter, reorderBuffer[11].destinationRegister, reorderBuffer[11].ageTag, reorderBuffer[11].resultsReady, reorderBuffer[11].isStore, reorderBuffer[11].instructionResult,
+                reorderBuffer[12].programCounter, reorderBuffer[12].destinationRegister, reorderBuffer[12].ageTag, reorderBuffer[12].resultsReady, reorderBuffer[12].isStore, reorderBuffer[12].instructionResult,
+                reorderBuffer[13].programCounter, reorderBuffer[13].destinationRegister, reorderBuffer[13].ageTag, reorderBuffer[13].resultsReady, reorderBuffer[13].isStore, reorderBuffer[13].instructionResult,
+                reorderBuffer[14].programCounter, reorderBuffer[14].destinationRegister, reorderBuffer[14].ageTag, reorderBuffer[14].resultsReady, reorderBuffer[14].isStore, reorderBuffer[14].instructionResult,
+                reorderBuffer[15].programCounter, reorderBuffer[15].destinationRegister, reorderBuffer[15].ageTag, reorderBuffer[15].resultsReady, reorderBuffer[15].isStore, reorderBuffer[15].instructionResult
+            );
         end
     end
 

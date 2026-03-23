@@ -66,6 +66,7 @@ module OperandSelect (
     // Dummy Candidate Payloads
     UpperOperandExecutePayload_ exPayloadCandidate1;
     LowerOperandExecutePayload_ exPayloadCandidate2;
+    integer debugCycle;
 
     // Register Values
     logic [31:0] upperOperand1;
@@ -266,8 +267,45 @@ module OperandSelect (
 
     // Final Assignment
     always_ff @(posedge clock) begin
+        if (reset) begin
+            debugCycle <= 0;
+        end else begin
+            debugCycle <= debugCycle + 1;
+        end
         exPayload1 <= exPayloadCandidate1;
         exPayload2 <= exPayloadCandidate2;
+    end
+
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            $display(
+                "\n=== Operand Select Cycle %0d ===\nslot0 rs1=x%02d rs2=x%02d op1=%08h op2=%08h rd=x%02d tag=%02d valid=%0b rob=(%08h,%08h) ex=(%08h,%08h)\nslot1 rs1=x%02d rs2=x%02d op1=%08h op2=%08h rd=x%02d tag=%02d valid=%0b bypass=%02b rob=(%08h,%08h) ex=(%08h,%08h)",
+                debugCycle,
+                payload1.sourceRegister1,
+                payload1.sourceRegister2,
+                exPayloadCandidate1.operand1,
+                exPayloadCandidate1.operand2,
+                exPayloadCandidate1.destinationRegister,
+                exPayloadCandidate1.ageTag,
+                exPayloadCandidate1.valid,
+                upperROBData1,
+                upperROBData2,
+                upperExData,
+                lowerExData,
+                payload2.sourceRegister1,
+                payload2.sourceRegister2,
+                exPayloadCandidate2.operand1,
+                exPayloadCandidate2.operand2,
+                exPayloadCandidate2.destinationRegister,
+                exPayloadCandidate2.ageTag,
+                exPayloadCandidate2.valid,
+                exPayloadCandidate2.bypassEnable,
+                lowerROBData1,
+                lowerROBData2,
+                upperExData,
+                lowerExData
+            );
+        end
     end
 
 endmodule

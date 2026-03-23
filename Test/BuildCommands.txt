@@ -3,11 +3,13 @@ verilator -Wall -Wno-fatal \
   Core/Package/Configuration.sv \
   Core/Package/Enumerations.sv \
   Core/Package/Payloads.sv \
-  Test/Subsystems/FetchTest.sv \
+  Test/Subsystems/PipelineTest.sv \
+  Core/Blocks/*.sv \
+  Core/Control/*.sv \
   Core/Memory/*.sv \
   Core/Pipeline/*.sv \
   --top-module Top \
-  --exe Test/Harnesses/FetchTestHarness.cpp \
+  --exe Test/Harnesses/PipelineTest.cpp \
   --Mdir Verilator
 
 export PATH=/usr/bin:/bin:$PATH
