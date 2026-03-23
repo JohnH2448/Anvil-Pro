@@ -171,14 +171,21 @@ module DecodeIssue (
     // Issuer Helper Signals
     logic block1;
     logic block2;
+    logic [1:0] bypassEnable;
 
     // Issuer Contract Logic
     always_comb begin
         // Zero Initialize
         block1 = 1'b0;
         block2 = 1'b0;
+        bypassEnable = 2'b00;
         // Both Instructions Valid
         if (instructionsValid) begin
+            // FOR TESTING ONLY
+            if (IR1 == 32'hdead_beef || IR2 == 32'hdead_beef) begin
+                block1 = 1'b0;
+                block2 = 1'b0;
+            end
             // Memory Ops Must Always Issue in Slot 0
             if (tempPayload2.memoryOperation != MEM_NONE) begin
                 block2 = 1'b1;
@@ -193,6 +200,14 @@ module DecodeIssue (
                 if ((tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) ||
                 (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0)) begin
                     block2 = 1'b1;
+                end
+            end else begin
+                // Ex/Ex Bypass Bits
+                if (tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) begin
+                    bypassEnable[0] = 1'd1;
+                end
+                if (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0) begin
+                    bypassEnable[1] = 1'd1;
                 end
             end
             // Block Dual Redirects
@@ -256,6 +271,7 @@ module DecodeIssue (
             finalLowerPayload.aluOperation = tempPayload2.aluOperation;
             finalLowerPayload.jumpType = tempPayload2.jumpType;
             finalLowerPayload.ageTag = issue2AgeTag;
+            finalLowerPayload.bypassEnable = bypassEnable;
             finalLowerPayload.valid = 1'd1;
         end else if (instructionConsumed1) begin
             // Upper Payload

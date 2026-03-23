@@ -8,6 +8,10 @@ module OperandSelect (
     input logic clock,
     input logic reset,
 
+    // Control Signals MUST IMPLIMENT
+    input logic redirect,
+    input logic [31:0] redirectVector,
+
     // Read From RST
     output logic [4:0] upperSourceRegister1,
     output logic [4:0] upperSourceRegister2,
@@ -254,6 +258,7 @@ module OperandSelect (
         exPayloadCandidate2.branchType = payload2.branchType;
         exPayloadCandidate2.ageTag = payload2.ageTag;
         exPayloadCandidate2.valid = payload2.valid;
+        exPayloadCandidate2.bypassEnable = payload2.bypassEnable;
 
     end
 
