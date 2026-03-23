@@ -49,22 +49,47 @@ Under strict in-order issue, issue refusal and traditional stall models exhibit 
 ### Issuer Contract
 The issuer guarantees that any dispatched instruction group satisfies the following invariants:
 ```bash
-# Dramaticly simplifies control and forward logic
+# Dramatically simplifies control and forwarding logic
 - Slot 0 must be older
+
 # For a single LSU, drain is the bottleneck rather than fill
 - LSU access must be through slot 0
-# Prevents stalls on full queue (x-1 = capacity)
-- Memory queue must have slots available including older in pipeline requests
-# Prevents stalls for arbitrary load times
-- No dependencies on unresolved loads
-# Mandatory to functionality
-- ROB must have slots available
- # Prevents double execute combinational path
-- No slot 0 + slot 1 dependencies
-# Ensures all instructions are valid
-- No slot 1 issues when badData flag is active
-# prevents age wise forwarding
+
+# Prevents structural hazards and dual-write ambiguity
 - No Write-after-Write hazards in a cycle
+
+# Prevents combinational dependency paths unless explicitly bypassed
+- No slot 1 dependencies on slot 0 unless EX bypass is enabled
+
+# Enables controlled forwarding instead of blocking
+- If EX bypass is enabled, slot 1 dependencies use explicit bypass signals
+
+# Prevents dual redirect ambiguity and control hazards
+- No simultaneous branch/jump in both slots
+
+# Prevents propagation of invalid fetch data
+- No slot 1 issue when badData flag is active
+
+# Prevents over-allocation of backend resources
+- ROB must have at least 2 free slots for dual issue
+
+# Prevents pipeline overcommit
+- If only 1 ROB slot is available, only slot 0 may issue
+
+# Hard stop when backend is full
+- If no ROB slots are available, no issue occurs
+
+# Prevents stalls from unresolved memory latency
+- No dependencies on unresolved loads (per-slot enforcement)
+
+# Prevents ownership and tracking conflicts in RST
+- No backward dependencies (slot 0 reading slot 1 destination)
+
+# Ensures structural legality of issued pair
+- Both instructions must be valid to issue
+
+# Slot 1 is opportunistic, not guaranteed
+- Slot 1 may issue only if all structural, hazard, and capacity rules are satisfied
 ```
 ---
 ## Backend
