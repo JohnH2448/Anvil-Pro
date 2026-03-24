@@ -134,24 +134,6 @@ module WalkingWindow (
         end
     end
 
-    always_ff @(posedge clock) begin
-        if (!reset) begin
-            $display(
-                "\n=== Fetch Cycle %0d ===\npc=%08h req1=%08h req2=%08h lowAddr=%08h highAddr=%08h bad=%0b\ninst1=%08h inst2=%08h consume1=%0b consume2=%0b",
-                debugCycle,
-                programCounter,
-                requestPC1,
-                requestPC2,
-                lowFetchAddress,
-                highFetchAddress,
-                badData,
-                instruction1,
-                instruction2,
-                instructionConsumed1,
-                instructionConsumed2
-            );
-        end
-    end
 endmodule
 
 // Only one case prevents bad data. PC in windows final slot, then two dual consumes

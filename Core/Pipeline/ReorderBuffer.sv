@@ -218,8 +218,8 @@ module ReorderBuffer (
 
     // Write Ready Data to Correct Next Slot 
     logic [4:0] nextOffsetIndex;
+    assign nextOffsetIndex = {3'b000, retireCount};
     always_ff @(posedge clock) begin
-        nextOffsetIndex = {3'b000, retireCount};
         for (logic [4:0] index = 5'd0; index < 5'd16; index++) begin
             if (completedInstruction1.accept && forwardGrid[index][4]) begin
                 reorderBuffer[index - nextOffsetIndex].instructionResult <= completedInstruction1.instructionResult;

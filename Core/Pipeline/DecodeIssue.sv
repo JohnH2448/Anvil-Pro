@@ -344,35 +344,6 @@ module DecodeIssue (
         payload2 <= finalLowerPayload;
     end
 
-    always_ff @(posedge clock) begin
-        if (!reset) begin
-            $display(
-                "\n=== Decode Cycle %0d ===\nvalid=%0b redirect=%0b bad=%0b free=%0d block1=%0b block2=%0b\nIR1=%08h PC1=%08h consume1=%0b rd1=x%02d tag1=%02d valid1=%0b\nIR2=%08h PC2=%08h consume2=%0b rd2=x%02d tag2=%02d valid2=%0b\nreq1=%08h req2=%08h",
-                debugCycle,
-                instructionsValid,
-                redirect,
-                internalBadData,
-                nextFreeSlots,
-                block1,
-                block2,
-                IR1,
-                PC1,
-                instructionConsumed1,
-                finalUpperPayload.destinationRegister,
-                finalUpperPayload.ageTag,
-                finalUpperPayload.valid,
-                IR2,
-                PC2,
-                instructionConsumed2,
-                finalLowerPayload.destinationRegister,
-                finalLowerPayload.ageTag,
-                finalLowerPayload.valid,
-                requestPC1,
-                requestPC2
-            );
-        end
-    end
-
 endmodule
 
 // ============ ISSUER MUST ============
