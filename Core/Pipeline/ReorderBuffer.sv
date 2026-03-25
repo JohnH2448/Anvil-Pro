@@ -157,7 +157,7 @@ module ReorderBuffer (
             // Launch Store
             triggerStore = 1'd1;
         end
-    end
+    end // also add unconditional commit on rd = x0
 
     // Store ACK FSM
     logic outgoingStore;
@@ -232,6 +232,7 @@ module ReorderBuffer (
         end
     end
 
+    /*
     always_ff @(posedge clock) begin
         if (!reset) begin
             $display(
@@ -256,10 +257,9 @@ module ReorderBuffer (
             );
         end
     end
+    */
 
 endmodule
-
-// Potential Incoming from Ex Bypass to OS. Basically Ex/OS Forwarding But Logic is Here
 
 // EX to EX bypass cross stage
 // forward else
@@ -267,9 +267,6 @@ endmodule
 // store buffer and forward to in progress loads
 // try and be conservative with issue rules
 // unified load and store memory queue
-// no dual branch issues
-// Wait for the head to be a store, 
-// then fire it, and then wait for it to come back, 
 // and only then continue to commit more
 // store uses completedMemory with rd = 0
 // for age tags distance = (B - A) mod ROB_SIZE

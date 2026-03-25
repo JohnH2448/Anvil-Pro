@@ -75,39 +75,60 @@ module RegisterStatusTable (
             end
         end else begin
             // Full State Bookkeeping Logic
-            // Issuer Writes
-            if (instructionConsumed1) begin
+            if (instructionConsumed1 &&
+                (!instructionConsumed2 || (rstDestinationRegister1 != rstDestinationRegister2))) begin
                 // New Issue 1 Write
                 registerStatusTable[rstDestinationRegister1].ageTag <= ageTag1;
                 registerStatusTable[rstDestinationRegister1].isLoad <= isLoad1;
                 registerStatusTable[rstDestinationRegister1].resultReady <= 1'd0;
                 registerStatusTable[rstDestinationRegister1].resultCommitted <= 1'd0;
-            end else if (ready1) begin
+            end
+            if (ready1 &&
+                (!instructionConsumed2 || (readyRegister1 != rstDestinationRegister2)) &&
+                (!instructionConsumed1 || (readyRegister1 != rstDestinationRegister1)) &&
+                (!ready2 || (readyRegister1 != readyRegister2))) begin
                 // Instruction Ready 1
                 if (registerStatusTable[readyRegister1].ageTag == readyAgeTag1) begin
                     registerStatusTable[readyRegister1].resultReady <= 1'd1;
                     registerStatusTable[readyRegister1].resultCommitted <= 1'd0;
                 end
-            end else if (retire1) begin
+            end
+
+            if (retire1 &&
+                (!instructionConsumed2 || (retireRegister1 != rstDestinationRegister2)) &&
+                (!instructionConsumed1 || (retireRegister1 != rstDestinationRegister1)) &&
+                (!ready2 || (retireRegister1 != readyRegister2)) &&
+                (!ready1 || (retireRegister1 != readyRegister1)) &&
+                (!retire2 || (retireRegister1 != retireRegister2))) begin
                 // Instruction Retired From ROB 1
                 if (registerStatusTable[retireRegister1].ageTag == retireAgeTag1) begin
                     registerStatusTable[retireRegister1].resultReady <= 1'd1;
                     registerStatusTable[retireRegister1].resultCommitted <= 1'd1;
                 end
             end
+
             if (instructionConsumed2) begin
                 // New Issue 2 Write
                 registerStatusTable[rstDestinationRegister2].ageTag <= ageTag2;
                 registerStatusTable[rstDestinationRegister2].isLoad <= isLoad2;
                 registerStatusTable[rstDestinationRegister2].resultReady <= 1'd0;
                 registerStatusTable[rstDestinationRegister2].resultCommitted <= 1'd0;
-            end else if (ready2) begin
+            end
+            if (ready2 &&
+                (!instructionConsumed2 || (readyRegister2 != rstDestinationRegister2)) &&
+                (!instructionConsumed1 || (readyRegister2 != rstDestinationRegister1))) begin
                 // Instruction Ready 2
                 if (registerStatusTable[readyRegister2].ageTag == readyAgeTag2) begin
                     registerStatusTable[readyRegister2].resultReady <= 1'd1;
                     registerStatusTable[readyRegister2].resultCommitted <= 1'd0;
                 end
-            end else if (retire2) begin
+            end
+
+            if (retire2 &&
+                (!instructionConsumed2 || (retireRegister2 != rstDestinationRegister2)) &&
+                (!instructionConsumed1 || (retireRegister2 != rstDestinationRegister1)) &&
+                (!ready2 || (retireRegister2 != readyRegister2)) &&
+                (!ready1 || (retireRegister2 != readyRegister1))) begin
                 // Instruction Retired From ROB 2
                 if (registerStatusTable[retireRegister2].ageTag == retireAgeTag2) begin
                     registerStatusTable[retireRegister2].resultReady <= 1'd1;

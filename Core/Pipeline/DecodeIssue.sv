@@ -177,6 +177,18 @@ module DecodeIssue (
     logic block1;
     logic block2;
     logic [1:0] bypassEnable;
+    logic reasonIllegal1;
+    logic reasonIllegal2;
+    logic reasonSlot1Memory;
+    logic reasonWawConflict;
+    logic reasonSlotDependency;
+    logic reasonDualRedirect;
+    logic reasonBadFetch;
+    logic reasonRobOneFree;
+    logic reasonRobFull;
+    logic reasonUpperLoadHazard;
+    logic reasonLowerLoadHazard;
+    logic reasonBackwardDependency;
 
     // Issuer Contract Logic
     always_comb begin
@@ -184,20 +196,40 @@ module DecodeIssue (
         block1 = 1'b0;
         block2 = 1'b0;
         bypassEnable = 2'b00;
+        reasonIllegal1 = 1'b0;
+        reasonIllegal2 = 1'b0;
+        reasonSlot1Memory = 1'b0;
+        reasonWawConflict = 1'b0;
+        reasonSlotDependency = 1'b0;
+        reasonDualRedirect = 1'b0;
+        reasonBadFetch = 1'b0;
+        reasonRobOneFree = 1'b0;
+        reasonRobFull = 1'b0;
+        reasonUpperLoadHazard = 1'b0;
+        reasonLowerLoadHazard = 1'b0;
+        reasonBackwardDependency = 1'b0;
         // Both Instructions Valid
         if (instructionsValid) begin
             // FOR TESTING ONLY
-            if (IR1 == 32'hdead_beef || IR2 == 32'hdead_beef) begin
-                block1 = 1'b0;
-                block2 = 1'b0;
+            if (illegal2) begin
+                block2 = 1'b1;
+                reasonIllegal2 = 1'b1;
+            end
+            // FOR TESTING ONLY
+            if (illegal1) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
+                reasonIllegal1 = 1'b1;
             end
             // Memory Ops Must Always Issue in Slot 0
             if (tempPayload2.memoryOperation != MEM_NONE) begin
                 block2 = 1'b1;
+                reasonSlot1Memory = 1'b1;
             end
             // Block WAW To Simplify Forwarding/RST Logic, Can Be Relaxed Later
             if (destinationRegister1 == destinationRegister2) begin
                 block2 = 1'b1; 
+                reasonWawConflict = 1'b1;
             end
             // Slot 0/1 Dependency Param Gated Generator
             if (!crossLaneExBypass) begin : BYPASS_PARAM
@@ -205,6 +237,7 @@ module DecodeIssue (
                 if ((tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) ||
                 (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0)) begin
                     block2 = 1'b1;
+                    reasonSlotDependency = 1'b1;
                 end
             end else begin
                 // Ex/Ex Bypass Bits
@@ -219,29 +252,37 @@ module DecodeIssue (
             if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType != JUMP_NONE) && 
                 (tempPayload2.branchType != BR_NONE || tempPayload2.jumpType != JUMP_NONE)) begin
                 block2 = 1'b1;
+                reasonDualRedirect = 1'b1;
             end
             // Block Issue on Bad Fetch
             if (internalBadData) begin
                 block2 = 1'd1;
+                reasonBadFetch = 1'b1;
             end
             // ROB Capacity Gating
             if (nextFreeSlots == 5'd1) begin
                 block2 = 1'b1;
+                reasonRobOneFree = 1'b1;
             end else if (nextFreeSlots == 5'd0) begin
                 block1 = 1'b1;
                 block2 = 1'b1;
+                reasonRobFull = 1'b1;
             end
             // Block Issue On Unready Load rs's or rd's. Calculated in RST
             if (upperInFlightLoad1 || upperInFlightLoad2 || destRegLoad1) begin
                 block1 = 1'b1;
+                block2 = 1'b1;
+                reasonUpperLoadHazard = 1'b1;
             end
             if (lowerInFlightLoad1 || lowerInFlightLoad2 || destRegLoad2) begin
                 block2 = 1'b1;
+                reasonLowerLoadHazard = 1'b1;
             end
             // Block Issue On Backwards Slot 0/1 Dependency to Fix RST Ownership Problems
             if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0) ||
                 (tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
                 block2 = 1'b1;
+                reasonBackwardDependency = 1'b1;
                 end
         end else begin
             block1 = 1'b1;
@@ -342,6 +383,42 @@ module DecodeIssue (
     always_ff @(posedge clock) begin
         payload1 <= finalUpperPayload;
         payload2 <= finalLowerPayload;
+    end
+
+    // Independent Issue Trace
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            if (instructionConsumed1 && instructionConsumed2) begin
+                $display("[DecodeIssue][cycle %0d] issued %08h and %08h", debugCycle, PC1, PC2);
+            end else if (instructionConsumed1) begin
+                $display("[DecodeIssue][cycle %0d] issued %08h", debugCycle, PC1);
+            end
+        end
+    end
+
+    // Independent Refusal Trace
+    always_ff @(posedge clock) begin
+        if (!reset && instructionsValid) begin
+            if (block1) begin
+                if (reasonIllegal1) $display("[DecodeIssue][cycle %0d] refusal slot0 pc=%08h ir=%08h: illegal instruction", debugCycle, PC1, IR1);
+                if (reasonRobFull) $display("[DecodeIssue][cycle %0d] refusal slot0 pc=%08h ir=%08h: ROB full", debugCycle, PC1, IR1);
+                if (reasonUpperLoadHazard) $display("[DecodeIssue][cycle %0d] refusal slot0 pc=%08h ir=%08h: unready load hazard", debugCycle, PC1, IR1);
+            end
+            if (block2) begin
+                if (reasonIllegal2) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: illegal instruction", debugCycle, PC2, IR2);
+                if (reasonIllegal1) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: blocked by slot0 illegal instruction", debugCycle, PC2, IR2);
+                if (reasonSlot1Memory) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: memory op must issue in slot0", debugCycle, PC2, IR2);
+                if (reasonWawConflict) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: WAW conflict", debugCycle, PC2, IR2);
+                if (reasonSlotDependency) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: slot0/slot1 dependency", debugCycle, PC2, IR2);
+                if (reasonDualRedirect) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: dual redirect", debugCycle, PC2, IR2);
+                if (reasonBadFetch) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: bad fetch window", debugCycle, PC2, IR2);
+                if (reasonRobOneFree) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: only one ROB slot free", debugCycle, PC2, IR2);
+                if (reasonRobFull) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: ROB full", debugCycle, PC2, IR2);
+                if (reasonUpperLoadHazard) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: blocked by slot0 load hazard", debugCycle, PC2, IR2);
+                if (reasonLowerLoadHazard) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: unready load hazard", debugCycle, PC2, IR2);
+                if (reasonBackwardDependency) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: backwards dependency", debugCycle, PC2, IR2);
+            end
+        end
     end
 
 endmodule

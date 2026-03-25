@@ -46,6 +46,10 @@ module Execute (
     logic [31:0] lowerOperand1;
     logic [31:0] lowerOperand2;
 
+    // Ex/Ex Bypass Gen Logic
+    assign lowerOperand1 = !crossLaneExBypass ? exPayload2.operand1 : exPayload2.bypassEnable[0] ? result1 : exPayload2.operand1;
+    assign lowerOperand2 = !crossLaneExBypass ? exPayload2.operand2 : exPayload2.bypassEnable[1] ? result1 : exPayload2.operand2;
+
     // Result Calculations
     always_comb begin
         // Base Assignments
@@ -53,14 +57,6 @@ module Execute (
         upperOperand2 = exPayload1.operand2;
         result1 = '0;
         result2 = '0;
-        // Ex/Ex Bypass Gen Logic
-        if (!crossLaneExBypass) begin
-            lowerOperand1 = exPayload2.operand1;
-            lowerOperand2 = exPayload2.operand2;
-        end else begin
-            lowerOperand1 = exPayload2.bypassEnable[0] ? result1 : exPayload2.operand1;
-            lowerOperand2 = exPayload2.bypassEnable[1] ? result1 : exPayload2.operand2;
-        end
         // Instruction 1 Result
         unique case (exPayload1.aluOperation)
             ALU_ADD: result1 = upperOperand1 + upperOperand2; 
@@ -121,7 +117,7 @@ module Execute (
         if ((exPayload1.jumpType != JUMP_NONE || exPayload1.branchType != BR_NONE) && exPayload1.valid) begin
             if (exPayload1.jumpType == JUMP_JALR) begin
                 redirectVector1 = {result1[31:1], 1'b0};
-            end else begin
+            end else if (exPayload1.jumpType == JUMP_JAL) begin
                 redirectVector1 = result1;
             end
             if (redirectVector1[1:0] != 2'b00) begin 
@@ -156,7 +152,7 @@ module Execute (
         if ((exPayload2.jumpType != JUMP_NONE || exPayload2.branchType != BR_NONE) && exPayload2.valid) begin
             if (exPayload2.jumpType == JUMP_JALR) begin
                 redirectVector2 = {result2[31:1], 1'b0};
-            end else begin
+            end else if (exPayload2.jumpType == JUMP_JAL) begin
                 redirectVector2 = result2;
             end
             if (redirectVector2[1:0] != 2'b00) begin 
@@ -189,6 +185,20 @@ module Execute (
                 resultPayload2.instructionResult = exPayload2.extraField;
             end else begin
                 resultPayload2.instructionResult = result2;
+            end
+        end
+    end
+
+    // Independent Execute Trace
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            if (exPayload1.valid) begin
+                $display("[Execute] slot0 op=%0d a=%08h b=%08h -> %08h",
+                    exPayload1.aluOperation, upperOperand1, upperOperand2, result1);
+            end
+            if (exPayload2.valid) begin
+                $display("[Execute] slot1 op=%0d a=%08h b=%08h -> %08h bypass=%02b",
+                    exPayload2.aluOperation, lowerOperand1, lowerOperand2, result2, exPayload2.bypassEnable);
             end
         end
     end
