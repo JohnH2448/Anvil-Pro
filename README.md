@@ -99,3 +99,5 @@ The memory queue is buffered and non-blocking, which allows the pipelines to con
 
 Operations issue under the assumption that stall conditions do not occur, and that slot 0 is always older than slot 1. As a result, the forwarding logic is relatively simple. With EX/EX bypass disabled, each source register has four possible data sources. The operand-select mux checks the RST to determine whether data should come from the register file, the ROB entry indicated by the age tag, slot 1 execute, and finally slot 0 execute. This avoids excessive fanout and FPGA routing complexity while still preserving correct age-ordered data selection.
 
+Additionally, if EX/EX bypass is enabled, data can also be forwarded directly from the output of slot 0's ALU to the input/s of slot 1's ALU.
+
