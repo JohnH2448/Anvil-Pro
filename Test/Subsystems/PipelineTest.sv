@@ -80,6 +80,8 @@ module Top (
     ExecuteMemoryPayload_ memPayload;
     logic redirect;
     logic [31:0] redirectVector;
+    logic redirect1;
+    logic redirect2;
 
     // Walking Window Outputs
     logic [31:0] lowFetchAddress;
@@ -97,6 +99,10 @@ module Top (
 
         .clock(clock), // input
         .reset(reset), // input
+
+        .redirect(redirect), // input
+        .redirect1(redirect1), // input
+        .redirect2(redirect2), // input
 
         .completedMemory(), // input
         .completedInstruction1(resultPayload1), // input
@@ -199,7 +205,6 @@ module Top (
         .reset(reset), // input
 
         .redirect(redirect), // input
-        .redirectVector(redirectVector), // input
 
         .upperSourceRegister1(upperSourceRegister1), // output
         .upperSourceRegister2(upperSourceRegister2), // output
@@ -251,6 +256,9 @@ module Top (
         .redirect(redirect), // output
         .redirectVector(redirectVector), // output
 
+        .redirect1(redirect1), // output
+        .redirect2(redirect2), // output
+
         .exPayload1(exPayload1), // input
         .exPayload2(exPayload2), // input
 
@@ -266,7 +274,6 @@ module Top (
         .reset(reset), // input
 
         .redirect(redirect), // input
-        .redirectVector(redirectVector), // input
 
         .instruction1(instruction1), // input
         .instruction2(instruction2), // input

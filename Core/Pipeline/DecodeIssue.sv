@@ -10,7 +10,6 @@ module DecodeIssue (
 
     // Control Signals
     input logic redirect,
-    input logic [31:0] redirectVector,
 
     // Instruction Inputs
     input logic [31:0] instruction1,
@@ -226,7 +225,7 @@ module DecodeIssue (
                 block2 = 1'b1;
                 reasonSlot1Memory = 1'b1;
             end
-            // Block WAW To Simplify Forwarding/RST Logic, Can Be Relaxed Later
+            // Block WAW To Simplify Forwarding/RST Logic
             if (destinationRegister1 == destinationRegister2) begin
                 block2 = 1'b1; 
                 reasonWawConflict = 1'b1;
@@ -247,12 +246,6 @@ module DecodeIssue (
                 if (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0) begin
                     bypassEnable[1] = 1'd1;
                 end
-            end
-            // Block Dual Redirects
-            if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType != JUMP_NONE) && 
-                (tempPayload2.branchType != BR_NONE || tempPayload2.jumpType != JUMP_NONE)) begin
-                block2 = 1'b1;
-                reasonDualRedirect = 1'b1;
             end
             // Block Issue on Bad Fetch
             if (internalBadData) begin
@@ -295,11 +288,13 @@ module DecodeIssue (
         // Instruction Consumption Descision
         instructionConsumed1 = 1'd0;
         instructionConsumed2 = 1'd0;
-        if (!block1 && !block2) begin
-            instructionConsumed1 = 1'd1;
-            instructionConsumed2 = 1'd1;
-        end else if (!block1) begin
-            instructionConsumed1 = 1'd1;
+        if (!reset && !redirect) begin
+            if (!block1 && !block2) begin
+                instructionConsumed1 = 1'd1;
+                instructionConsumed2 = 1'd1;
+            end else if (!block1) begin
+                instructionConsumed1 = 1'd1;
+            end
         end
         // Payload Construction
         if (instructionConsumed1 && instructionConsumed2) begin
@@ -433,8 +428,3 @@ endmodule
 // slot 1 can never be to an non-ready rd MAYBE?????
 // One CSR in pipe at a time
 
-// no slot 1 slot 2 dependencies is VERY restrictive and kills IPC
-// potential solutions:
-// weird data level check on carry chain length and forward if short
-// fix this later after timing analysis. more room if execute is short
-// gate by op type to determine speed?

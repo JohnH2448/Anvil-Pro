@@ -27,9 +27,12 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__instructionConsumed1;
         CData/*0:0*/ Top__DOT__instructionConsumed2;
         CData/*0:0*/ Top__DOT__redirect;
+        CData/*0:0*/ Top__DOT__redirect1;
+        CData/*0:0*/ Top__DOT__redirect2;
         CData/*0:0*/ Top__DOT__reorderBuffer__DOT__storeACK;
         CData/*1:0*/ Top__DOT__reorderBuffer__DOT__retireCount;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__freeSlots;
+        CData/*4:0*/ Top__DOT__reorderBuffer__DOT__calculatedNextFreeSlots;
         CData/*0:0*/ Top__DOT__reorderBuffer__DOT__outgoingStore;
         CData/*4:0*/ Top__DOT__decodeIssue__DOT__issue1AgeTag;
         CData/*4:0*/ Top__DOT__decodeIssue__DOT__issue2AgeTag;
@@ -40,11 +43,11 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__internalBadData;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__block1;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__block2;
+        CData/*1:0*/ Top__DOT__decodeIssue__DOT__bypassEnable;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonIllegal1;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonIllegal2;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonSlot1Memory;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonWawConflict;
-        CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonDualRedirect;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonBadFetch;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonRobOneFree;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__reasonRobFull;
@@ -63,6 +66,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ Top__DOT__programCounter;
         VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
         VlWide<4>/*127:0*/ Top__DOT__highFetchData;
+        IData/*31:0*/ Top__DOT__reorderBuffer__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__registerFile__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__execute__DOT__result1;
         IData/*31:0*/ Top__DOT__execute__DOT__result2;
@@ -76,12 +80,12 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ Top__DOT__decodeIssue__DOT__PC2;
         IData/*31:0*/ Top__DOT__decodeIssue__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__walkingWindow__DOT__lastLowWindow;
+    };
+    struct {
         IData/*31:0*/ Top__DOT__walkingWindow__DOT__lastHighWindow;
         IData/*31:0*/ Top__DOT__instructionMemory__DOT__redirectAddress;
         IData/*31:0*/ Top__DOT__instructionMemory__DOT__nextAddress;
         IData/*31:0*/ __VactIterCount;
-    };
-    struct {
         QData/*42:0*/ Top__DOT__resolvedInstruction1;
         QData/*42:0*/ Top__DOT__resolvedInstruction2;
         VlWide<4>/*100:0*/ Top__DOT__payload1;

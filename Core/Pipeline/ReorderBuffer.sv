@@ -8,6 +8,13 @@ module ReorderBuffer (
     input logic clock,
     input logic reset,
 
+    // Control Signals
+    input logic redirect,
+
+    // Redirect Metadata
+    input logic redirect1,
+    input logic redirect2,
+
     // Instruction Inputs
     input InputInstruction_ completedMemory,
     input InputInstruction_ completedInstruction1,
@@ -54,9 +61,14 @@ module ReorderBuffer (
     logic [4:0] nextTailPointer;
     assign nextTailPointer = 5'd16 - nextFreeSlots;
 
+    // Free Slots After Redirect 
+    logic [4:0] redirectFreeSlots;
+    logic [4:0] redirectNextTailPointer;
+    assign redirectFreeSlots = 5'd15 - redirectNextTailPointer;
+
     // Next Free Slots Signals
     logic [4:0] calculatedNextFreeSlots;
-    assign calculatedNextFreeSlots = freeSlots + {3'b000, retireCount} - 
+    assign calculatedNextFreeSlots = (redirect ? redirectFreeSlots : freeSlots) + {3'b000, retireCount} - 
         {4'b0000, issuedInstruction1.confirm} - {4'b0000, issuedInstruction2.confirm};
 
     always_ff @(posedge clock) begin
@@ -91,19 +103,21 @@ module ReorderBuffer (
                 end
             endcase
             // Accept Instructions
-            if (issuedInstruction1.confirm) begin
-                reorderBuffer[nextTailPointer].programCounter <= issuedInstruction1.programCounter;
-                reorderBuffer[nextTailPointer].destinationRegister <= issuedInstruction1.destinationRegister;
-                reorderBuffer[nextTailPointer].ageTag <= issuedInstruction1.ageTag;
-                reorderBuffer[nextTailPointer].isStore <= issuedInstruction1.isStore;
-                reorderBuffer[nextTailPointer].resultsReady <= 1'b0;
-            end
-            if (issuedInstruction2.confirm) begin
-                reorderBuffer[nextTailPointer + 5'd1].programCounter <= issuedInstruction2.programCounter;
-                reorderBuffer[nextTailPointer + 5'd1].destinationRegister <= issuedInstruction2.destinationRegister;
-                reorderBuffer[nextTailPointer + 5'd1].ageTag <= issuedInstruction2.ageTag;
-                reorderBuffer[nextTailPointer + 5'd1].isStore <= issuedInstruction2.isStore;
-                reorderBuffer[nextTailPointer + 5'd1].resultsReady <= 1'b0;
+            if (!redirect) begin
+                if (issuedInstruction1.confirm) begin
+                    reorderBuffer[nextTailPointer].programCounter <= issuedInstruction1.programCounter;
+                    reorderBuffer[nextTailPointer].destinationRegister <= issuedInstruction1.destinationRegister;
+                    reorderBuffer[nextTailPointer].ageTag <= issuedInstruction1.ageTag;
+                    reorderBuffer[nextTailPointer].isStore <= issuedInstruction1.isStore;
+                    reorderBuffer[nextTailPointer].resultsReady <= 1'b0;
+                end
+                if (issuedInstruction2.confirm) begin
+                    reorderBuffer[nextTailPointer + 5'd1].programCounter <= issuedInstruction2.programCounter;
+                    reorderBuffer[nextTailPointer + 5'd1].destinationRegister <= issuedInstruction2.destinationRegister;
+                    reorderBuffer[nextTailPointer + 5'd1].ageTag <= issuedInstruction2.ageTag;
+                    reorderBuffer[nextTailPointer + 5'd1].isStore <= issuedInstruction2.isStore;
+                    reorderBuffer[nextTailPointer + 5'd1].resultsReady <= 1'b0;
+                end
             end
             // Update Available Free Slots
             freeSlots <= calculatedNextFreeSlots;
@@ -118,7 +132,8 @@ module ReorderBuffer (
         resolvedInstruction2 = '0;
         retireCount = 2'b00;
         triggerStore = 1'd0;
-        if ((entries > 5'd1) && reorderBuffer[0].resultsReady && reorderBuffer[1].resultsReady) begin
+        if ((entries > 5'd1) && (reorderBuffer[0].resultsReady || reorderBuffer[0].destinationRegister == 5'd0)
+        && (reorderBuffer[1].resultsReady || reorderBuffer[1].destinationRegister == 5'd0)) begin
             // Commit Slot 0 and 1
             retireCount = 2'b10;
             if ((reorderBuffer[0].destinationRegister != 5'd0) && (reorderBuffer[0].destinationRegister == reorderBuffer[1].destinationRegister)) begin
@@ -143,7 +158,7 @@ module ReorderBuffer (
                     resolvedInstruction2.valid = 1'd1; 
                 end
             end
-        end else if ((entries > 5'd0) && reorderBuffer[0].resultsReady) begin
+        end else if ((entries > 5'd0) && (reorderBuffer[0].resultsReady || reorderBuffer[0].destinationRegister == 5'd0)) begin
             // Commit Slot 0
             retireCount = 2'b01;
             // Slot 0 Packet
@@ -216,6 +231,21 @@ module ReorderBuffer (
 
     end
 
+    // Redirect Flush Math
+    always_comb begin
+        redirectNextTailPointer = '0;
+        // Pulls Index at Age Tag of Exception 
+        if (redirect) begin
+            for (logic [4:0] index = 5'd0; index < 5'd16; index++) begin
+                if (redirect1) begin
+                    if (forwardGrid[index][4]) redirectNextTailPointer = index;
+                end else if (redirect2) begin
+                    if (forwardGrid[index][5]) redirectNextTailPointer = index;
+                end
+            end
+        end
+    end
+
     // Write Ready Data to Correct Next Slot 
     logic [4:0] nextOffsetIndex;
     assign nextOffsetIndex = {3'b000, retireCount};
@@ -232,7 +262,7 @@ module ReorderBuffer (
         end
     end
 
-    /*
+    
     always_ff @(posedge clock) begin
         if (!reset) begin
             $display(
@@ -257,7 +287,7 @@ module ReorderBuffer (
             );
         end
     end
-    */
+    
 
 endmodule
 
