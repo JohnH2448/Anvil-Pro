@@ -10,7 +10,6 @@ module OperandSelect (
 
     // Control Signals MUST IMPLIMENT
     input logic redirect,
-    input logic [31:0] redirectVector,
 
     // Read From RST
     output logic [4:0] upperSourceRegister1,
@@ -252,7 +251,11 @@ module OperandSelect (
         exPayloadCandidate1.memoryWidth = payload1.memoryWidth;
         exPayloadCandidate1.memorySigned = payload1.memorySigned;
         exPayloadCandidate1.ageTag = payload1.ageTag;
-        exPayloadCandidate1.valid = payload1.valid;
+        if (!reset && !redirect) begin
+            exPayloadCandidate1.valid = payload1.valid;
+        end else begin
+            exPayloadCandidate1.valid = 1'd0;
+        end
 
         // Instruction 2 Passthrough Assignments
         exPayloadCandidate2.aluOperation = payload2.aluOperation;
@@ -260,7 +263,11 @@ module OperandSelect (
         exPayloadCandidate2.destinationRegister = payload2.destinationRegister;
         exPayloadCandidate2.branchType = payload2.branchType;
         exPayloadCandidate2.ageTag = payload2.ageTag;
-        exPayloadCandidate2.valid = payload2.valid;
+        if (!reset && !redirect) begin
+            exPayloadCandidate2.valid = payload2.valid;
+        end else begin
+            exPayloadCandidate2.valid = 1'd0;
+        end
         exPayloadCandidate2.bypassEnable = payload2.bypassEnable;
 
     end

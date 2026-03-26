@@ -12,6 +12,10 @@ module Execute (
     output logic redirect,
     output logic [31:0] redirectVector,
 
+    // Redirect Metadata for ROB
+    output logic redirect1,
+    output logic redirect2,
+
     // Payloads to Execute
     input UpperOperandExecutePayload_ exPayload1,
     input LowerOperandExecutePayload_ exPayload2,
@@ -29,8 +33,6 @@ module Execute (
     logic [31:0] result2;
     logic [31:0] redirectVector1;
     logic [31:0] redirectVector2;
-    logic redirect1;
-    logic redirect2;
     logic illegal1;
     logic illegal2;
     integer debugCycle;
@@ -165,9 +167,9 @@ module Execute (
     always_comb begin
         // Packet 1
         resultPayload1 = '0;
-        if (exPayload1.valid) begin
+        resultPayload1.ageTag = exPayload1.ageTag;
+        if (exPayload1.valid && !redirect1 && !reset) begin
             resultPayload1.accept = 1'd1;
-            resultPayload1.ageTag = exPayload1.ageTag;
             resultPayload1.destinationRegister = exPayload1.destinationRegister;
             if (exPayload1.jumpType != JUMP_NONE) begin
                 resultPayload1.instructionResult = exPayload1.extraField;
@@ -177,9 +179,9 @@ module Execute (
         end
         // Packet 2
         resultPayload2 = '0;
-        if (exPayload2.valid) begin
+        resultPayload2.ageTag = exPayload2.ageTag;
+        if (exPayload2.valid && !redirect && !reset) begin
             resultPayload2.accept = 1'd1;
-            resultPayload2.ageTag = exPayload2.ageTag;
             resultPayload2.destinationRegister = exPayload2.destinationRegister;
             if (exPayload2.jumpType != JUMP_NONE) begin
                 resultPayload2.instructionResult = exPayload2.extraField;
@@ -205,5 +207,3 @@ module Execute (
 
 endmodule
 
-// Parameterizable Ex/Ex bypass. must change issuer and ex
-// Must forward slot 0 to 1 rs rd
