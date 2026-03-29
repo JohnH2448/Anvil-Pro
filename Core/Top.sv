@@ -2,6 +2,8 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
+localparam int width = $clog2(reorderBufferEntries);
+
 module Top (
 
     // Standard
@@ -14,11 +16,13 @@ module Top (
     RetiredInstruction_ resolvedInstruction1;
     RetiredInstruction_ resolvedInstruction2;
     logic triggerStore;
-    logic [4:0] nextFreeSlots;
+    logic [1:0] nextFreeSlots;
     logic [31:0] upperROBData1;
     logic [31:0] upperROBData2;
     logic [31:0] lowerROBData1;
     logic [31:0] lowerROBData2;
+    logic [width-1:0] freeTag1;
+    logic [width-1:0] freeTag2;
 
     // Register Status Table Outputs
     RegisterStatusOutput_ upperSource1Status;
@@ -47,8 +51,8 @@ module Top (
     logic [4:0] rstDestinationRegister2;
     logic isLoad1;
     logic isLoad2;
-    logic [4:0] ageTag1;
-    logic [4:0] ageTag2;
+    logic [width-1:0] ageTag1;
+    logic [width-1:0] ageTag2;
     IssuedIntruction_ instructionPacket1;
     IssuedIntruction_ instructionPacket2;
 
@@ -63,10 +67,10 @@ module Top (
     logic [4:0] upperAddress2;
     logic [4:0] lowerAddress1;
     logic [4:0] lowerAddress2;
-    logic [4:0] upperTagIndex1;
-    logic [4:0] upperTagIndex2;
-    logic [4:0] lowerTagIndex1;
-    logic [4:0] lowerTagIndex2;
+    logic [width-1:0] upperTagIndex1;
+    logic [width-1:0] upperTagIndex2;
+    logic [width-1:0] lowerTagIndex1;
+    logic [width-1:0] lowerTagIndex2;
 
     // Register File Outputs
     logic [31:0] upperSourceData1;
@@ -115,6 +119,8 @@ module Top (
         .triggerStore(triggerStore), // output
 
         .nextFreeSlots(nextFreeSlots), // output
+        .freeTag1(freeTag1), // output
+        .freeTag2(freeTag2), // output
 
         .storeACK(), // input
 
@@ -289,6 +295,8 @@ module Top (
         .payload2(payload2), // output
 
         .nextFreeSlots(nextFreeSlots), // input
+        .freeTag1(freeTag1), // input
+        .freeTag2(freeTag2), // input
 
         .upperIssuerRegister1(upperIssuerRegister1), // output
         .upperIssuerRegister2(upperIssuerRegister2), // output

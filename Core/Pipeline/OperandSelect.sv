@@ -2,6 +2,8 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
+localparam int width = $clog2(reorderBufferEntries);
+
 module OperandSelect (
 
     // Standard
@@ -36,10 +38,10 @@ module OperandSelect (
     input logic [31:0] lowerData2,
 
     // Quad Index Forward Requests To ROB
-    output logic [4:0] upperTagIndex1,
-    output logic [4:0] upperTagIndex2,
-    output logic [4:0] lowerTagIndex1,
-    output logic [4:0] lowerTagIndex2,
+    output logic [width-1:0] upperTagIndex1,
+    output logic [width-1:0] upperTagIndex2,
+    output logic [width-1:0] lowerTagIndex1,
+    output logic [width-1:0] lowerTagIndex2,
 
     // ROB Forward Data
     input logic [31:0] upperROBData1,
@@ -50,8 +52,8 @@ module OperandSelect (
     // Forward From Ex
     input logic [31:0] upperExData,
     input logic [31:0] lowerExData,
-    input logic [4:0] upperExTag,
-    input logic [4:0] lowerExTag,
+    input logic [width-1:0] upperExTag,
+    input logic [width-1:0] lowerExTag,
 
     // Payloads From Issuer
     input UpperIssuerOperandPayload_ payload1,

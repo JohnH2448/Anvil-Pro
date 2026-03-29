@@ -12,3 +12,5 @@ import Enumerations::*;
 
 // to start, rob will wait for ack. optimize later with above
 // StoreACK to ROB must be broadcast in this domain by Queue until next edge
+
+// You must broadcast redirect tags and flush this on redirect

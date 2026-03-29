@@ -2,6 +2,8 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
+localparam int width = $clog2(reorderBufferEntries);
+
 module RegisterStatusTable (
 
     // Standard
@@ -41,24 +43,24 @@ module RegisterStatusTable (
     input logic [4:0] rstDestinationRegister2,
     input logic isLoad1,
     input logic isLoad2,
-    input logic [4:0] ageTag1,
-    input logic [4:0] ageTag2,
+    input logic [width-1:0] ageTag1,
+    input logic [width-1:0] ageTag2,
 
     // Retire Signals From ROB
     input logic retire1,
     input logic retire2,
     input logic [4:0] retireRegister1,
     input logic [4:0] retireRegister2,
-    input logic [4:0] retireAgeTag1,
-    input logic [4:0] retireAgeTag2,
+    input logic [width-1:0] retireAgeTag1,
+    input logic [width-1:0] retireAgeTag2,
 
     // Ready Signals From ROB
     input logic ready1,
     input logic ready2,
     input logic [4:0] readyRegister1,
     input logic [4:0] readyRegister2,
-    input logic [4:0] readyAgeTag1,
-    input logic [4:0] readyAgeTag2
+    input logic [width-1:0] readyAgeTag1,
+    input logic [width-1:0] readyAgeTag2
 );
 
     // Register Status Table Declaration
