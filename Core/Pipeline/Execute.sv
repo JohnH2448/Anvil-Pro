@@ -168,7 +168,7 @@ module Execute (
         // Packet 1
         resultPayload1 = '0;
         resultPayload1.ageTag = exPayload1.ageTag;
-        if (exPayload1.valid && !redirect1 && !reset) begin
+        if (exPayload1.valid && !reset) begin
             resultPayload1.accept = 1'd1;
             resultPayload1.destinationRegister = exPayload1.destinationRegister;
             if (exPayload1.jumpType != JUMP_NONE) begin
@@ -180,7 +180,7 @@ module Execute (
         // Packet 2
         resultPayload2 = '0;
         resultPayload2.ageTag = exPayload2.ageTag;
-        if (exPayload2.valid && !redirect && !reset) begin
+        if (exPayload2.valid && !(redirect1 && !illegal1) && !reset) begin
             resultPayload2.accept = 1'd1;
             resultPayload2.destinationRegister = exPayload2.destinationRegister;
             if (exPayload2.jumpType != JUMP_NONE) begin
