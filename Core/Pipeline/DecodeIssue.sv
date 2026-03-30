@@ -263,6 +263,11 @@ module DecodeIssue (
                 block2 = 1'b1;
                 reasonRobFull = 1'b1;
             end
+            // No Issue On Redirect
+            if (redirect) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
+            end
             // Block Issue On Unready Load rs's or rd's. Calculated in RST
             if (upperInFlightLoad1 || upperInFlightLoad2 || destRegLoad1) begin
                 block1 = 1'b1;
