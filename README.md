@@ -69,7 +69,7 @@ The issuer guarantees that any dispatched instruction group satisfies the follow
 ```
 ---
 ## Backend
-### Architecture
+### Philosophy
 Anvil-Pro contains a relatively simple backend compared to many other superscalar implementations. It features two pipelines, each composed of an operand-selection stage followed by an execute stage. After execution, instructions either return directly to the reorder buffer or are handed off to a unified memory queue, depending on the operation type.
 
 The backend is built around a strict issue contract. Once an instruction is dispatched, it is expected to continue flowing forward without encountering a backend stall, and slot 0 is always older than slot 1. This allows the design to avoid replay behavior, bubble injection, and inter-stage freeze logic. Rather than repairing hazards dynamically after dispatch, Anvil-Pro prevents them at issue time.
@@ -93,5 +93,7 @@ To flush the reorder buffer, the preexisting age tag system is utilized to pinpo
 
 To flush invalid blocking instruction queues, the microarchitecture implicitly prevents blocking instructions from ever speculatively executing. Given that the pipeline is in order until post execute, all branches are resolved before any younger blocking instruction can enter an asynchronous unit like the memory queue. 
 
-Restoring proper RST state is subtle and yet absolutely vital to a proper redirect mechanism. Checkpoint based systems were considered, but ultimately rejected due to unnecissary state and complexity. To restore correct RST state, Anvil-Pro instead derives previous states from reorder buffer metadata. Given that, at most, only three additional instructions can be in the pipeline that have potentially corrupted RST state. This means only three buses/write indexes to RST are needed, which is suprisingly lightweight. On redirect, the pipeline examines the resgiters modifed by the speculative work, examines the reorder buffer to check if a previous owner exists, and then derives the previous state from those variables.
+Restoring proper RST state is subtle and yet absolutely vital to a proper redirect mechanism. Checkpoint based systems were considered, but ultimately rejected due to unnecissary state and complexity. To restore correct RST state, Anvil-Pro instead derives previous states from reorder buffer metadata. Given that, at most, only three additional instructions can be in the pipeline that have potentially corrupted RST state. This means only three buses/write indexes to RST are needed, which is suprisingly lightweight. On redirect, the pipeline examines the resgiters modifed by the speculative work, examines the reorder buffer to check if a previous owner exists, and then derives the previous state from those variables. It then broadcasts that state to the RST, which restores itself on the next clock edge.
+
+Invalidating the pipeline is simplistic and arguably unnecissary, but it is still done to remove ambiguity about valid/invalid work. On redirect, all younger instructions in the pipeline are invalidated. This prevents any edge case archetectural state change and ensures no speculative work takes effect. 
 
