@@ -49,50 +49,27 @@ Under strict in-order issue, issue refusal and traditional stall models exhibit 
 ### Issuer Contract
 The issuer guarantees that any dispatched instruction group satisfies the following invariants:
 ```bash
-# Dramatically simplifies control and forwarding logic
-- Slot 0 must be older
-
-# For a single LSU, drain is the bottleneck rather than fill
-- LSU access must be through slot 0
-
-# Prevents structural hazards and dual-write ambiguity
-- No Write-after-Write hazards in a cycle
-
-# Prevents combinational dependency paths unless explicitly bypassed
-- No slot 1 dependencies on slot 0 unless EX bypass is enabled
-
-# Enables controlled forwarding instead of blocking
-- If EX bypass is enabled, slot 1 dependencies use explicit bypass signals
-
-# Prevents dual redirect ambiguity and control hazards
-- No simultaneous branch/jump in both slots
-
-# Prevents propagation of invalid fetch data
-- No slot 1 issue when badData flag is active
-
-# Prevents over-allocation of backend resources
-- ROB must have at least 2 free slots for dual issue
-
-# Prevents pipeline overcommit
-- If only 1 ROB slot is available, only slot 0 may issue
-
-# Hard stop when backend is full
-- If no ROB slots are available, no issue occurs
-
-# Prevents stalls from unresolved memory latency
-- No dependencies on unresolved loads (per-slot enforcement)
-
-# Prevents ownership and tracking conflicts in RST
-- No backward dependencies (slot 0 reading slot 1 destination)
-
-# Ensures structural legality of issued pair
-- Both instructions must be valid to issue
-
-# Slot 1 is opportunistic, not guaranteed
-- Slot 1 may issue only if all structural, hazard, and capacity rules are satisfied
+# Issuer Contract
+- Slot 1 may not issue a memory operation
+- Slot 1 may not issue if it writes the same destination register as slot 0
+- If EX/EX bypass is disabled, slot 1 may not issue if it depends on slot 0
+- If EX/EX bypass is enabled, slot 1 slot-0 dependencies must use explicit bypass signals
+- Slot 1 may not issue when badData is asserted
+- Slot 1 may not issue if only 1 ROB slot is available
+- Neither slot may issue if no ROB slots are available
+- Neither slot may issue if slot 0 depends on an unresolved load
+- Slot 1 may not issue if it depends on an unresolved load
+- Neither slot may issue if slot 0 writes a destination register owned by an unresolved load
+- Slot 1 may not issue if it writes a destination register owned by an unresolved load
+- Slot 1 may not issue if slot 0 reads the destination register written by slot 1
+- Neither slot may issue if slot 0 is illegal
+- Slot 1 may not issue if slot 1 is illegal
+- Memory operations may not issue unless the memory queue has sufficient free space
+- CSR operations may not issue if another CSR operation is already in flight
 ```
 ---
 ## Backend
+### Philosophy
 Anvil-Pro contains a relatively simple backend compared to many other superscalar implementations. It features two pipelines, each composed of an operand-selection stage followed by an execute stage. After execution, instructions either return directly to the reorder buffer or are handed off to a unified memory queue, depending on the operation type.
 
 The backend is built around a strict issue contract. Once an instruction is dispatched, it is expected to continue flowing forward without encountering a backend stall, and slot 0 is always older than slot 1. This allows the design to avoid replay behavior, bubble injection, and inter-stage freeze logic. Rather than repairing hazards dynamically after dispatch, Anvil-Pro prevents them at issue time.
@@ -108,4 +85,15 @@ Because of this structure, the issuer treats non-blocking and blocking instructi
 These same design premises simplify the forwarding network. Since slot 0 is always older than slot 1 and backend stalls are disallowed by construction, the operand-select stage only needs to consider a small, age-ordered set of candidate data sources. With EX/EX bypass disabled, each source operand can come from one of four places: the register file, the reorder buffer entry identified by the age tag, slot 1 execute, or slot 0 execute. The register status table determines which source is correct. This keeps the forwarding structure compact and avoids excessive fanout and FPGA routing complexity while still preserving correct data ordering.
 
 Additionally, if EX/EX bypass is enabled, data can be forwarded directly from the output of slot 0’s ALU to one or both input operands of slot 1’s ALU. This allows specific same-cycle inter-slot dependencies to be handled explicitly, while still preserving the broader philosophy of issue-time hazard prevention and a stall-free backend.
+
+### Redirect Handling
+The pipeline handles redirects carefully to ensure precise archetectural state is maintained and all speculative work is properly flushed. The dual execute stages calculate a unified redirect line gated by both legality and validity. If conditions hold, the line is raised. All architectural side effects are derived combinationally from that single line assertion. The primary concerns that arise are fourfold: flushing the invalid reorder buffer entries, flushing invalid blocking instruction queues, restoring proper register status table state, and invalidating the pipeline.
+
+To flush the reorder buffer, the preexisting age tag system is utilized to pinpoint the exact desired state. Age tags in the pipeline serve as unique IDs as well as index vaiables for the reorder buffer. Contrary to the naming convention, they do not actually encode age explicitly. When a redirect is detected, the reorder buffer alters its tail pointer to the age tag of the taken branch + 1, which is already implicitly presented to the reorder buffer through the natural instrution retirement interface. Since the tail pointer - head pointer range implicitly encodes validity, tail pointer alteration guarentees proper flushing. This system is simplistic and precise, mitigating typical pain associated with discarding speculative work.
+
+To flush invalid blocking instruction queues, the microarchitecture implicitly prevents blocking instructions from ever speculatively executing. Given that the pipeline is in order until post execute, all branches are resolved before any younger blocking instruction can enter an asynchronous unit like the memory queue. 
+
+Restoring proper RST state is subtle and yet absolutely vital to a proper redirect mechanism. Checkpoint based systems were considered, but ultimately rejected due to unnecissary state and complexity. To restore correct RST state, Anvil-Pro instead derives previous states from reorder buffer metadata. Given that, at most, only three additional instructions can be in the pipeline that have potentially corrupted RST state. This means only three buses/write indexes to RST are needed, which is suprisingly lightweight. On redirect, the pipeline examines the resgiters modifed by the speculative work, examines the reorder buffer to check if a previous owner exists, and then derives the previous state from those variables. It then broadcasts that state to the RST, which restores itself on the next clock edge.
+
+Invalidating the pipeline is simplistic and arguably unnecissary, but it is still done to remove ambiguity about valid/invalid work. On redirect, all younger instructions in the pipeline are invalidated. This prevents any edge case archetectural state change and ensures no speculative work takes effect. 
 
