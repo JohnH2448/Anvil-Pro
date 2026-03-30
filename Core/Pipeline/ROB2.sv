@@ -274,5 +274,5 @@ module ReorderBuffer (
 endmodule
 
 // STILL NEED: 
-// Selectively Flush Memory Queue on Redirect
+// full empty use case missing (prob need for entry calc)
 // Restore RST State on Redirect (Set to RF OR ROB Valid. MUST CHECK!!)
