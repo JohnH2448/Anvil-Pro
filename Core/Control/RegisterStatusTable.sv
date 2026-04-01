@@ -218,3 +218,5 @@ module RegisterStatusTable (
 
 endmodule
 // May be wise to split into two tables. Issuer only needs 1 bit
+// zero isLoad on redirect restore. may actually be a load but its irrelevant once ready
+// retire gets priority over state restore

@@ -38,7 +38,7 @@ module Execute (
     integer debugCycle;
 
     // Redirect Priority Logic
-    assign redirect = (redirect1 && !illegal1) || (redirect2 && !illegal2);
+    assign redirect = (redirect1 && !illegal1) || (redirect2 && !illegal2 && !illegal1);
     assign redirectVector = (redirect1 && !illegal1) ? redirectVector1 : 
     ((redirect2 && !illegal2) ? redirectVector2 : 32'd0);
 
