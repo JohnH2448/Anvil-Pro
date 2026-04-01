@@ -138,4 +138,12 @@ package Payloads;
         logic valid;
     } RetiredInstruction_;
 
+    typedef struct packed {
+        logic [4:0] destinationRegister;
+        logic [width-1:0] ageTag;
+        logic ready;
+        logic retired; // store/load status is irrelevant MAYBE NOT LOAD
+        logic valid;
+    } RestoreStateBus_;
+
 endpackage

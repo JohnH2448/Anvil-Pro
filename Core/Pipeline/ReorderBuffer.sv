@@ -131,7 +131,7 @@ module ReorderBuffer (
     logic [width:0] freeEntries;
     logic moreThanOne;
     always_comb begin
-        usedEntries = tailPointer - headPointer;
+        usedEntries = (redirect ? redirectPointer : tailPointer) - nextHeadPointer;
         freeEntries = (width+1)'(reorderBufferEntries) - usedEntries;
         moreThanOne = |freeEntries[width-1:1];
         // 0, 1, or 2+ Slots Available
@@ -263,13 +263,77 @@ module ReorderBuffer (
                 reorderBuffer[completedInstruction2.ageTag].instructionResult <= completedInstruction2.instructionResult;
                 reorderBuffer[completedInstruction2.ageTag].completed <= 1'b1;
             end
-            // Memory Queue is Flused on Redirect
             if (completedMemory.accept) begin
                 reorderBuffer[completedMemory.ageTag].instructionResult <= completedMemory.instructionResult;
                 reorderBuffer[completedMemory.ageTag].completed <= 1'b1;
             end
         end
     end
+
+
+
+    // Restore State Buses to RST
+    RestoreStateBus_ rstBus1;
+    RestoreStateBus_ rstBus2;
+    RestoreStateBus_ rstBus3;
+
+    // Calculate Flush Count 0-3
+    logic [1:0] flushCount;
+    logic [width:0] untruncatedFlushCount;
+    assign untruncatedFlushCount = tailPointer - redirectPointer;
+    assign flushCount = untruncatedFlushCount[1:0];
+
+    // Truncate Redirect Pointer for Indexing
+    logic [width-1:0] redirectIndexer;
+    assign redirectIndexer = redirectPointer[width-1:0];
+
+    // Calculate Flushed Rd Indexes
+    logic [4:0] flushDest1;
+    logic [4:0] flushDest2;
+    logic [4:0] flushDest3;
+    assign flushDest1 = reorderBuffer[redirectIndexer].destinationRegister;
+    assign flushDest2 = reorderBuffer[redirectIndexer + 'd1].destinationRegister;
+    assign flushDest3 = reorderBuffer[redirectIndexer + 'd2].destinationRegister;
+
+    // Positive Distance from New Tail to Every Entry. CAM Select Youngest
+    logic [width-1:0] sortGrid [0:reorderBufferEntries-1][0:2];
+    always_comb begin
+        for (int j = 0; j <3; j++) begin
+            for (logic [width-1:0] i = 0; i < (width)'(reorderBufferEntries); i++) begin
+                logic [width-1:0] distance;
+                distance = redirectIndexer - i;
+                sortGrid[i][j] = distance;
+            end   
+        end
+    end // distance may need 17 states?
+
+    // Bus Driver
+    always_comb begin
+        rstBus1 = '0;
+        rstBus2 = '0;
+        rstBus3 = '0;
+
+        // Drive Buses When Flush Occurs
+        if (redirect) begin
+            
+            // Bus 1
+            if (flushCount > 2'd0) begin
+                
+            end
+            // Bus 2
+            if (flushCount > 2'd1) begin
+                
+            end
+            // Bus 3
+            if (flushCount > 2'd2) begin
+                
+            end
+
+        end
+    end
+    // Can probably reuse this machinary and redirect line for illegal
+    // Most stages function the same under illegal vs redirect
+
 
     // ROB Debug Print
     always_ff @(posedge clock) begin
@@ -304,3 +368,4 @@ endmodule
 // full empty use case missing maybe?
 // Restore RST State on Redirect (Set to RF OR ROB Valid. MUST CHECK!!)
 // mem ops must detect illegal before buffer
+// robentry[i].ageTag is implicit in index. need to remove that logic
