@@ -19,6 +19,34 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - Store / Load Buffering + Queue
 - 6-Stage Pipeline
 
+## Repository Graph
+```bash
+Core/                              # Main RTL Folder
+├─ Blocks/                         # Reusable IP Blocks
+│  └─ Decoder.sv                   # Decodes Instructions Into Enable Signals
+├─ Control/                        # Pipeline Support Infrastructure Folder
+│  ├─ Control.sv                   # Flushes Pipeline
+│  ├─ RegisterFile.sv              # Holds Objective Register Data
+│  ├─ RegisterStatusTable.sv       # Dictates Register Ownership and State
+│  └─ StoreBuffer.sv               # Bypasses Load Issue Restrictions
+├─ Memory/                         # Memory Interface Folder
+│  ├─ InstructionMemory.sv         # BRAM Instruction Memory
+│  ├─ Instructions.hex             # Hex Instruction Initializer
+│  └─ PlaceholderDMEM.sv           # Placeholder Data Memory For Simulation
+├─ Package/                        # SystemVerilog Package Folder
+│  ├─ Configuration.sv             # Configurable Parameters
+│  ├─ Enumerations.sv              # Vector Enumeration Definitions
+│  └─ Payloads.sv                  # Structure Definitions
+├─ Pipeline/                       # Pipeline Folder
+│  ├─ DecodeIssue.sv               # Decoder And Issue Contract Enforcer
+│  ├─ Execute.sv                   # ALU And Memory Packet Contructor
+│  ├─ MemoryQueue.sv               # Drives Wishbone And Queues Memory Ops
+│  ├─ OperandSelect.sv             # Multiplexes And Selects Data Sources 
+│  ├─ ReorderBuffer.sv             # Accepts And Retires Results From Pipeline
+│  └─ WalkingWindow.sv             # Feeds Decoders And Holds PC
+└─ Top.sv                          # Hirearchical Top Level Module
+```
+
 ## Frontend
 ### Fetch Methodology
 Anvil-Pro’s front end is designed to sustain a 2-wide issue demand while minimizing redirect penalty and keeping FPGA fabric cost low. Sharing an external instruction interface with the DMEM subsystem was evaluated and rejected: bus arbitration and protocol state add latency, introduce additional control complexity, and reduce deterministic control of fetch timing. Instead, Anvil-Pro uses a strict Harvard organization. IMEM is implemented as inferred synchronous BRAM, allowing instruction fetch to run independently of LSU traffic.
@@ -94,6 +122,16 @@ Restoring correct RST state is subtle, yet absolutely critical to a proper redir
 
 Pipeline invalidation is simple and arguably unnecessary, but it is still performed to eliminate ambiguity around valid and invalid work. On redirect, all younger instructions in the pipeline are invalidated. This prevents any edge-case architectural state change and ensures that no speculative work can take effect.
 
-## Notice
+## Implimentation
+### Notice
 This core is in progress. Do not attempt to use it or understand the HDL unless you want to waste your time. Nobody but myself and god know the formal assumptions that allow it to function. This README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
+
+### TODO List
+- CSR File + Zicsr Decode
+- System Instruction Support
+- Precise Exceptions
+- Interupt Support
+- Memory Queue
+- Illegal Flag + Handling
+- RISCOF Pass
 
