@@ -269,6 +269,7 @@ module DecodeIssue (
                 block2 = 1'b1;
             end
             // Block Issue On Unready Load rs's or rd's. Calculated in RST
+            // VITAL and used in subtle RST/ROB Assumptions
             if (upperInFlightLoad1 || upperInFlightLoad2 || destRegLoad1) begin
                 block1 = 1'b1;
                 block2 = 1'b1;

@@ -23,6 +23,9 @@ module Top (
     logic [31:0] lowerROBData2;
     logic [width-1:0] freeTag1;
     logic [width-1:0] freeTag2;
+    RestoreStateBus_ rstBus1;
+    RestoreStateBus_ rstBus2;
+    RestoreStateBus_ rstBus3;
 
     // Register Status Table Outputs
     RegisterStatusOutput_ upperSource1Status;
@@ -123,6 +126,10 @@ module Top (
         .freeTag2(freeTag2), // output
 
         .storeACK(), // input
+
+        .rstBus1(rstBus1), // output
+        .rstBus2(rstBus2), // output
+        .rstBus3(rstBus3), // output
 
         .upperTagIndex1(upperTagIndex1), // input
         .upperTagIndex2(upperTagIndex2), // input
