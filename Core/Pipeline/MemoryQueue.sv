@@ -15,3 +15,4 @@ import Enumerations::*;
 
 // definitely do a store buffer that bypasses issue restrictions. It can forward to OS
 // Maybe 16ish entries from most recent stores. configurable size?
+// Actualy this is problematic because address must be known at issue time.

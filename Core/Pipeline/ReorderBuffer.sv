@@ -45,7 +45,13 @@ module ReorderBuffer (
     output logic [31:0] upperForward1,
     output logic [31:0] upperForward2,
     output logic [31:0] lowerForward1,
-    output logic [31:0] lowerForward2
+    output logic [31:0] lowerForward2,
+
+    // Restore State Buses to RST
+    output RestoreStateBus_ rstBus1,
+    output RestoreStateBus_ rstBus2,
+    output RestoreStateBus_ rstBus3
+    
 );
 
     // Verifies Depth Parameter Value
@@ -271,12 +277,6 @@ module ReorderBuffer (
     end
 
 
-
-    // Restore State Buses to RST
-    RestoreStateBus_ rstBus1;
-    RestoreStateBus_ rstBus2;
-    RestoreStateBus_ rstBus3;
-
     // Calculate Flush Count 0-3
     logic [1:0] flushCount;
     logic [width:0] untruncatedFlushCount;
@@ -296,44 +296,129 @@ module ReorderBuffer (
     assign flushDest3 = reorderBuffer[redirectIndexer + 'd2].destinationRegister;
 
     // Positive Distance from New Tail to Every Entry. CAM Select Youngest
-    logic [width-1:0] sortGrid [0:reorderBufferEntries-1][0:2];
+    logic [width-1:0] sortGrid [0:reorderBufferEntries-1];
+    logic maskGrid [0:reorderBufferEntries-1][0:2];
+    logic [width-1:0] minIndex1;
+    logic [width-1:0] minIndex2;
+    logic [width-1:0] minIndex3;
+    logic [width-1:0] minValue1;
+    logic [width-1:0] minValue2;
+    logic [width-1:0] minValue3;
+    logic found1;
+    logic found2;
+    logic found3;
     always_comb begin
-        for (int j = 0; j <3; j++) begin
-            for (logic [width-1:0] i = 0; i < (width)'(reorderBufferEntries); i++) begin
-                logic [width-1:0] distance;
-                distance = redirectIndexer - i;
-                sortGrid[i][j] = distance;
-            end   
+        // Distance Grid Builder
+        for (logic [width-1:0] i = 0; i < (width)'(reorderBufferEntries); i++) begin
+            logic [width-1:0] distance;
+            distance = redirectIndexer - i;
+            sortGrid[i] = distance;
         end
-    end // distance may need 17 states?
+        // Mask Grid Builder
+        for (int j = 0; j < 3; j++) begin
+            logic [4:0] rd;
+            unique case (j)
+                0: rd = flushDest1;
+                1: rd = flushDest2;
+                2: rd = flushDest3;
+            endcase
+            for (logic [width-1:0] i = 0; i < (width)'(reorderBufferEntries); i++) begin
+                maskGrid[i][j] = ((i - nextHeadIndexer) < (redirectIndexer - nextHeadIndexer))
+                && (reorderBuffer[i].destinationRegister == (rd));
+            end
+        end
+        // CAM Select Youngest + Pull Index
+        minIndex1 = '0;
+        minValue1 = '0;
+        found1 = 1'b0;
+        for (int unsigned i = 0; i < reorderBufferEntries; i++) begin
+            if (maskGrid[i][0]) begin
+                if (!found1 || (sortGrid[i] < minValue1)) begin
+                    minValue1 = sortGrid[i];
+                    minIndex1 = i[width-1:0];
+                    found1 = 1'b1;
+                end
+            end
+        end
+        minIndex2 = '0;
+        minValue2 = '0;
+        found2 = 1'b0;
+        for (int unsigned i = 0; i < reorderBufferEntries; i++) begin
+            if (maskGrid[i][1]) begin
+                if (!found2 || (sortGrid[i] < minValue2)) begin
+                    minValue2 = sortGrid[i];
+                    minIndex2 = i[width-1:0];
+                    found2 = 1'b1;
+                end
+            end
+        end
+        minIndex3 = '0;
+        minValue3 = '0;
+        found3 = 1'b0;
+        for (int unsigned i = 0; i < reorderBufferEntries; i++) begin
+            if (maskGrid[i][2]) begin
+                if (!found3 || (sortGrid[i] < minValue3)) begin
+                    minValue3 = sortGrid[i];
+                    minIndex3 = i[width-1:0];
+                    found3 = 1'b1;
+                end
+            end
+        end
+    end
 
     // Bus Driver
     always_comb begin
         rstBus1 = '0;
         rstBus2 = '0;
         rstBus3 = '0;
-
         // Drive Buses When Flush Occurs
         if (redirect) begin
-            
             // Bus 1
-            if (flushCount > 2'd0) begin
-                
+            if (flushCount > 2'd0 && (flushDest1 != 5'd0)) begin
+                rstBus1.valid = 1'b1;
+                rstBus1.destinationRegister = flushDest1;
+                rstBus1.ageTag = minIndex1;
+                if (found1) begin
+                    rstBus1.ready = 1'b1;
+                    rstBus1.retired = 1'b0;
+                end else begin
+                    rstBus1.ready = 1'b1;
+                    rstBus1.retired = 1'b1;
+                end
             end
             // Bus 2
-            if (flushCount > 2'd1) begin
-                
+            if (flushCount > 2'd1 && (flushDest2 != 5'd0) 
+                && (flushDest1 != flushDest2)) begin
+                rstBus2.valid = 1'b1;
+                rstBus2.destinationRegister = flushDest2;
+                rstBus2.ageTag = minIndex2;
+                if (found2) begin
+                    rstBus2.ready = 1'b1;
+                    rstBus2.retired = 1'b0;
+                end else begin
+                    rstBus2.ready = 1'b1;
+                    rstBus2.retired = 1'b1;
+                end
             end
             // Bus 3
-            if (flushCount > 2'd2) begin
-                
+            if (flushCount > 2'd2 && (flushDest3 != 5'd0)
+                && (flushDest1 != flushDest3) && (flushDest2 != flushDest3)) begin
+                rstBus3.valid = 1'b1;
+                rstBus3.destinationRegister = flushDest3;
+                rstBus3.ageTag = minIndex3;
+                if (found3) begin
+                    rstBus3.ready = 1'b1;
+                    rstBus3.retired = 1'b0;
+                end else begin
+                    rstBus3.ready = 1'b1;
+                    rstBus3.retired = 1'b1;
+                end
             end
-
         end
     end
+
     // Can probably reuse this machinary and redirect line for illegal
     // Most stages function the same under illegal vs redirect
-
 
     // ROB Debug Print
     always_ff @(posedge clock) begin

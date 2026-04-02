@@ -2,7 +2,7 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
-module ReorderBuffer (
+module OldReorderBuffer (
 
     // Standard
     input logic clock,

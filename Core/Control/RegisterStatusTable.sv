@@ -60,7 +60,13 @@ module RegisterStatusTable (
     input logic [4:0] readyRegister1,
     input logic [4:0] readyRegister2,
     input logic [width-1:0] readyAgeTag1,
-    input logic [width-1:0] readyAgeTag2
+    input logic [width-1:0] readyAgeTag2,
+
+    // Restore State Buses from ROB
+    input RestoreStateBus_ rstBus1,
+    input RestoreStateBus_ rstBus2,
+    input RestoreStateBus_ rstBus3
+
 );
 
     // Register Status Table Declaration
