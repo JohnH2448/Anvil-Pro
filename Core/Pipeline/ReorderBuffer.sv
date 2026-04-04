@@ -425,7 +425,7 @@ module ReorderBuffer (
     // Most stages function the same under illegal vs redirect
 
     // ROB Debug Print
-    /*
+    
     always_ff @(posedge clock) begin
         if (!reset) begin
             if (entries == '0) begin
@@ -451,7 +451,7 @@ module ReorderBuffer (
             end
         end
     end
-    */
+    
 
 endmodule
 
