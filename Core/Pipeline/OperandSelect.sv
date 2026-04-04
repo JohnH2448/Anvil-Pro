@@ -19,10 +19,10 @@ module OperandSelect (
     output logic [4:0] lowerSourceRegister2,
 
     // Register Data From RST
-    input RegisterStatusOutput_ upperSource1Status,
-    input RegisterStatusOutput_ upperSource2Status,
-    input RegisterStatusOutput_ lowerSource1Status,
-    input RegisterStatusOutput_ lowerSource2Status,
+    input RegisterStatusOutput_ upperSource1StatusDummy,
+    input RegisterStatusOutput_ upperSource2StatusDummy,
+    input RegisterStatusOutput_ lowerSource1StatusDummy,
+    input RegisterStatusOutput_ lowerSource2StatusDummy,
 
     // Reg File Read Addresses
     output logic [4:0] upperAddress1,
@@ -53,6 +53,7 @@ module OperandSelect (
     input logic [31:0] lowerExData,
     input logic [reorderBufferIndexWidth-1:0] upperExTag,
     input logic [reorderBufferIndexWidth-1:0] lowerExTag,
+    input logic lowerExValid,
 
     // Payloads From Issuer
     input UpperIssuerOperandPayload_ payload1,
@@ -73,6 +74,17 @@ module OperandSelect (
     logic [31:0] upperOperand2;
     logic [31:0] lowerOperand1;
     logic [31:0] lowerOperand2;
+
+    // Register Data From RST
+    RegisterStatusOutput_ upperSource1Status;
+    RegisterStatusOutput_ upperSource2Status;
+    RegisterStatusOutput_ lowerSource1Status;
+    RegisterStatusOutput_ lowerSource2Status;
+
+    assign upperSource1Status = (payload1.staleVector[0] ? payload1.oldStatus : upperSource1StatusDummy);
+    assign upperSource2Status = (payload1.staleVector[1] ? payload1.oldStatus : upperSource2StatusDummy);
+    assign lowerSource1Status = (payload2.staleVector[0] ? payload2.oldStatus : lowerSource1StatusDummy);
+    assign lowerSource2Status = (payload2.staleVector[1] ? payload2.oldStatus : lowerSource2StatusDummy);
 
     // RST Signal Assignment
     assign upperSourceRegister1 = payload1.sourceRegister1;
@@ -120,7 +132,7 @@ module OperandSelect (
         end else if (upperSource1Status.resultReady) begin
             // Use ROB Forward Data
             upperOperand1 = upperROBData1;
-        end else if (lowerExTag == upperSource1Status.ageTag) begin
+        end else if (lowerExTag == upperSource1Status.ageTag && lowerExValid) begin
             // Use Slot 1 Execute Bypass Data
             upperOperand1 = lowerExData;
         end else if (upperExTag == upperSource1Status.ageTag) begin
@@ -138,7 +150,7 @@ module OperandSelect (
         end else if (upperSource2Status.resultReady) begin
             // Use ROB Forward Data
             upperOperand2 = upperROBData2;
-        end else if (lowerExTag == upperSource2Status.ageTag) begin
+        end else if (lowerExTag == upperSource2Status.ageTag && lowerExValid) begin
             // Use Slot 1 Execute Bypass Data
             upperOperand2 = lowerExData;
         end else if (upperExTag == upperSource2Status.ageTag) begin
@@ -156,7 +168,7 @@ module OperandSelect (
         end else if (lowerSource1Status.resultReady) begin
             // Use ROB Forward Data
             lowerOperand1 = lowerROBData1;
-        end else if (lowerExTag == lowerSource1Status.ageTag) begin
+        end else if (lowerExTag == lowerSource1Status.ageTag && lowerExValid) begin
             // Use Slot 1 Execute Bypass Data
             lowerOperand1 = lowerExData;
         end else if (upperExTag == lowerSource1Status.ageTag) begin
@@ -174,7 +186,7 @@ module OperandSelect (
         end else if (lowerSource2Status.resultReady) begin
             // Use ROB Forward Data
             lowerOperand2 = lowerROBData2;
-        end else if (lowerExTag == lowerSource2Status.ageTag) begin
+        end else if (lowerExTag == lowerSource2Status.ageTag && lowerExValid) begin
             // Use Slot 1 Execute Bypass Data
             lowerOperand2 = lowerExData;
         end else if (upperExTag == lowerSource2Status.ageTag) begin
@@ -294,6 +306,105 @@ module OperandSelect (
             if (payload2.valid) begin
                 $display("[OperandSelect][cycle %0d] slot1 pc=%08h tag=%0d",
                     debugCycle, payload2.programCounter, payload2.ageTag);
+            end
+        end
+    end
+
+    // Isolated operand debug trace for owner/tag/selection visibility.
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            if (payload1.valid) begin
+                $display("[OperandSelect][cycle %0d][slot0] rd=x%0d rs1=x%0d rs2=x%0d staleVector=%b",
+                    debugCycle,
+                    payload1.destinationRegister,
+                    payload1.sourceRegister1,
+                    payload1.sourceRegister2,
+                    payload1.staleVector);
+                $display("[OperandSelect][cycle %0d][slot0] payload1.oldStatus tag=%0d ready=%0b committed=%0b",
+                    debugCycle,
+                    payload1.oldStatus.ageTag,
+                    payload1.oldStatus.resultReady,
+                    payload1.oldStatus.resultCommitted);
+                $display("[OperandSelect][cycle %0d][slot0] upperSource1StatusDummy tag=%0d ready=%0b committed=%0b upperSource2StatusDummy tag=%0d ready=%0b committed=%0b",
+                    debugCycle,
+                    upperSource1StatusDummy.ageTag,
+                    upperSource1StatusDummy.resultReady,
+                    upperSource1StatusDummy.resultCommitted,
+                    upperSource2StatusDummy.ageTag,
+                    upperSource2StatusDummy.resultReady,
+                    upperSource2StatusDummy.resultCommitted);
+                $display("[OperandSelect][cycle %0d][slot0] upperSource1Status tag=%0d ready=%0b committed=%0b upperSource2Status tag=%0d ready=%0b committed=%0b",
+                    debugCycle,
+                    upperSource1Status.ageTag,
+                    upperSource1Status.resultReady,
+                    upperSource1Status.resultCommitted,
+                    upperSource2Status.ageTag,
+                    upperSource2Status.resultReady,
+                    upperSource2Status.resultCommitted);
+                $display("[OperandSelect][cycle %0d][slot0] rf rs1=%08h rs2=%08h rob rs1=%08h rs2=%08h ex0(tag=%0d,data=%08h) ex1(tag=%0d,data=%08h)",
+                    debugCycle,
+                    upperData1,
+                    upperData2,
+                    upperROBData1,
+                    upperROBData2,
+                    upperExTag,
+                    upperExData,
+                    lowerExTag,
+                    lowerExData);
+                $display("[OperandSelect][cycle %0d][slot0] chosen op1=%08h op2=%08h extra=%08h outTag=%0d valid=%0b",
+                    debugCycle,
+                    upperOperand1,
+                    upperOperand2,
+                    exPayloadCandidate1.extraField,
+                    exPayloadCandidate1.ageTag,
+                    exPayloadCandidate1.valid);
+            end
+            if (payload2.valid) begin
+                $display("[OperandSelect][cycle %0d][slot1] rd=x%0d rs1=x%0d rs2=x%0d staleVector=%b bypass=%b",
+                    debugCycle,
+                    payload2.destinationRegister,
+                    payload2.sourceRegister1,
+                    payload2.sourceRegister2,
+                    payload2.staleVector,
+                    payload2.bypassEnable);
+                $display("[OperandSelect][cycle %0d][slot1] payload2.oldStatus tag=%0d ready=%0b committed=%0b",
+                    debugCycle,
+                    payload2.oldStatus.ageTag,
+                    payload2.oldStatus.resultReady,
+                    payload2.oldStatus.resultCommitted);
+                $display("[OperandSelect][cycle %0d][slot1] lowerSource1StatusDummy tag=%0d ready=%0b committed=%0b lowerSource2StatusDummy tag=%0d ready=%0b committed=%0b",
+                    debugCycle,
+                    lowerSource1StatusDummy.ageTag,
+                    lowerSource1StatusDummy.resultReady,
+                    lowerSource1StatusDummy.resultCommitted,
+                    lowerSource2StatusDummy.ageTag,
+                    lowerSource2StatusDummy.resultReady,
+                    lowerSource2StatusDummy.resultCommitted);
+                $display("[OperandSelect][cycle %0d][slot1] lowerSource1Status tag=%0d ready=%0b committed=%0b lowerSource2Status tag=%0d ready=%0b committed=%0b",
+                    debugCycle,
+                    lowerSource1Status.ageTag,
+                    lowerSource1Status.resultReady,
+                    lowerSource1Status.resultCommitted,
+                    lowerSource2Status.ageTag,
+                    lowerSource2Status.resultReady,
+                    lowerSource2Status.resultCommitted);
+                $display("[OperandSelect][cycle %0d][slot1] rf rs1=%08h rs2=%08h rob rs1=%08h rs2=%08h ex0(tag=%0d,data=%08h) ex1(tag=%0d,data=%08h)",
+                    debugCycle,
+                    lowerData1,
+                    lowerData2,
+                    lowerROBData1,
+                    lowerROBData2,
+                    upperExTag,
+                    upperExData,
+                    lowerExTag,
+                    lowerExData);
+                $display("[OperandSelect][cycle %0d][slot1] chosen op1=%08h op2=%08h extra=%08h outTag=%0d valid=%0b",
+                    debugCycle,
+                    lowerOperand1,
+                    lowerOperand2,
+                    exPayloadCandidate2.extraField,
+                    exPayloadCandidate2.ageTag,
+                    exPayloadCandidate2.valid);
             end
         end
     end
