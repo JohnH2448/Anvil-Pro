@@ -41,7 +41,10 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__tailPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextHeadPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextTailPointer;
+        CData/*4:0*/ Top__DOT__reorderBuffer__DOT__freeEntries;
+        CData/*4:0*/ Top__DOT__reorderBuffer__DOT__entries;
         CData/*0:0*/ Top__DOT__reorderBuffer__DOT__outgoingStore;
+        CData/*3:0*/ Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource1Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource2Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__lowerSource1Status;
@@ -77,13 +80,14 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ Top__DOT__requestPC1;
         IData/*31:0*/ Top__DOT__requestPC2;
         IData/*31:0*/ Top__DOT__redirectVector;
+    };
+    struct {
         IData/*31:0*/ Top__DOT__instruction1;
         IData/*31:0*/ Top__DOT__instruction2;
         IData/*31:0*/ Top__DOT__programCounter;
-    };
-    struct {
         VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
         VlWide<4>/*127:0*/ Top__DOT__highFetchData;
+        IData/*31:0*/ Top__DOT__reorderBuffer__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__execute__DOT__result1;
         IData/*31:0*/ Top__DOT__execute__DOT__result2;
         IData/*31:0*/ Top__DOT__decodeIssue__DOT__IR1;

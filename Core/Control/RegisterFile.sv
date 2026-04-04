@@ -68,6 +68,7 @@ module RegisterFile (
             lowerSourceData2 = '0;
         end
     end
+    
     /*
     always_ff @(posedge clock) begin
         if (!reset) begin
