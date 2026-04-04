@@ -41,7 +41,7 @@ def convert_scalar_words(words: list[str]) -> list[str]:
     grouped: list[str] = []
     for index in range(0, len(words), 4):
         chunk = words[index : index + 4]
-        padded_chunk = list(reversed(chunk)) + ["00000000"] * (4 - len(chunk))
+        padded_chunk = ["00000000"] * (4 - len(chunk)) + list(reversed(chunk))
         grouped.append("".join(padded_chunk))
     return grouped
 

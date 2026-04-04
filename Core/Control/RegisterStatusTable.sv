@@ -2,7 +2,6 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
-localparam int width = $clog2(reorderBufferEntries);
 
 module RegisterStatusTable (
 
@@ -43,24 +42,24 @@ module RegisterStatusTable (
     input logic [4:0] rstDestinationRegister2,
     input logic isLoad1,
     input logic isLoad2,
-    input logic [width-1:0] ageTag1,
-    input logic [width-1:0] ageTag2,
+    input logic [reorderBufferIndexWidth-1:0] ageTag1,
+    input logic [reorderBufferIndexWidth-1:0] ageTag2,
 
     // Retire Signals From ROB
     input logic retire1,
     input logic retire2,
     input logic [4:0] retireRegister1,
     input logic [4:0] retireRegister2,
-    input logic [width-1:0] retireAgeTag1,
-    input logic [width-1:0] retireAgeTag2,
+    input logic [reorderBufferIndexWidth-1:0] retireAgeTag1,
+    input logic [reorderBufferIndexWidth-1:0] retireAgeTag2,
 
     // Ready Signals From ROB
     input logic ready1,
     input logic ready2,
     input logic [4:0] readyRegister1,
     input logic [4:0] readyRegister2,
-    input logic [width-1:0] readyAgeTag1,
-    input logic [width-1:0] readyAgeTag2,
+    input logic [reorderBufferIndexWidth-1:0] readyAgeTag1,
+    input logic [reorderBufferIndexWidth-1:0] readyAgeTag2,
 
     // Restore State Buses from ROB
     input RestoreStateBus_ rstBus1,
@@ -131,7 +130,6 @@ module RegisterStatusTable (
                     registerStatusTable[readyRegister2].resultCommitted <= 1'd0;
                 end
             end
-
             if (retire2 &&
                 (!instructionConsumed2 || (retireRegister2 != rstDestinationRegister2)) &&
                 (!instructionConsumed1 || (retireRegister2 != rstDestinationRegister1)) &&
@@ -142,6 +140,35 @@ module RegisterStatusTable (
                     registerStatusTable[retireRegister2].resultReady <= 1'd1;
                     registerStatusTable[retireRegister2].resultCommitted <= 1'd1;
                 end
+            end
+            // RST Redirect State Restore
+            // Should Never Conflict With Consumed/Ready or Eachother
+            if (!((retireRegister1 == rstBus1.destinationRegister) && retire1) &&
+                !((retireRegister2 == rstBus1.destinationRegister) && retire2)) begin
+                    if (rstBus1.valid) begin
+                        registerStatusTable[rstBus1.destinationRegister].ageTag <= rstBus1.ageTag;
+                        registerStatusTable[rstBus1.destinationRegister].resultReady <= rstBus1.ready;
+                        registerStatusTable[rstBus1.destinationRegister].resultCommitted <= rstBus1.retired;
+                        registerStatusTable[rstBus1.destinationRegister].isLoad <= 1'd0;
+                    end
+            end
+            if (!((retireRegister1 == rstBus2.destinationRegister) && retire1) &&
+                !((retireRegister2 == rstBus2.destinationRegister) && retire2)) begin
+                    if (rstBus2.valid) begin
+                        registerStatusTable[rstBus2.destinationRegister].ageTag <= rstBus2.ageTag;
+                        registerStatusTable[rstBus2.destinationRegister].resultReady <= rstBus2.ready;
+                        registerStatusTable[rstBus2.destinationRegister].resultCommitted <= rstBus2.retired;
+                        registerStatusTable[rstBus2.destinationRegister].isLoad <= 1'd0;
+                    end
+                end
+            if (!((retireRegister1 == rstBus3.destinationRegister) && retire1) &&
+                !((retireRegister2 == rstBus3.destinationRegister) && retire2)) begin
+                    if (rstBus3.valid) begin
+                        registerStatusTable[rstBus3.destinationRegister].ageTag <= rstBus3.ageTag;
+                        registerStatusTable[rstBus3.destinationRegister].resultReady <= rstBus3.ready;
+                        registerStatusTable[rstBus3.destinationRegister].resultCommitted <= rstBus3.retired;
+                        registerStatusTable[rstBus3.destinationRegister].isLoad <= 1'd0;
+                    end
             end
         end
     end
@@ -226,3 +253,4 @@ endmodule
 // May be wise to split into two tables. Issuer only needs 1 bit
 // zero isLoad on redirect restore. may actually be a load but its irrelevant once ready
 // retire gets priority over state restore
+

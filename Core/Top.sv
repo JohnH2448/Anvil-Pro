@@ -2,7 +2,6 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
-localparam int width = $clog2(reorderBufferEntries);
 
 module Top (
 
@@ -21,8 +20,8 @@ module Top (
     logic [31:0] upperROBData2;
     logic [31:0] lowerROBData1;
     logic [31:0] lowerROBData2;
-    logic [width-1:0] freeTag1;
-    logic [width-1:0] freeTag2;
+    logic [reorderBufferIndexWidth-1:0] freeTag1;
+    logic [reorderBufferIndexWidth-1:0] freeTag2;
     RestoreStateBus_ rstBus1;
     RestoreStateBus_ rstBus2;
     RestoreStateBus_ rstBus3;
@@ -54,8 +53,8 @@ module Top (
     logic [4:0] rstDestinationRegister2;
     logic isLoad1;
     logic isLoad2;
-    logic [width-1:0] ageTag1;
-    logic [width-1:0] ageTag2;
+    logic [reorderBufferIndexWidth-1:0] ageTag1;
+    logic [reorderBufferIndexWidth-1:0] ageTag2;
     IssuedIntruction_ instructionPacket1;
     IssuedIntruction_ instructionPacket2;
 
@@ -70,10 +69,10 @@ module Top (
     logic [4:0] upperAddress2;
     logic [4:0] lowerAddress1;
     logic [4:0] lowerAddress2;
-    logic [width-1:0] upperTagIndex1;
-    logic [width-1:0] upperTagIndex2;
-    logic [width-1:0] lowerTagIndex1;
-    logic [width-1:0] lowerTagIndex2;
+    logic [reorderBufferIndexWidth-1:0] upperTagIndex1;
+    logic [reorderBufferIndexWidth-1:0] upperTagIndex2;
+    logic [reorderBufferIndexWidth-1:0] lowerTagIndex1;
+    logic [reorderBufferIndexWidth-1:0] lowerTagIndex2;
 
     // Register File Outputs
     logic [31:0] upperSourceData1;
@@ -108,6 +107,7 @@ module Top (
         .reset(reset), // input
 
         .redirect(redirect), // input
+        .redirectVector(redirectVector), // input
         .redirect1(redirect1), // input
         .redirect2(redirect2), // input
 
@@ -151,6 +151,10 @@ module Top (
         .upperSourceRegister2(upperSourceRegister2), // input
         .lowerSourceRegister1(lowerSourceRegister1), // input
         .lowerSourceRegister2(lowerSourceRegister2), // input
+
+        .rstBus1(rstBus1), // input
+        .rstBus2(rstBus2), // input
+        .rstBus3(rstBus3), // input
 
         .upperSource1Status(upperSource1Status), // output
         .upperSource2Status(upperSource2Status), // output
@@ -359,3 +363,4 @@ module Top (
     );
 
 endmodule
+

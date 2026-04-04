@@ -3,12 +3,10 @@ import Configuration::*;
 
 package Payloads;
 
-    localparam int width = $clog2(reorderBufferEntries);
-
     // Scoreboard Entry
     typedef struct packed {
         logic isLoad;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic resultReady;
         logic resultCommitted;
     } RegisterStatusEntry_;
@@ -16,7 +14,7 @@ package Payloads;
     // Scoreboard Output
     typedef struct packed {
         logic resultReady;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic resultCommitted;
     } RegisterStatusOutput_;
 
@@ -42,7 +40,7 @@ package Payloads;
         BranchType_ branchType; 
         AluOperation_ aluOperation;
         JumpType_ jumpType;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic valid;
     } UpperIssuerOperandPayload_;
 
@@ -57,7 +55,7 @@ package Payloads;
         BranchType_ branchType; 
         AluOperation_ aluOperation;
         JumpType_ jumpType;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [1:0] bypassEnable;
         logic valid;
     } LowerIssuerOperandPayload_;
@@ -74,7 +72,7 @@ package Payloads;
         MemoryOperation_ memoryOperation;
         logic [1:0] memoryWidth;
         logic memorySigned;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic valid;
     } UpperOperandExecutePayload_;
 
@@ -87,7 +85,7 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         BranchType_ branchType;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [1:0] bypassEnable;
         logic valid;
     } LowerOperandExecutePayload_;
@@ -100,12 +98,12 @@ package Payloads;
         logic [1:0] memoryWidth;
         logic memorySigned;
         logic [4:0] destinationRegister;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
     } ExecuteMemoryPayload_;
 
     // Instruction from Pipeline to ROB
     typedef struct packed {
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [31:0] instructionResult;
         logic [4:0] destinationRegister;
         logic accept;
@@ -115,7 +113,7 @@ package Payloads;
     typedef struct packed {
         logic [31:0] programCounter;
         logic [4:0] destinationRegister;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic isStore;
         logic confirm;
     } IssuedIntruction_;
@@ -125,7 +123,7 @@ package Payloads;
         logic [31:0] programCounter;
         logic [31:0] instructionResult;
         logic [4:0] destinationRegister;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic isStore;
         logic completed; // On store ack, set high
     } QueueEntry_;
@@ -134,16 +132,18 @@ package Payloads;
     typedef struct packed {
         logic [31:0] instructionResult;
         logic [4:0] destinationRegister;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic valid;
     } RetiredInstruction_;
 
     typedef struct packed {
         logic [4:0] destinationRegister;
-        logic [width-1:0] ageTag;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
         logic ready;
         logic retired; // store/load status is irrelevant MAYBE NOT LOAD
         logic valid;
     } RestoreStateBus_;
 
 endpackage
+
+
