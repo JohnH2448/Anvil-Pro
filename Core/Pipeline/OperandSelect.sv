@@ -2,7 +2,6 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
-localparam int width = $clog2(reorderBufferEntries);
 
 module OperandSelect (
 
@@ -38,10 +37,10 @@ module OperandSelect (
     input logic [31:0] lowerData2,
 
     // Quad Index Forward Requests To ROB
-    output logic [width-1:0] upperTagIndex1,
-    output logic [width-1:0] upperTagIndex2,
-    output logic [width-1:0] lowerTagIndex1,
-    output logic [width-1:0] lowerTagIndex2,
+    output logic [reorderBufferIndexWidth-1:0] upperTagIndex1,
+    output logic [reorderBufferIndexWidth-1:0] upperTagIndex2,
+    output logic [reorderBufferIndexWidth-1:0] lowerTagIndex1,
+    output logic [reorderBufferIndexWidth-1:0] lowerTagIndex2,
 
     // ROB Forward Data
     input logic [31:0] upperROBData1,
@@ -52,8 +51,8 @@ module OperandSelect (
     // Forward From Ex
     input logic [31:0] upperExData,
     input logic [31:0] lowerExData,
-    input logic [width-1:0] upperExTag,
-    input logic [width-1:0] lowerExTag,
+    input logic [reorderBufferIndexWidth-1:0] upperExTag,
+    input logic [reorderBufferIndexWidth-1:0] lowerExTag,
 
     // Payloads From Issuer
     input UpperIssuerOperandPayload_ payload1,
@@ -285,7 +284,23 @@ module OperandSelect (
         exPayload2 <= exPayloadCandidate2;
     end
 
+    // Operand Select Packet Trace
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            if (payload1.valid) begin
+                $display("[OperandSelect][cycle %0d] slot0 pc=%08h tag=%0d",
+                    debugCycle, payload1.programCounter, payload1.ageTag);
+            end
+            if (payload2.valid) begin
+                $display("[OperandSelect][cycle %0d] slot1 pc=%08h tag=%0d",
+                    debugCycle, payload2.programCounter, payload2.ageTag);
+            end
+        end
+    end
+
 endmodule
 
 // concern for add x4, x4 x4
 // rd overwrites rst and data looks stale
+
+

@@ -205,5 +205,48 @@ module Execute (
         end
     end
 
+    // Redirect Packet Trace
+    always_ff @(posedge clock) begin
+        if (!reset && redirect) begin
+            $display("[Execute][cycle %0d][redirect] redirect=%0b redirect1=%0b redirect2=%0b vector=%08h vector1=%08h vector2=%08h illegal1=%0b illegal2=%0b",
+                debugCycle,
+                redirect,
+                redirect1,
+                redirect2,
+                redirectVector,
+                redirectVector1,
+                redirectVector2,
+                illegal1,
+                illegal2);
+            $display("[Execute][cycle %0d][redirect] resultPayload1 accept=%0b tag=%0d rd=%0d wb=%08h exValid=%0b illegal=%0b jump=%0d branch=%0d vector1=%08h alu=%08h extra=%08h",
+                debugCycle,
+                resultPayload1.accept,
+                resultPayload1.ageTag,
+                resultPayload1.destinationRegister,
+                resultPayload1.instructionResult,
+                exPayload1.valid,
+                illegal1,
+                exPayload1.jumpType,
+                exPayload1.branchType,
+                redirectVector1,
+                result1,
+                exPayload1.extraField);
+            $display("[Execute][cycle %0d][redirect] resultPayload2 accept=%0b tag=%0d rd=%0d wb=%08h exValid=%0b illegal=%0b jump=%0d branch=%0d vector2=%08h alu=%08h extra=%08h bypass=%02b",
+                debugCycle,
+                resultPayload2.accept,
+                resultPayload2.ageTag,
+                resultPayload2.destinationRegister,
+                resultPayload2.instructionResult,
+                exPayload2.valid,
+                illegal2,
+                exPayload2.jumpType,
+                exPayload2.branchType,
+                redirectVector2,
+                result2,
+                exPayload2.extraField,
+                exPayload2.bypassEnable);
+        end
+    end
+
 endmodule
 

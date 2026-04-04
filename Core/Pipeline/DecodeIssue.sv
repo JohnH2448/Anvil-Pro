@@ -2,7 +2,6 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
-localparam int width = $clog2(reorderBufferEntries);
 
 module DecodeIssue (
 
@@ -51,16 +50,16 @@ module DecodeIssue (
     output logic [4:0] rstDestinationRegister2,
     output logic isLoad1,
     output logic isLoad2,
-    output logic [width-1:0] ageTag1,
-    output logic [width-1:0] ageTag2,
+    output logic [reorderBufferIndexWidth-1:0] ageTag1,
+    output logic [reorderBufferIndexWidth-1:0] ageTag2,
 
     // Instruction Packets to ROB
     output IssuedIntruction_ instructionPacket1,
     output IssuedIntruction_ instructionPacket2,
 
     // Fresh Tags from ROB
-    input logic [width-1:0] freeTag1,
-    input logic [width-1:0] freeTag2
+    input logic [reorderBufferIndexWidth-1:0] freeTag1,
+    input logic [reorderBufferIndexWidth-1:0] freeTag2
 
 );
 
@@ -383,6 +382,30 @@ module DecodeIssue (
         end
     end
 
+    // Issue Packet Trace
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            if (instructionPacket1.confirm) begin
+                $display("[DecodeIssue][cycle %0d][packet] slot0 pc=%08h tag=%0d rd=%0d store=%0b confirm=%0b",
+                    debugCycle,
+                    instructionPacket1.programCounter,
+                    instructionPacket1.ageTag,
+                    instructionPacket1.destinationRegister,
+                    instructionPacket1.isStore,
+                    instructionPacket1.confirm);
+            end
+            if (instructionPacket2.confirm) begin
+                $display("[DecodeIssue][cycle %0d][packet] slot1 pc=%08h tag=%0d rd=%0d store=%0b confirm=%0b",
+                    debugCycle,
+                    instructionPacket2.programCounter,
+                    instructionPacket2.ageTag,
+                    instructionPacket2.destinationRegister,
+                    instructionPacket2.isStore,
+                    instructionPacket2.confirm);
+            end
+        end
+    end
+
     // Independent Refusal Trace
     always_ff @(posedge clock) begin
         if (!reset && instructionsValid) begin
@@ -419,4 +442,6 @@ endmodule
 // Assess Memory Queue fullness as x-1 to accomindate in flight
 // slot 1 can never be to an non-ready rd MAYBE?????
 // One CSR in pipe at a time
+
+
 
