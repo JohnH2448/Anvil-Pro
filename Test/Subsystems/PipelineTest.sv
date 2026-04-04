@@ -31,6 +31,8 @@ module Top (
     RegisterStatusOutput_ upperSource2Status;
     RegisterStatusOutput_ lowerSource1Status;
     RegisterStatusOutput_ lowerSource2Status;
+    RegisterStatusOutput_ oldLowerStatus;
+    RegisterStatusOutput_ oldUpperStatus;
     logic upperInFlightLoad1;
     logic upperInFlightLoad2;
     logic lowerInFlightLoad1;
@@ -41,6 +43,8 @@ module Top (
     // Decode / Issue Outputs
     logic instructionConsumed1;
     logic instructionConsumed2;
+    logic [4:0] oldUpperStatusRd;
+    logic [4:0] oldLowerStatusRd;
     logic [31:0] requestPC1;
     logic [31:0] requestPC2;
     UpperIssuerOperandPayload_ payload1;
@@ -160,11 +164,16 @@ module Top (
         .upperSource2Status(upperSource2Status), // output
         .lowerSource1Status(lowerSource1Status), // output
         .lowerSource2Status(lowerSource2Status), // output
+        .oldUpperStatus(oldUpperStatus), // output
+        .oldLowerStatus(oldLowerStatus), // output
 
         .upperIssuerRegister1(upperIssuerRegister1), // input
         .upperIssuerRegister2(upperIssuerRegister2), // input
         .lowerIssuerRegister1(lowerIssuerRegister1), // input
         .lowerIssuerRegister2(lowerIssuerRegister2), // input
+
+        .oldUpperStatusRd(oldUpperStatusRd), // input
+        .oldLowerStatusRd(oldLowerStatusRd), // input
 
         .upperInFlightLoad1(upperInFlightLoad1), // output
         .upperInFlightLoad2(upperInFlightLoad2), // output
@@ -228,10 +237,10 @@ module Top (
         .lowerSourceRegister1(lowerSourceRegister1), // output
         .lowerSourceRegister2(lowerSourceRegister2), // output
 
-        .upperSource1Status(upperSource1Status), // input
-        .upperSource2Status(upperSource2Status), // input
-        .lowerSource1Status(lowerSource1Status), // input
-        .lowerSource2Status(lowerSource2Status), // input
+        .upperSource1StatusDummy(upperSource1Status), // input
+        .upperSource2StatusDummy(upperSource2Status), // input
+        .lowerSource1StatusDummy(lowerSource1Status), // input
+        .lowerSource2StatusDummy(lowerSource2Status), // input
 
         .upperAddress1(upperAddress1), // output
         .upperAddress2(upperAddress2), // output
@@ -257,6 +266,7 @@ module Top (
         .lowerExData(resultPayload2.instructionResult), // input
         .upperExTag(resultPayload1.ageTag), // input
         .lowerExTag(resultPayload2.ageTag), // input
+        .lowerExValid(exPayload2.valid), // input
 
         .payload1(payload1), // input
         .payload2(payload2), // input
@@ -305,9 +315,25 @@ module Top (
         .payload1(payload1), // output
         .payload2(payload2), // output
 
+        .oldLowerStatus(oldLowerStatus), // input
+        .oldUpperStatus(oldUpperStatus), // input
+
         .nextFreeSlots(nextFreeSlots), // input
         .freeTag1(freeTag1), // input
         .freeTag2(freeTag2), // input
+
+        .oldUpperStatusRd(oldUpperStatusRd), // output
+        .oldLowerStatusRd(oldLowerStatusRd), // output
+
+        .retireTag1(resolvedInstruction1.ageTag), // input
+        .retireValid1(resolvedInstruction1.valid), // input
+        .retireTag2(resolvedInstruction2.ageTag), // input
+        .retireValid2(resolvedInstruction2.valid), // input
+
+        .acceptTag1(resultPayload1.ageTag), // input
+        .acceptValid1(resultPayload1.accept), // input
+        .acceptTag2(resultPayload2.ageTag), // input
+        .acceptValid2(resultPayload2.accept), // input
 
         .upperIssuerRegister1(upperIssuerRegister1), // output
         .upperIssuerRegister2(upperIssuerRegister2), // output
@@ -363,4 +389,3 @@ module Top (
     );
 
 endmodule
-

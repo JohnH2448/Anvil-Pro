@@ -36,6 +36,8 @@ module DecodeIssue (
     output logic [4:0] upperIssuerRegister2,
     output logic [4:0] lowerIssuerRegister1,
     output logic [4:0] lowerIssuerRegister2,
+    output logic [4:0] oldUpperStatusRd,
+    output logic [4:0] oldLowerStatusRd,
 
     // From RST
     input logic upperInFlightLoad1,
@@ -44,6 +46,8 @@ module DecodeIssue (
     input logic lowerInFlightLoad2,
     input logic destRegLoad1,
     input logic destRegLoad2,
+    input RegisterStatusOutput_ oldUpperStatus,
+    input RegisterStatusOutput_ oldLowerStatus,
 
     // Write To RST
     output logic [4:0] rstDestinationRegister1,
@@ -59,7 +63,20 @@ module DecodeIssue (
 
     // Fresh Tags from ROB
     input logic [reorderBufferIndexWidth-1:0] freeTag1,
-    input logic [reorderBufferIndexWidth-1:0] freeTag2
+    input logic [reorderBufferIndexWidth-1:0] freeTag2,
+
+    // Retire Tags For Stale Vector Calculation
+    input logic [reorderBufferIndexWidth-1:0] retireTag1,
+    input logic retireValid1,
+    input logic [reorderBufferIndexWidth-1:0] retireTag2,
+    input logic retireValid2,
+
+    // Accept Tags For Stale Vector Calculation
+    input logic [reorderBufferIndexWidth-1:0] acceptTag1,
+    input logic acceptValid1,
+    input logic [reorderBufferIndexWidth-1:0] acceptTag2,
+    input logic acceptValid2
+
 
 );
 
@@ -78,6 +95,10 @@ module DecodeIssue (
     assign upperIssuerRegister1 = tempPayload1.sourceRegister1;
     assign upperIssuerRegister2 = tempPayload1.sourceRegister2;
     assign rstDestinationRegister1 = destinationRegister1;
+
+    // Stale Vector Registers
+    assign oldUpperStatusRd = destinationRegister1;
+    assign oldLowerStatusRd = destinationRegister2;
 
     // Lower Issue Slot Source Registers + rd
     assign lowerIssuerRegister1 = tempPayload2.sourceRegister1;
@@ -279,6 +300,7 @@ module DecodeIssue (
                 reasonLowerLoadHazard = 1'b1;
             end
             // Block Issue On Backwards Slot 0/1 Dependency to Fix RST Ownership Problems
+            // FIXABLE BY REUSING STALEVECTOR MACHINARY
             if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0) ||
                 (tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
                 block2 = 1'b1;
@@ -287,6 +309,28 @@ module DecodeIssue (
         end else begin
             block1 = 1'b1;
             block2 = 1'b1;
+        end
+    end
+
+    // Stale Vector Calculations (rd = rs1 or rs2)
+    logic [1:0] staleVector1;
+    logic [1:0] staleVector2;
+    always_comb begin
+        staleVector1 = 2'b00;
+        staleVector2 = 2'b00;
+        if (tempPayload1.sourceRegister1 == destinationRegister1) begin
+            staleVector1[0] = 1'b1;
+        end
+        if ((tempPayload1.sourceRegister2 == destinationRegister1) 
+            && tempPayload1.aluSource == ALU_RS1_RS2) begin
+            staleVector1[1] = 1'b1;
+        end
+        if (tempPayload2.sourceRegister1 == destinationRegister2) begin
+            staleVector2[0] = 1'b1;
+        end
+        if ((tempPayload2.sourceRegister2 == destinationRegister2) 
+            && tempPayload2.aluSource == ALU_RS1_RS2) begin
+            staleVector2[1] = 1'b1;
         end
     end
 
@@ -309,6 +353,19 @@ module DecodeIssue (
             finalUpperPayload = tempPayload1;
             finalUpperPayload.destinationRegister = destinationRegister1;
             finalUpperPayload.ageTag = freeTag1;
+            finalUpperPayload.oldStatus = oldUpperStatus;
+            // Ensures Stale RST Doesn't Otherwise Change Next Cycle
+            // Redirect Isn't a concern. THis will flush
+            if (((oldUpperStatus.ageTag == retireTag1) && retireValid1)
+                || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
+                finalUpperPayload.oldStatus.resultReady = 1'b1;
+                finalUpperPayload.oldStatus.resultCommitted = 1'b1;
+            end else if (((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) begin
+                finalUpperPayload.oldStatus.resultReady = 1'b1;
+                finalUpperPayload.oldStatus.resultCommitted = 1'b0;
+            end
+            finalUpperPayload.staleVector = staleVector1;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload Splice
             finalLowerPayload.programCounter = tempPayload2.programCounter;
@@ -322,11 +379,33 @@ module DecodeIssue (
             finalLowerPayload.jumpType = tempPayload2.jumpType;
             finalLowerPayload.ageTag = freeTag2;
             finalLowerPayload.bypassEnable = bypassEnable;
+            finalLowerPayload.staleVector = staleVector2;
+            finalLowerPayload.oldStatus = oldLowerStatus;
+            if (((oldLowerStatus.ageTag == retireTag1) && retireValid1)
+                || ((oldLowerStatus.ageTag == retireTag2) && retireValid2)) begin
+                finalLowerPayload.oldStatus.resultReady = 1'b1;
+                finalLowerPayload.oldStatus.resultCommitted = 1'b1;
+            end else if (((oldLowerStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((oldLowerStatus.ageTag == acceptTag2) && acceptValid2)) begin
+                finalLowerPayload.oldStatus.resultReady = 1'b1;
+                finalLowerPayload.oldStatus.resultCommitted = 1'b0;
+            end
             finalLowerPayload.valid = 1'd1;
         end else if (instructionConsumed1) begin
             // Upper Payload
             finalUpperPayload = tempPayload1;
             finalUpperPayload.destinationRegister = destinationRegister1;
+            finalUpperPayload.staleVector = staleVector1;
+            finalUpperPayload.oldStatus = oldUpperStatus;
+            if (((oldUpperStatus.ageTag == retireTag1) && retireValid1)
+                || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
+                finalUpperPayload.oldStatus.resultReady = 1'b1;
+                finalUpperPayload.oldStatus.resultCommitted = 1'b1;
+            end else if (((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) begin
+                finalUpperPayload.oldStatus.resultReady = 1'b1;
+                finalUpperPayload.oldStatus.resultCommitted = 1'b0;
+            end
             finalUpperPayload.ageTag = freeTag1;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload
@@ -378,30 +457,6 @@ module DecodeIssue (
                 $display("[DecodeIssue][cycle %0d] issued %08h and %08h", debugCycle, PC1, PC2);
             end else if (instructionConsumed1) begin
                 $display("[DecodeIssue][cycle %0d] issued %08h", debugCycle, PC1);
-            end
-        end
-    end
-
-    // Issue Packet Trace
-    always_ff @(posedge clock) begin
-        if (!reset) begin
-            if (instructionPacket1.confirm) begin
-                $display("[DecodeIssue][cycle %0d][packet] slot0 pc=%08h tag=%0d rd=%0d store=%0b confirm=%0b",
-                    debugCycle,
-                    instructionPacket1.programCounter,
-                    instructionPacket1.ageTag,
-                    instructionPacket1.destinationRegister,
-                    instructionPacket1.isStore,
-                    instructionPacket1.confirm);
-            end
-            if (instructionPacket2.confirm) begin
-                $display("[DecodeIssue][cycle %0d][packet] slot1 pc=%08h tag=%0d rd=%0d store=%0b confirm=%0b",
-                    debugCycle,
-                    instructionPacket2.programCounter,
-                    instructionPacket2.ageTag,
-                    instructionPacket2.destinationRegister,
-                    instructionPacket2.isStore,
-                    instructionPacket2.confirm);
             end
         end
     end

@@ -20,12 +20,16 @@ module RegisterStatusTable (
     output RegisterStatusOutput_ upperSource2Status,
     output RegisterStatusOutput_ lowerSource1Status,
     output RegisterStatusOutput_ lowerSource2Status,
+    output RegisterStatusOutput_ oldUpperStatus,
+    output RegisterStatusOutput_ oldLowerStatus,
 
     // Read From Issuer
     input logic [4:0] upperIssuerRegister1,
     input logic [4:0] upperIssuerRegister2,
     input logic [4:0] lowerIssuerRegister1,
     input logic [4:0] lowerIssuerRegister2,
+    input logic [4:0] oldUpperStatusRd,
+    input logic [4:0] oldLowerStatusRd,
 
     // To Issuer
     output logic upperInFlightLoad1,
@@ -70,17 +74,20 @@ module RegisterStatusTable (
 
     // Register Status Table Declaration
     RegisterStatusEntry_ registerStatusTable [0:31];
+    integer debugCycle;
 
     // Write Block
     always_ff @(posedge clock) begin
         if (reset) begin
             // Reset State
+            debugCycle <= 0;
             for (int i=0; i < 32; i++) begin
                 registerStatusTable[i].isLoad <= 1'd0;
                 registerStatusTable[i].resultReady <= 1'd1;
                 registerStatusTable[i].resultCommitted <= 1'd1;
             end
         end else begin
+            debugCycle <= debugCycle + 1;
             // Full State Bookkeeping Logic
             if (instructionConsumed1 &&
                 (!instructionConsumed2 || (rstDestinationRegister1 != rstDestinationRegister2))) begin
@@ -222,6 +229,24 @@ module RegisterStatusTable (
         end else begin
             lowerSource2Status.resultReady = 1'b1;
             lowerSource2Status.resultCommitted = 1'b1;
+        end
+        // Old Upper Status
+        if (oldUpperStatusRd != 5'd0) begin
+            oldUpperStatus.ageTag = registerStatusTable[oldUpperStatusRd].ageTag;
+            oldUpperStatus.resultReady = registerStatusTable[oldUpperStatusRd].resultReady;
+            oldUpperStatus.resultCommitted = registerStatusTable[oldUpperStatusRd].resultCommitted;
+        end else begin
+            oldUpperStatus.resultReady = 1'b1;
+            oldUpperStatus.resultCommitted = 1'b1;
+        end
+        // Old Lower Status
+        if (oldLowerStatusRd != 5'd0) begin
+            oldLowerStatus.ageTag = registerStatusTable[oldLowerStatusRd].ageTag;
+            oldLowerStatus.resultReady = registerStatusTable[oldLowerStatusRd].resultReady;
+            oldLowerStatus.resultCommitted = registerStatusTable[oldLowerStatusRd].resultCommitted;
+        end else begin
+            oldLowerStatus.resultReady = 1'b1;
+            oldLowerStatus.resultCommitted = 1'b1;
         end
         // Upper Issuer Register 1
         if (upperIssuerRegister1 != 5'd0) begin

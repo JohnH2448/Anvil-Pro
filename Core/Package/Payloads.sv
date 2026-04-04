@@ -41,6 +41,8 @@ package Payloads;
         AluOperation_ aluOperation;
         JumpType_ jumpType;
         logic [reorderBufferIndexWidth-1:0] ageTag;
+        logic [1:0] staleVector;
+        RegisterStatusOutput_ oldStatus;
         logic valid;
     } UpperIssuerOperandPayload_;
 
@@ -57,6 +59,8 @@ package Payloads;
         JumpType_ jumpType;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [1:0] bypassEnable;
+        logic [1:0] staleVector;
+        RegisterStatusOutput_ oldStatus;
         logic valid;
     } LowerIssuerOperandPayload_;
 

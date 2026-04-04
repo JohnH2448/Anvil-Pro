@@ -424,42 +424,6 @@ module ReorderBuffer (
     // Can probably reuse this machinary and redirect line for illegal
     // Most stages function the same under illegal vs redirect
 
-    // ROB Summary Debug Print
-    always_ff @(posedge clock) begin
-        if (!reset) begin
-            $display("[ROB][cycle %0d] nextFreeSlots=%0d headIndexer=%0d tailIndexer=%0d nextHeadIndexer=%0d nextTailIndexer=%0d redirectIndexer=%0d freeTag1=%0d freeTag2=%0d retireCount=%0d empty=%0b full=%0b wrap=%0b redirect=%0b",
-                debugCycle,
-                nextFreeSlots,
-                headIndexer,
-                tailIndexer,
-                nextHeadIndexer,
-                nextTailIndexer,
-                redirectIndexer,
-                freeTag1,
-                freeTag2,
-                retireCount,
-                empty,
-                full,
-                wrap,
-                redirect);
-        end
-    end
-
-    // Redirect Debug Print
-    always_ff @(posedge clock) begin
-        if (!reset && redirect) begin
-            $display("[ROB][cycle %0d][redirect] vector=%08h redirectTag=%0d redirectPointer=%0d execTag1=%0d execTag2=%0d redirect1=%0b redirect2=%0b",
-                debugCycle,
-                redirectVector,
-                redirectTag,
-                redirectPointer,
-                completedInstruction1.ageTag,
-                completedInstruction2.ageTag,
-                redirect1,
-                redirect2);
-        end
-    end
-
     // ROB Debug Print
     always_ff @(posedge clock) begin
         if (!reset) begin
