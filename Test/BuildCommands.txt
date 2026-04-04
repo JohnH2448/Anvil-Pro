@@ -17,4 +17,3 @@ hash -r
 make -C Verilator -f VTop.mk -j"$(nproc)"
 
 ./Verilator/VTop
-nn

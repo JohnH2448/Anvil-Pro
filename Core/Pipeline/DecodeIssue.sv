@@ -450,39 +450,59 @@ module DecodeIssue (
         payload2 <= finalLowerPayload;
     end
 
-    // Independent Issue Trace
+    // Single-line issue summary trace.
     always_ff @(posedge clock) begin
+        string slot0Summary;
+        string slot1Summary;
         if (!reset) begin
-            if (instructionConsumed1 && instructionConsumed2) begin
-                $display("[DecodeIssue][cycle %0d] issued %08h and %08h", debugCycle, PC1, PC2);
-            end else if (instructionConsumed1) begin
-                $display("[DecodeIssue][cycle %0d] issued %08h", debugCycle, PC1);
-            end
-        end
-    end
+            if (redirect || (postRedirectCounter == 1'b0) || !instructionsValid) begin
+                slot0Summary = $sformatf("%-17s", "BRANCH");
+                slot1Summary = $sformatf("%-17s", "BRANCH");
+            end else begin
+                if (instructionConsumed1) begin
+                    slot0Summary = $sformatf("%08h %-8s", PC1, "ISSUED");
+                end else if (reasonIllegal1) begin
+                    slot0Summary = $sformatf("%08h %-8s", PC1, "ILLEGAL");
+                end else if (reasonRobFull) begin
+                    slot0Summary = $sformatf("%08h %-8s", PC1, "ROBFULL");
+                end else if (reasonUpperLoadHazard) begin
+                    slot0Summary = $sformatf("%08h %-8s", PC1, "LOADHAZ");
+                end else begin
+                    slot0Summary = $sformatf("%08h %-8s", PC1, "STALL");
+                end
 
-    // Independent Refusal Trace
-    always_ff @(posedge clock) begin
-        if (!reset && instructionsValid) begin
-            if (block1) begin
-                if (reasonIllegal1) $display("[DecodeIssue][cycle %0d] refusal slot0 pc=%08h ir=%08h: illegal instruction", debugCycle, PC1, IR1);
-                if (reasonRobFull) $display("[DecodeIssue][cycle %0d] refusal slot0 pc=%08h ir=%08h: ROB full", debugCycle, PC1, IR1);
-                if (reasonUpperLoadHazard) $display("[DecodeIssue][cycle %0d] refusal slot0 pc=%08h ir=%08h: unready load hazard", debugCycle, PC1, IR1);
+                if (instructionConsumed2) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "ISSUED");
+                end else if (reasonIllegal2) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "ILLEGAL");
+                end else if (reasonIllegal1) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "SLOT0ILL");
+                end else if (reasonSlot1Memory) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "SLOT1MEM");
+                end else if (reasonWawConflict) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "WAW");
+                end else if (reasonSlotDependency) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "DEP");
+                end else if (reasonDualRedirect) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "DUALREDIR");
+                end else if (reasonBadFetch) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "BADFETCH");
+                end else if (reasonRobOneFree) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "ROB1FREE");
+                end else if (reasonRobFull) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "ROBFULL");
+                end else if (reasonUpperLoadHazard) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "SLOT0LOAD");
+                end else if (reasonLowerLoadHazard) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "LOADHAZ");
+                end else if (reasonBackwardDependency) begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "BACKDEP");
+                end else begin
+                    slot1Summary = $sformatf("%08h %-8s", PC2, "STALL");
+                end
             end
-            if (block2) begin
-                if (reasonIllegal2) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: illegal instruction", debugCycle, PC2, IR2);
-                if (reasonIllegal1) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: blocked by slot0 illegal instruction", debugCycle, PC2, IR2);
-                if (reasonSlot1Memory) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: memory op must issue in slot0", debugCycle, PC2, IR2);
-                if (reasonWawConflict) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: WAW conflict", debugCycle, PC2, IR2);
-                if (reasonSlotDependency) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: slot0/slot1 dependency", debugCycle, PC2, IR2);
-                if (reasonDualRedirect) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: dual redirect", debugCycle, PC2, IR2);
-                if (reasonBadFetch) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: bad fetch window", debugCycle, PC2, IR2);
-                if (reasonRobOneFree) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: only one ROB slot free", debugCycle, PC2, IR2);
-                if (reasonRobFull) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: ROB full", debugCycle, PC2, IR2);
-                if (reasonUpperLoadHazard) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: blocked by slot0 load hazard", debugCycle, PC2, IR2);
-                if (reasonLowerLoadHazard) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: unready load hazard", debugCycle, PC2, IR2);
-                if (reasonBackwardDependency) $display("[DecodeIssue][cycle %0d] refusal slot1 pc=%08h ir=%08h: backwards dependency", debugCycle, PC2, IR2);
-            end
+            $display("[DecodeIssue][cycle %0d] SLOT0: %s | SLOT1: %s",
+                debugCycle, slot0Summary, slot1Summary);
         end
     end
 
