@@ -191,18 +191,4 @@ module Execute (
         end
     end
 
-    // Independent Execute Trace
-    always_ff @(posedge clock) begin
-        if (!reset) begin
-            if (exPayload1.valid) begin
-                $display("[Execute] slot0 op=%0d a=%08h b=%08h -> %08h",
-                    exPayload1.aluOperation, upperOperand1, upperOperand2, result1);
-            end
-            if (exPayload2.valid) begin
-                $display("[Execute] slot1 op=%0d a=%08h b=%08h -> %08h bypass=%02b",
-                    exPayload2.aluOperation, lowerOperand1, lowerOperand2, result2, exPayload2.bypassEnable);
-            end
-        end
-    end
-
 endmodule
