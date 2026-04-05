@@ -425,14 +425,14 @@ module ReorderBuffer (
     // Most stages function the same under illegal vs redirect
 
     // ROB Debug Print
-    always_ff @(posedge clock) begin
+    always_ff @(negedge clock) begin
         if (!reset) begin
             if (entries == '0) begin
-                $display("\n=== ROB Cycle %0d ===\nhead=%0d tail=%0d entries=%0d free=%0d empty\n",
-                    debugCycle, headPointer, tailPointer, entries, freeEntries);
+                $display("\nReorder Buffer\nhead=%0d tail=%0d entries=%0d free=%0d empty\n",
+                    headPointer, tailPointer, entries, freeEntries);
             end else begin
-                $display("\n=== ROB Cycle %0d ===\nhead=%0d tail=%0d entries=%0d free=%0d\n",
-                    debugCycle, headPointer, tailPointer, entries, freeEntries);
+                $display("\nReorder Buffer\nhead=%0d tail=%0d entries=%0d free=%0d",
+                    headPointer, tailPointer, entries, freeEntries);
                 for (int unsigned offset = 0; offset < reorderBufferEntries; offset++) begin
                     logic [reorderBufferIndexWidth-1:0] queueIndex;
                     if (offset < entries) begin

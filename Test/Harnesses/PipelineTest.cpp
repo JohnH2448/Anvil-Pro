@@ -31,10 +31,10 @@ struct TermRawMode {
 };
 
 static void tick_full_cycle(VTop* top) {
-    top->clock = 0;
+    top->clock = 1;
     top->eval();
 
-    top->clock = 1;
+    top->clock = 0;
     top->eval();
 }
 
@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
 
     auto* top = new VTop;
+    uint64_t cycle = 0;
 
     top->clock = 0;
     top->reset = 0;
@@ -66,6 +67,8 @@ int main(int argc, char** argv) {
         }
 
         if (c == 'r') {
+            cycle = 0;
+            std::cout << "========== CYCLE 0 =============\n\n";
             top->reset = 1;
             top->eval();
             tick_full_cycle(top);
@@ -75,6 +78,8 @@ int main(int argc, char** argv) {
         }
 
         if (c == 'n') {
+            cycle++;
+            std::cout << "============ CYCLE " << cycle << " ============\n\n";
             top->reset = 0;
             top->eval();
             tick_full_cycle(top);

@@ -56,12 +56,14 @@ module MemoryQueue (
 
     // Converts Width to Wishbone Format
     logic [3:0] byteSelectTransform;
+    logic [31:0] alignedStoreData;
     always_comb begin
         unique case (queueEntry[0].memoryWidth)
-            2'b00: byteSelectTransform = 4'b0001;
-            2'b01: byteSelectTransform = 4'b0011;
+            2'b00: byteSelectTransform = 4'b0001 << queueEntry[0].address[1:0];
+            2'b01: byteSelectTransform = 4'b0011 << queueEntry[0].address[1:0];
             2'b11: byteSelectTransform = 4'b1111;
         endcase
+        alignedStoreData = queueEntry[0].storeData << (8 * queueEntry[0].address[1:0]);
     end
 
     // Small Store FSM
@@ -93,7 +95,7 @@ module MemoryQueue (
             memBusOut.address = queueEntry[0].address;
             memBusOut.writeEnable = 1'b1;
             memBusOut.byteSelect = byteSelectTransform;
-            memBusOut.storeData = queueEntry[0].storeData;
+            memBusOut.storeData = alignedStoreData;
             if (!storeTriggered) begin
                 memBusOut.cycle = triggerStore;
                 memBusOut.strobe = triggerStore;
@@ -106,23 +108,29 @@ module MemoryQueue (
 
     // Packet Construction for ROB
     always_comb begin
+        logic [31:0] shiftedLoadData;
+        logic [7:0] loadByte;
+        logic [15:0] loadHalf;
         // Load Packet + Sign Extention
         completedMemory = '0;
         storeACK = 1'b0;
+        shiftedLoadData = memBusIn.loadData >> (8 * queueEntry[0].address[1:0]);
+        loadByte = shiftedLoadData[7:0];
+        loadHalf = memBusIn.loadData >> (16 * queueEntry[0].address[1]);
         if ((queueEntry[0].memoryOperation == MEM_LOAD) && memBusIn.acknowledge) begin
             unique case (queueEntry[0].memoryWidth)
                 2'b00: begin
                     if (queueEntry[0].memorySigned) begin
-                        completedMemory.instructionResult = {{24{memBusIn.loadData[7]}}, memBusIn.loadData[7:0]};
+                        completedMemory.instructionResult = {{24{loadByte[7]}}, loadByte};
                     end else begin
-                        completedMemory.instructionResult = {24'b0, memBusIn.loadData[7:0]};
+                        completedMemory.instructionResult = {24'b0, loadByte};
                     end
                 end
                 2'b01: begin
                     if (queueEntry[0].memorySigned) begin
-                        completedMemory.instructionResult = {{16{memBusIn.loadData[15]}}, memBusIn.loadData[15:0]};
+                        completedMemory.instructionResult = {{16{loadHalf[15]}}, loadHalf};
                     end else begin
-                        completedMemory.instructionResult = {16'b0, memBusIn.loadData[15:0]};
+                        completedMemory.instructionResult = {16'b0, loadHalf};
                     end
                 end
                 2'b11: completedMemory.instructionResult = memBusIn.loadData;
@@ -172,11 +180,10 @@ module MemoryQueue (
     end
 
     // Memory Queue Debug Print
-    always_ff @(posedge clock) begin
+    always_ff @(negedge clock) begin
         if (!reset) begin
             $display(
-                "\n=== Memory Queue Cycle %0d ===\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b",
-                debugCycle,
+                "Memory Queue\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b",
                 tailPointer,
                 completed,
                 triggerStore,
@@ -221,3 +228,6 @@ endmodule
 
  // Potential Store Buffer that forwards to in-flight loads in ex. they
  // then go straight to rob and skip mem queue.
+
+ // redo retirement logic so that its more streamlined and can fire two stores
+ // and doesnt wait for ack.

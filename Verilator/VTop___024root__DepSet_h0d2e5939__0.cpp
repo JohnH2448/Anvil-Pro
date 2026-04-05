@@ -1811,6 +1811,16 @@ VL_INLINE_OPT void VTop___024root___ico_sequent__TOP__0(VTop___024root* vlSelf) 
              == (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister2))) {
             Top__DOT__decodeIssue__DOT__block2 = 1U;
         }
+        if ((IData)(((0x2000000U == (0x6000000U & vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U])) 
+                     & (((IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1) 
+                         == (0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                                      >> 2U))) | ((IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1) 
+                                                  == 
+                                                  (0x1fU 
+                                                   & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                                                      >> 7U))))))) {
+            Top__DOT__decodeIssue__DOT__block2 = 1U;
+        }
         if (vlSelf->Top__DOT__decodeIssue__DOT__internalBadData) {
             Top__DOT__decodeIssue__DOT__block2 = 1U;
         }
@@ -2256,6 +2266,684 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     if (false && vlSelf) {}  // Prevent unused
     VTop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    VTop___024root___nba_sequent__TOP__0\n"); );
+    // Body
+    if (VL_UNLIKELY((1U & (~ (IData)(vlSelf->reset))))) {
+        VL_WRITEF("Register File\nx00=%08x  x01=%08x  x02=%08x  x03=%08x\nx04=%08x  x05=%08x  x06=%08x  x07=%08x\nx08=%08x  x09=%08x  x10=%08x  x11=%08x\nx12=%08x  x13=%08x  x14=%08x  x15=%08x\nx16=%08x  x17=%08x  x18=%08x  x19=%08x\nx20=%08x  x21=%08x  x22=%08x  x23=%08x\nx24=%08x  x25=%08x  x26=%08x  x27=%08x\nx28=%08x  x29=%08x  x30=%08x  x31=%08x\n\n",
+                  32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [1U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [2U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [3U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [4U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [5U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [6U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [7U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [8U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [9U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0xaU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0xbU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0xcU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0xdU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0xeU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0xfU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x10U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x11U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x12U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x13U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x14U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x15U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x16U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x17U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x18U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x19U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x1aU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x1bU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x1cU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x1dU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x1eU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
+                  [0x1fU]);
+    }
+    if (VL_UNLIKELY((1U & (~ (IData)(vlSelf->reset))))) {
+        VL_WRITEF("Memory Queue\ntail=%0# completed=%0b trig=%0b hold=%0b ack=%0b \n",
+                  4,vlSelf->Top__DOT__memoryQueue__DOT__tailPointer,
+                  1,(1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)),
+                  1,(IData)(vlSelf->Top__DOT__triggerStore),
+                  1,vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered,
+                  1,(1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
+        if (VL_UNLIKELY((0U == (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+            VL_WRITEF("empty\n");
+        } else {
+            if (VL_UNLIKELY((0U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[0] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [0U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [0U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [0U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [0U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [0U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [0U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [0U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [0U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [0U][0U] 
+                                                   >> 4U)));
+            }
+            if (VL_UNLIKELY((1U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[1] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [1U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [1U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [1U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [1U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [1U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [1U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [1U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [1U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [1U][0U] 
+                                                   >> 4U)));
+            }
+            if (VL_UNLIKELY((2U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[2] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [2U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [2U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [2U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [2U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [2U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [2U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [2U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [2U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [2U][0U] 
+                                                   >> 4U)));
+            }
+            if (VL_UNLIKELY((3U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[3] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [3U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [3U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [3U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [3U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [3U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [3U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [3U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [3U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [3U][0U] 
+                                                   >> 4U)));
+            }
+            if (VL_UNLIKELY((4U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[4] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [4U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [4U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [4U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [4U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [4U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [4U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [4U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [4U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [4U][0U] 
+                                                   >> 4U)));
+            }
+            if (VL_UNLIKELY((5U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[5] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [5U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [5U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [5U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [5U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [5U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [5U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [5U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [5U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [5U][0U] 
+                                                   >> 4U)));
+            }
+            if (VL_UNLIKELY((6U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[6] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [6U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [6U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [6U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [6U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [6U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [6U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [6U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [6U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [6U][0U] 
+                                                   >> 4U)));
+            }
+            if (VL_UNLIKELY((7U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
+                VL_WRITEF("[7] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [7U][0U] >> 0xcU)),
+                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [7U][2U] << 0x12U) | 
+                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                               [7U][1U] >> 0xeU)),32,
+                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                            [7U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [7U][0U] 
+                                                  >> 0xeU)),
+                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [7U][0U] >> 0xaU)),
+                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                   [7U][0U] >> 9U)),
+                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                             [7U][0U]),5,(0x1fU & (
+                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                   [7U][0U] 
+                                                   >> 4U)));
+            }
+        }
+    }
+    if ((1U & (~ (IData)(vlSelf->reset)))) {
+        if ((0U == (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries))) {
+            VL_WRITEF("\nReorder Buffer\nhead=%0# tail=%0# entries=%0# free=%0# empty\n\n",
+                      5,vlSelf->Top__DOT__reorderBuffer__DOT__headPointer,
+                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer),
+                      5,vlSelf->Top__DOT__reorderBuffer__DOT__entries,
+                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries));
+        } else {
+            VL_WRITEF("\nReorder Buffer\nhead=%0# tail=%0# entries=%0# free=%0#\n",
+                      5,vlSelf->Top__DOT__reorderBuffer__DOT__headPointer,
+                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer),
+                      5,vlSelf->Top__DOT__reorderBuffer__DOT__entries,
+                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries));
+            if (VL_UNLIKELY((0U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((1U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(1U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((2U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(2U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((3U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(3U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((4U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(4U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((5U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(5U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((6U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(6U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((7U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(7U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((8U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(8U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((9U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(9U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((0xaU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(0xaU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((0xbU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(0xbU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((0xcU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(0xcU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((0xdU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(0xdU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((0xeU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(0xeU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+            if (VL_UNLIKELY((0xfU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
+                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
+                    = (0xfU & ((IData)(0xfU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
+                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
+                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
+                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                            >> 0xbU)),
+                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                      >> 6U)),4,(0xfU 
+                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                    >> 2U)),
+                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
+                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
+                                                << 0x15U) 
+                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
+                                                  >> 0xbU)));
+            }
+        }
+    }
+}
+
+VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__1(VTop___024root* vlSelf) {
+    if (false && vlSelf) {}  // Prevent unused
+    VTop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
+    VL_DEBUG_IF(VL_DBG_MSGF("+    VTop___024root___nba_sequent__TOP__1\n"); );
     // Init
     CData/*1:0*/ Top__DOT__nextFreeSlots;
     Top__DOT__nextFreeSlots = 0;
@@ -2263,8 +2951,14 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     Top__DOT__redirect2 = 0;
     CData/*3:0*/ Top__DOT__memoryQueue__DOT__unnamedblk1__DOT__memFreeSlotsTemp;
     Top__DOT__memoryQueue__DOT__unnamedblk1__DOT__memFreeSlotsTemp = 0;
-    CData/*0:0*/ Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__canAccept;
-    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__canAccept = 0;
+    IData/*31:0*/ Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__shiftedLoadData;
+    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__shiftedLoadData = 0;
+    CData/*7:0*/ Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadByte;
+    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadByte = 0;
+    SData/*15:0*/ Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadHalf;
+    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadHalf = 0;
+    CData/*0:0*/ Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__canAccept;
+    Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__canAccept = 0;
     CData/*1:0*/ Top__DOT__reorderBuffer__DOT__retireCount;
     Top__DOT__reorderBuffer__DOT__retireCount = 0;
     CData/*4:0*/ Top__DOT__reorderBuffer__DOT__redirectPointer;
@@ -2383,7 +3077,7 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     __Vdly__Top__DOT__placeholderDMEM__DOT__latchedWriteEnable = 0;
     CData/*3:0*/ __Vdly__Top__DOT__placeholderDMEM__DOT__latchedByteSelect;
     __Vdly__Top__DOT__placeholderDMEM__DOT__latchedByteSelect = 0;
-    CData/*2:0*/ __Vdly__Top__DOT__placeholderDMEM__DOT__delayCounter;
+    CData/*1:0*/ __Vdly__Top__DOT__placeholderDMEM__DOT__delayCounter;
     __Vdly__Top__DOT__placeholderDMEM__DOT__delayCounter = 0;
     SData/*9:0*/ __Vdlyvdim0__Top__DOT__placeholderDMEM__DOT__memory__v0;
     __Vdlyvdim0__Top__DOT__placeholderDMEM__DOT__memory__v0 = 0;
@@ -2903,44 +3597,8 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     __Vdly__Top__DOT__decodeIssue__DOT__postRedirectCounter = 0;
     IData/*31:0*/ __Vdly__Top__DOT__programCounter;
     __Vdly__Top__DOT__programCounter = 0;
+    VlWide<3>/*95:0*/ __Vtemp_30;
     // Body
-    if (VL_UNLIKELY((1U & (~ (IData)(vlSelf->reset))))) {
-        VL_WRITEF("\n=== Register File Cycle %0d ===\nx00=%08x  x01=%08x  x02=%08x  x03=%08x\nx04=%08x  x05=%08x  x06=%08x  x07=%08x\nx08=%08x  x09=%08x  x10=%08x  x11=%08x\nx12=%08x  x13=%08x  x14=%08x  x15=%08x\nx16=%08x  x17=%08x  x18=%08x  x19=%08x\nx20=%08x  x21=%08x  x22=%08x  x23=%08x\nx24=%08x  x25=%08x  x26=%08x  x27=%08x\nx28=%08x  x29=%08x  x30=%08x  x31=%08x\n\n",
-                  32,vlSelf->Top__DOT__registerFile__DOT__debugCycle,
-                  32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [1U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [2U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [3U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [4U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [5U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [6U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [7U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [8U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [9U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0xaU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0xbU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0xcU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0xdU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0xeU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0xfU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x10U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x11U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x12U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x13U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x14U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x15U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x16U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x17U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x18U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x19U],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x1aU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x1bU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x1cU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x1dU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x1eU],32,vlSelf->Top__DOT__registerFile__DOT__registerFile
-                  [0x1fU]);
-    }
     __Vdlyvset__Top__DOT__registerFile__DOT__registerFile__v0 = 0U;
     __Vdlyvset__Top__DOT__registerFile__DOT__registerFile__v32 = 0U;
     __Vdlyvset__Top__DOT__registerFile__DOT__registerFile__v33 = 0U;
@@ -2964,195 +3622,6 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     __Vdly__Top__DOT__programCounter = vlSelf->Top__DOT__programCounter;
     __Vdly__Top__DOT__memoryQueue__DOT__storeTriggered 
         = vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered;
-    if (VL_UNLIKELY((1U & (~ (IData)(vlSelf->reset))))) {
-        VL_WRITEF("\n=== Memory Queue Cycle %0d ===\ntail=%0# completed=%0b trig=%0b hold=%0b ack=%0b \n",
-                  32,vlSelf->Top__DOT__memoryQueue__DOT__debugCycle,
-                  4,(IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer),
-                  1,(1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)),
-                  1,(IData)(vlSelf->Top__DOT__triggerStore),
-                  1,vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered,
-                  1,(1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
-        if (VL_UNLIKELY((0U == (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-            VL_WRITEF("empty\n");
-        } else {
-            if (VL_UNLIKELY((0U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[0] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [0U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [0U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [0U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [0U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [0U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [0U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [0U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [0U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [0U][0U] 
-                                                   >> 4U)));
-            }
-            if (VL_UNLIKELY((1U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[1] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [1U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [1U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [1U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [1U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [1U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [1U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [1U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [1U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [1U][0U] 
-                                                   >> 4U)));
-            }
-            if (VL_UNLIKELY((2U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[2] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [2U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [2U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [2U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [2U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [2U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [2U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [2U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [2U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [2U][0U] 
-                                                   >> 4U)));
-            }
-            if (VL_UNLIKELY((3U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[3] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [3U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [3U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [3U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [3U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [3U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [3U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [3U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [3U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [3U][0U] 
-                                                   >> 4U)));
-            }
-            if (VL_UNLIKELY((4U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[4] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [4U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [4U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [4U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [4U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [4U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [4U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [4U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [4U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [4U][0U] 
-                                                   >> 4U)));
-            }
-            if (VL_UNLIKELY((5U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[5] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [5U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [5U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [5U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [5U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [5U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [5U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [5U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [5U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [5U][0U] 
-                                                   >> 4U)));
-            }
-            if (VL_UNLIKELY((6U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[6] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [6U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [6U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [6U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [6U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [6U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [6U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [6U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [6U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [6U][0U] 
-                                                   >> 4U)));
-            }
-            if (VL_UNLIKELY((7U < (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)))) {
-                VL_WRITEF("[7] op=%0# addr=%08x data=%08x width=%02b sign=%0b tag=%0# rd=x%0#\n",
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [7U][0U] >> 0xcU)),
-                          32,((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [7U][2U] << 0x12U) | 
-                              (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                               [7U][1U] >> 0xeU)),32,
-                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                            [7U][1U] << 0x12U) | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [7U][0U] 
-                                                  >> 0xeU)),
-                          2,(3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [7U][0U] >> 0xaU)),
-                          1,(1U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                   [7U][0U] >> 9U)),
-                          4,(0xfU & vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                             [7U][0U]),5,(0x1fU & (
-                                                   vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                   [7U][0U] 
-                                                   >> 4U)));
-            }
-        }
-    }
     __Vdlyvset__Top__DOT__reorderBuffer__DOT__reorderBuffer__v0 = 0U;
     __Vdlyvset__Top__DOT__memoryQueue__DOT__queueEntry__v0 = 0U;
     __Vdlyvset__Top__DOT__memoryQueue__DOT__queueEntry__v1 = 0U;
@@ -3182,455 +3651,98 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     __Vdlyvset__Top__DOT__registerStatusTable__DOT__registerStatusTable__v114 = 0U;
     __Vdlyvset__Top__DOT__registerStatusTable__DOT__registerStatusTable__v118 = 0U;
     __Vdlyvset__Top__DOT__registerStatusTable__DOT__registerStatusTable__v122 = 0U;
-    if ((1U & (~ (IData)(vlSelf->reset)))) {
-        if ((0U == (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries))) {
-            VL_WRITEF("\n=== ROB Cycle %0d ===\nhead=%0# tail=%0# entries=%0# free=%0# empty\n\n",
-                      32,vlSelf->Top__DOT__reorderBuffer__DOT__debugCycle,
-                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer),
-                      5,vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer,
-                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries),
-                      5,vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries);
+    if (((IData)(vlSelf->reset) | (IData)(vlSelf->Top__DOT__redirect))) {
+        __Vdly__Top__DOT__programCounter = ((IData)(vlSelf->reset)
+                                             ? 0U : vlSelf->Top__DOT__redirectVector);
+        vlSelf->Top__DOT__highFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
+                       >> 4U))][0U];
+        vlSelf->Top__DOT__highFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
+                       >> 4U))][1U];
+        vlSelf->Top__DOT__highFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
+                       >> 4U))][2U];
+        vlSelf->Top__DOT__highFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
+                       >> 4U))][3U];
+        vlSelf->Top__DOT__lowFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
+                       >> 4U))][0U];
+        vlSelf->Top__DOT__lowFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
+                       >> 4U))][1U];
+        vlSelf->Top__DOT__lowFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
+                       >> 4U))][2U];
+        vlSelf->Top__DOT__lowFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
+                       >> 4U))][3U];
+        vlSelf->Top__DOT__decodeIssue__DOT__instructionsValid = 0U;
+        __Vdly__Top__DOT__decodeIssue__DOT__postRedirectCounter = 0U;
+        vlSelf->Top__DOT__decodeIssue__DOT__IR1 = 0xdeadbeefU;
+        vlSelf->Top__DOT__decodeIssue__DOT__IR2 = 0xdeadbeefU;
+    } else {
+        if (((IData)(vlSelf->Top__DOT__instructionConsumed1) 
+             & (IData)(vlSelf->Top__DOT__instructionConsumed2))) {
+            __Vdly__Top__DOT__programCounter = ((IData)(8U) 
+                                                + vlSelf->Top__DOT__programCounter);
+        } else if (vlSelf->Top__DOT__instructionConsumed1) {
+            __Vdly__Top__DOT__programCounter = ((IData)(4U) 
+                                                + vlSelf->Top__DOT__programCounter);
+        }
+        vlSelf->Top__DOT__highFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
+                                          & vlSelf->Top__DOT__programCounter)) 
+                       >> 4U))][0U];
+        vlSelf->Top__DOT__highFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
+                                          & vlSelf->Top__DOT__programCounter)) 
+                       >> 4U))][1U];
+        vlSelf->Top__DOT__highFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
+                                          & vlSelf->Top__DOT__programCounter)) 
+                       >> 4U))][2U];
+        vlSelf->Top__DOT__highFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
+                                          & vlSelf->Top__DOT__programCounter)) 
+                       >> 4U))][3U];
+        vlSelf->Top__DOT__lowFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__programCounter 
+                       >> 4U))][0U];
+        vlSelf->Top__DOT__lowFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__programCounter 
+                       >> 4U))][1U];
+        vlSelf->Top__DOT__lowFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__programCounter 
+                       >> 4U))][2U];
+        vlSelf->Top__DOT__lowFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
+            [(0xffU & (vlSelf->Top__DOT__programCounter 
+                       >> 4U))][3U];
+        if (vlSelf->Top__DOT__decodeIssue__DOT__postRedirectCounter) {
+            vlSelf->Top__DOT__decodeIssue__DOT__instructionsValid = 1U;
+            vlSelf->Top__DOT__decodeIssue__DOT__IR1 
+                = vlSelf->Top__DOT__instruction1;
+            vlSelf->Top__DOT__decodeIssue__DOT__IR2 
+                = vlSelf->Top__DOT__instruction2;
+            vlSelf->Top__DOT__decodeIssue__DOT__PC1 
+                = vlSelf->Top__DOT__requestPC1;
+            vlSelf->Top__DOT__decodeIssue__DOT__PC2 
+                = vlSelf->Top__DOT__requestPC2;
+            vlSelf->Top__DOT__decodeIssue__DOT__internalBadData 
+                = (((vlSelf->Top__DOT__requestPC2 >> 4U) 
+                    != (vlSelf->Top__DOT__walkingWindow__DOT__lastHighWindow 
+                        >> 4U)) & ((vlSelf->Top__DOT__requestPC2 
+                                    >> 4U) != (vlSelf->Top__DOT__walkingWindow__DOT__lastLowWindow 
+                                               >> 4U)));
         } else {
-            VL_WRITEF("\n=== ROB Cycle %0d ===\nhead=%0# tail=%0# entries=%0# free=%0#\n\n",
-                      32,vlSelf->Top__DOT__reorderBuffer__DOT__debugCycle,
-                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer),
-                      5,vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer,
-                      5,(IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries),
-                      5,vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries);
-            if (VL_UNLIKELY((0U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((1U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(1U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((2U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(2U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((3U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(3U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((4U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(4U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((5U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(5U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((6U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(6U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((7U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(7U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((8U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(8U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((9U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(9U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((0xaU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(0xaU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((0xbU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(0xbU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((0xcU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(0xcU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((0xdU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(0xdU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((0xeU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(0xeU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
-            if (VL_UNLIKELY((0xfU < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)))) {
-                vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex 
-                    = (0xfU & ((IData)(0xfU) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
-                VL_WRITEF("[%0#] pc=%08x rd=x%0# tag=%0# ready=%0b store=%0b data=%08x\n",
-                          4,vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex,
-                          32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][2U] 
-                               << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                            [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                            >> 0xbU)),
-                          5,(0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                      [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                      >> 6U)),4,(0xfU 
-                                                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                    >> 2U)),
-                          1,(1U & vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                             [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U]),
-                          1,(1U & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                   [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                   >> 1U)),32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][1U] 
-                                                << 0x15U) 
-                                               | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                  [vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex][0U] 
-                                                  >> 0xbU)));
-            }
+            __Vdly__Top__DOT__decodeIssue__DOT__postRedirectCounter 
+                = (1U & ((IData)(1U) + (IData)(vlSelf->Top__DOT__decodeIssue__DOT__postRedirectCounter)));
         }
     }
+    Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__canAccept 
+        = (1U & ((8U != (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)) 
+                 | (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
     if ((1U & (~ (IData)(vlSelf->reset)))) {
         if ((1U & (IData)(vlSelf->Top__DOT__resultPayload1))) {
             __Vdlyvval__Top__DOT__reorderBuffer__DOT__reorderBuffer__v27 
@@ -3733,98 +3845,6 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                 = (0xfU & ((IData)(1U) + (IData)(vlSelf->Top__DOT__freeTag1)));
         }
     }
-    if (((IData)(vlSelf->reset) | (IData)(vlSelf->Top__DOT__redirect))) {
-        __Vdly__Top__DOT__programCounter = ((IData)(vlSelf->reset)
-                                             ? 0U : vlSelf->Top__DOT__redirectVector);
-        vlSelf->Top__DOT__highFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
-                       >> 4U))][0U];
-        vlSelf->Top__DOT__highFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
-                       >> 4U))][1U];
-        vlSelf->Top__DOT__highFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
-                       >> 4U))][2U];
-        vlSelf->Top__DOT__highFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__nextAddress 
-                       >> 4U))][3U];
-        vlSelf->Top__DOT__lowFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
-                       >> 4U))][0U];
-        vlSelf->Top__DOT__lowFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
-                       >> 4U))][1U];
-        vlSelf->Top__DOT__lowFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
-                       >> 4U))][2U];
-        vlSelf->Top__DOT__lowFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__instructionMemory__DOT__redirectAddress 
-                       >> 4U))][3U];
-        vlSelf->Top__DOT__decodeIssue__DOT__instructionsValid = 0U;
-        __Vdly__Top__DOT__decodeIssue__DOT__postRedirectCounter = 0U;
-        vlSelf->Top__DOT__decodeIssue__DOT__IR1 = 0xdeadbeefU;
-        vlSelf->Top__DOT__decodeIssue__DOT__IR2 = 0xdeadbeefU;
-    } else {
-        if (((IData)(vlSelf->Top__DOT__instructionConsumed1) 
-             & (IData)(vlSelf->Top__DOT__instructionConsumed2))) {
-            __Vdly__Top__DOT__programCounter = ((IData)(8U) 
-                                                + vlSelf->Top__DOT__programCounter);
-        } else if (vlSelf->Top__DOT__instructionConsumed1) {
-            __Vdly__Top__DOT__programCounter = ((IData)(4U) 
-                                                + vlSelf->Top__DOT__programCounter);
-        }
-        vlSelf->Top__DOT__highFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
-                                          & vlSelf->Top__DOT__programCounter)) 
-                       >> 4U))][0U];
-        vlSelf->Top__DOT__highFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
-                                          & vlSelf->Top__DOT__programCounter)) 
-                       >> 4U))][1U];
-        vlSelf->Top__DOT__highFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
-                                          & vlSelf->Top__DOT__programCounter)) 
-                       >> 4U))][2U];
-        vlSelf->Top__DOT__highFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (((IData)(0x10U) + (0xfffffff0U 
-                                          & vlSelf->Top__DOT__programCounter)) 
-                       >> 4U))][3U];
-        vlSelf->Top__DOT__lowFetchData[0U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__programCounter 
-                       >> 4U))][0U];
-        vlSelf->Top__DOT__lowFetchData[1U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__programCounter 
-                       >> 4U))][1U];
-        vlSelf->Top__DOT__lowFetchData[2U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__programCounter 
-                       >> 4U))][2U];
-        vlSelf->Top__DOT__lowFetchData[3U] = vlSelf->Top__DOT__instructionMemory__DOT__memory
-            [(0xffU & (vlSelf->Top__DOT__programCounter 
-                       >> 4U))][3U];
-        if (vlSelf->Top__DOT__decodeIssue__DOT__postRedirectCounter) {
-            vlSelf->Top__DOT__decodeIssue__DOT__instructionsValid = 1U;
-            vlSelf->Top__DOT__decodeIssue__DOT__IR1 
-                = vlSelf->Top__DOT__instruction1;
-            vlSelf->Top__DOT__decodeIssue__DOT__IR2 
-                = vlSelf->Top__DOT__instruction2;
-            vlSelf->Top__DOT__decodeIssue__DOT__PC1 
-                = vlSelf->Top__DOT__requestPC1;
-            vlSelf->Top__DOT__decodeIssue__DOT__PC2 
-                = vlSelf->Top__DOT__requestPC2;
-            vlSelf->Top__DOT__decodeIssue__DOT__internalBadData 
-                = (((vlSelf->Top__DOT__requestPC2 >> 4U) 
-                    != (vlSelf->Top__DOT__walkingWindow__DOT__lastHighWindow 
-                        >> 4U)) & ((vlSelf->Top__DOT__requestPC2 
-                                    >> 4U) != (vlSelf->Top__DOT__walkingWindow__DOT__lastLowWindow 
-                                               >> 4U)));
-        } else {
-            __Vdly__Top__DOT__decodeIssue__DOT__postRedirectCounter 
-                = (1U & ((IData)(1U) + (IData)(vlSelf->Top__DOT__decodeIssue__DOT__postRedirectCounter)));
-        }
-    }
-    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__canAccept 
-        = (1U & ((8U != (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)) 
-                 | (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
     vlSelf->Top__DOT__payload2[0U] = vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U];
     vlSelf->Top__DOT__payload2[1U] = vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[1U];
     vlSelf->Top__DOT__payload2[2U] = vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[2U];
@@ -3842,17 +3862,8 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     vlSelf->Top__DOT__exPayload1[2U] = vlSelf->Top__DOT__operandSelect__DOT__exPayloadCandidate1[2U];
     vlSelf->Top__DOT__exPayload1[3U] = vlSelf->Top__DOT__operandSelect__DOT__exPayloadCandidate1[3U];
     if (vlSelf->reset) {
-        vlSelf->Top__DOT__registerFile__DOT__debugCycle = 0U;
-        vlSelf->Top__DOT__reorderBuffer__DOT__debugCycle = 0U;
-        vlSelf->Top__DOT__memoryQueue__DOT__debugCycle = 0U;
         __Vdlyvset__Top__DOT__registerFile__DOT__registerFile__v0 = 1U;
     } else {
-        vlSelf->Top__DOT__registerFile__DOT__debugCycle 
-            = ((IData)(1U) + vlSelf->Top__DOT__registerFile__DOT__debugCycle);
-        vlSelf->Top__DOT__reorderBuffer__DOT__debugCycle 
-            = ((IData)(1U) + vlSelf->Top__DOT__reorderBuffer__DOT__debugCycle);
-        vlSelf->Top__DOT__memoryQueue__DOT__debugCycle 
-            = ((IData)(1U) + vlSelf->Top__DOT__memoryQueue__DOT__debugCycle);
         if (((IData)(vlSelf->Top__DOT__resolvedInstruction1) 
              & (0U != (0x1fU & (IData)((vlSelf->Top__DOT__resolvedInstruction1 
                                         >> 5U)))))) {
@@ -3941,7 +3952,7 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
         }
         vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered 
             = __Vdly__Top__DOT__memoryQueue__DOT__storeTriggered;
-        vlSelf->Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__unnamedblk4__DOT__index 
+        vlSelf->Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__unnamedblk5__DOT__index 
             = (7U & ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer) 
                      - (1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))));
         if ((1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) {
@@ -4010,7 +4021,7 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                 = vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                 [7U][2U];
         }
-        if (((IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__canAccept) 
+        if (((IData)(Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__canAccept) 
              & (0U != (3U & (vlSelf->Top__DOT__memPayload[0U] 
                              >> 0xcU))))) {
             __Vdlyvval__Top__DOT__memoryQueue__DOT__queueEntry__v15[0U] 
@@ -4021,14 +4032,14 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                 = vlSelf->Top__DOT__memPayload[2U];
             __Vdlyvset__Top__DOT__memoryQueue__DOT__queueEntry__v15 = 1U;
             __Vdlyvdim0__Top__DOT__memoryQueue__DOT__queueEntry__v15 
-                = vlSelf->Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__unnamedblk4__DOT__index;
+                = vlSelf->Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__unnamedblk5__DOT__index;
         } else if ((1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) {
             __Vdlyvset__Top__DOT__memoryQueue__DOT__queueEntry__v16 = 1U;
         }
         __Vdly__Top__DOT__memoryQueue__DOT__tailPointer 
             = (0xfU & (((IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer) 
                         - (1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) 
-                       + ((IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__canAccept) 
+                       + ((IData)(Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__canAccept) 
                           & (0U != (3U & (vlSelf->Top__DOT__memPayload[0U] 
                                           >> 0xcU))))));
     }
@@ -5188,10 +5199,16 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
         = __Vdly__Top__DOT__decodeIssue__DOT__postRedirectCounter;
     if ((0U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                       [0U][0U] >> 0xaU)))) {
-        vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform = 1U;
+        vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform 
+            = (0xfU & ((IData)(1U) << (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                             [0U][1U] 
+                                             >> 0xeU))));
     } else if ((1U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                              [0U][0U] >> 0xaU)))) {
-        vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform = 3U;
+        vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform 
+            = (0xfU & ((IData)(3U) << (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                             [0U][1U] 
+                                             >> 0xeU))));
     } else if ((3U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                              [0U][0U] >> 0xaU)))) {
         vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform = 0xfU;
@@ -6561,7 +6578,7 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
             __Vdly__Top__DOT__placeholderDMEM__DOT__latchedByteSelect 
                 = (0xfU & (vlSelf->Top__DOT__memBusOut[0U] 
                            >> 2U));
-            __Vdly__Top__DOT__placeholderDMEM__DOT__delayCounter = 5U;
+            __Vdly__Top__DOT__placeholderDMEM__DOT__delayCounter = 2U;
         } else if (vlSelf->Top__DOT__placeholderDMEM__DOT__requestPending) {
             vlSelf->Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex 
                 = (0x3ffU & (vlSelf->Top__DOT__placeholderDMEM__DOT__latchedAddress 
@@ -6571,7 +6588,7 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                 [vlSelf->Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex];
             if ((0U != (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__delayCounter))) {
                 __Vdly__Top__DOT__placeholderDMEM__DOT__delayCounter 
-                    = (7U & ((IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__delayCounter) 
+                    = (3U & ((IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__delayCounter) 
                              - (IData)(1U)));
             } else {
                 if (vlSelf->Top__DOT__placeholderDMEM__DOT__latchedWriteEnable) {
@@ -6808,7 +6825,6 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
         vlSelf->Top__DOT__oldUpperStatus = (0x20U | (IData)(vlSelf->Top__DOT__oldUpperStatus));
         vlSelf->Top__DOT__oldUpperStatus = (1U | (IData)(vlSelf->Top__DOT__oldUpperStatus));
     }
-    vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable = 0U;
     vlSelf->Top__DOT__destRegLoad1 = ((0U != (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)) 
                                       && (1U & ((vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
                                                  [vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1] 
@@ -6829,6 +6845,7 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
         vlSelf->Top__DOT__decodeIssue__DOT__staleVector1 
             = (2U | (IData)(vlSelf->Top__DOT__decodeIssue__DOT__staleVector1));
     }
+    vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable = 0U;
     vlSelf->Top__DOT__upperInFlightLoad2 = ((0U != 
                                              (0x1fU 
                                               & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[2U] 
@@ -6971,7 +6988,30 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                                                   << 0xbU) 
                                                  | (vlSelf->Top__DOT__exPayload2[1U] 
                                                     >> 0x15U)));
+    vlSelf->Top__DOT__storeACK = 0U;
+    if (((2U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                       [0U][0U] >> 0xcU))) & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) {
+        vlSelf->Top__DOT__storeACK = 1U;
+    }
     vlSelf->Top__DOT__completedMemory = 0ULL;
+    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__shiftedLoadData 
+        = VL_SHIFTR_III(32,32,32, (IData)((vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
+                                           >> 1U)), 
+                        VL_SHIFTL_III(32,32,32, (3U 
+                                                 & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                    [0U][1U] 
+                                                    >> 0xeU)), 3U));
+    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadByte 
+        = (0xffU & Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__shiftedLoadData);
+    Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadHalf 
+        = (0xffffU & VL_SHIFTR_III(16,32,32, (IData)(
+                                                     (vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
+                                                      >> 1U)), 
+                                   VL_SHIFTL_III(32,32,32, 
+                                                 (1U 
+                                                  & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                     [0U][1U] 
+                                                     >> 0xfU)), 4U)));
     if (((1U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                        [0U][0U] >> 0xcU))) & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) {
         if ((0U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
@@ -6985,19 +7025,11 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                                                                       ? 
                                                                      (((- (IData)(
                                                                                 (1U 
-                                                                                & (IData)(
-                                                                                (vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
-                                                                                >> 8U))))) 
+                                                                                & ((IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadByte) 
+                                                                                >> 7U)))) 
                                                                        << 8U) 
-                                                                      | (0xffU 
-                                                                         & (IData)(
-                                                                                (vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
-                                                                                >> 1U))))
-                                                                      : 
-                                                                     (0xffU 
-                                                                      & (IData)(
-                                                                                (vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
-                                                                                >> 1U)))))) 
+                                                                      | (IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadByte))
+                                                                      : (IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadByte)))) 
                                                     << 6U));
         } else if ((1U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                                  [0U][0U] >> 0xaU)))) {
@@ -7010,19 +7042,11 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                                                                       ? 
                                                                      (((- (IData)(
                                                                                 (1U 
-                                                                                & (IData)(
-                                                                                (vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
-                                                                                >> 0x10U))))) 
+                                                                                & ((IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadHalf) 
+                                                                                >> 0xfU)))) 
                                                                        << 0x10U) 
-                                                                      | (0xffffU 
-                                                                         & (IData)(
-                                                                                (vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
-                                                                                >> 1U))))
-                                                                      : 
-                                                                     (0xffffU 
-                                                                      & (IData)(
-                                                                                (vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
-                                                                                >> 1U)))))) 
+                                                                      | (IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadHalf))
+                                                                      : (IData)(Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__loadHalf)))) 
                                                     << 6U));
         } else if ((3U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                                  [0U][0U] >> 0xaU)))) {
@@ -7048,11 +7072,6 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
                                                                    & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                                                                       [0U][0U] 
                                                                       >> 3U))))));
-    }
-    vlSelf->Top__DOT__storeACK = 0U;
-    if (((2U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                       [0U][0U] >> 0xcU))) & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) {
-        vlSelf->Top__DOT__storeACK = 1U;
     }
     vlSelf->Top__DOT__reorderBuffer__DOT__entries = 
         (0x1fU & ((IData)(vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer) 
@@ -7517,63 +7536,131 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     }
     if ((2U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                       [0U][0U] >> 0xcU)))) {
-        vlSelf->Top__DOT__memBusOut[1U] = ((0x7fU & 
-                                            vlSelf->Top__DOT__memBusOut[1U]) 
-                                           | (0xffffff80U 
-                                              & ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [0U][2U] 
-                                                  << 0x19U) 
-                                                 | (0x1ffff80U 
-                                                    & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                       [0U][1U] 
-                                                       >> 7U)))));
-        vlSelf->Top__DOT__memBusOut[2U] = (0x7fU & 
-                                           (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                            [0U][2U] 
-                                            >> 7U));
-        vlSelf->Top__DOT__memBusOut[0U] = ((3U & vlSelf->Top__DOT__memBusOut[0U]) 
-                                           | ((IData)(
-                                                      (((QData)((IData)(
-                                                                        ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                          [0U][1U] 
-                                                                          << 0x12U) 
-                                                                         | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                            [0U][0U] 
-                                                                            >> 0xeU)))) 
-                                                        << 5U) 
-                                                       | (QData)((IData)(
-                                                                         (0x10U 
-                                                                          | (IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform)))))) 
-                                              << 2U));
-        vlSelf->Top__DOT__memBusOut[1U] = ((0xffffff80U 
-                                            & vlSelf->Top__DOT__memBusOut[1U]) 
-                                           | (((IData)(
-                                                       (((QData)((IData)(
-                                                                         ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                           [0U][1U] 
-                                                                           << 0x12U) 
-                                                                          | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                             [0U][0U] 
-                                                                             >> 0xeU)))) 
-                                                         << 5U) 
-                                                        | (QData)((IData)(
-                                                                          (0x10U 
-                                                                           | (IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform)))))) 
-                                               >> 0x1eU) 
-                                              | ((IData)(
-                                                         ((((QData)((IData)(
-                                                                            ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                              [0U][1U] 
-                                                                              << 0x12U) 
-                                                                             | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+        __Vtemp_30[1U] = (((IData)((((QData)((IData)(
+                                                     ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                       [0U][2U] 
+                                                       << 0x12U) 
+                                                      | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                         [0U][1U] 
+                                                         >> 0xeU)))) 
+                                     << 0x20U) | (QData)((IData)(
+                                                                 VL_SHIFTL_III(32,32,32, 
+                                                                               ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
                                                                                 [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                               VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U)))))) 
+                           >> 0x1bU) | ((IData)(((((QData)((IData)(
+                                                                   ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                     [0U][2U] 
+                                                                     << 0x12U) 
+                                                                    | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                       [0U][1U] 
+                                                                       >> 0xeU)))) 
+                                                   << 0x20U) 
+                                                  | (QData)((IData)(
+                                                                    VL_SHIFTL_III(32,32,32, 
+                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                                VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U))))) 
+                                                 >> 0x20U)) 
+                                        << 5U));
+        vlSelf->Top__DOT__memBusOut[0U] = (0x40U | 
+                                           ((3U & vlSelf->Top__DOT__memBusOut[0U]) 
+                                            | (((IData)(
+                                                        (((QData)((IData)(
+                                                                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                            [0U][2U] 
+                                                                            << 0x12U) 
+                                                                           | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                              [0U][1U] 
+                                                                              >> 0xeU)))) 
+                                                          << 0x20U) 
+                                                         | (QData)((IData)(
+                                                                           VL_SHIFTL_III(32,32,32, 
+                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                                VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U)))))) 
+                                                << 7U) 
+                                               | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
+                                                  << 2U))));
+        vlSelf->Top__DOT__memBusOut[1U] = (((3U & ((IData)(
+                                                           (((QData)((IData)(
+                                                                             ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                               [0U][2U] 
+                                                                               << 0x12U) 
+                                                                              | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
                                                                                 >> 0xeU)))) 
-                                                            << 5U) 
-                                                           | (QData)((IData)(
-                                                                             (0x10U 
-                                                                              | (IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform))))) 
-                                                          >> 0x20U)) 
-                                                 << 2U)));
+                                                             << 0x20U) 
+                                                            | (QData)((IData)(
+                                                                              VL_SHIFTL_III(32,32,32, 
+                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                                VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U)))))) 
+                                                   >> 0x19U)) 
+                                            | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
+                                               >> 0x1eU)) 
+                                           | (__Vtemp_30[1U] 
+                                              << 2U));
+        vlSelf->Top__DOT__memBusOut[2U] = (0x7fU & 
+                                           ((__Vtemp_30[1U] 
+                                             >> 0x1eU) 
+                                            | (0x7cU 
+                                               & ((IData)(
+                                                          ((((QData)((IData)(
+                                                                             ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                               [0U][2U] 
+                                                                               << 0x12U) 
+                                                                              | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)))) 
+                                                             << 0x20U) 
+                                                            | (QData)((IData)(
+                                                                              VL_SHIFTL_III(32,32,32, 
+                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                                VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U))))) 
+                                                           >> 0x20U)) 
+                                                  >> 0x19U))));
         vlSelf->Top__DOT__memBusOut[0U] = ((0xfffffffcU 
                                             & vlSelf->Top__DOT__memBusOut[0U]) 
                                            | (3U & 
@@ -9301,17 +9388,26 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
     vlSelf->Top__DOT__instructionConsumed1 = 0U;
     vlSelf->Top__DOT__instructionConsumed2 = 0U;
     if (vlSelf->Top__DOT__decodeIssue__DOT__instructionsValid) {
-        if ((((0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
-                        >> 2U)) == (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)) 
-             & (0U != (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)))) {
-            vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable 
-                = (1U | (IData)(vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable));
-        }
-        if ((((0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
-                        >> 7U)) == (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)) 
-             & (0U != (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)))) {
-            vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable 
-                = (2U | (IData)(vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable));
+        if ((1U & (~ (IData)(((0x2000000U == (0x6000000U 
+                                              & vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U])) 
+                              & (((IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1) 
+                                  == (0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                                               >> 2U))) 
+                                 | ((IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1) 
+                                    == (0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                                                 >> 7U))))))))) {
+            if ((((0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                            >> 2U)) == (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)) 
+                 & (0U != (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)))) {
+                vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable 
+                    = (1U | (IData)(vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable));
+            }
+            if ((((0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                            >> 7U)) == (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)) 
+                 & (0U != (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1)))) {
+                vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable 
+                    = (2U | (IData)(vlSelf->Top__DOT__decodeIssue__DOT__bypassEnable));
+            }
         }
         if (vlSelf->Top__DOT__decodeIssue__DOT__illegal1) {
             Top__DOT__decodeIssue__DOT__block1 = 1U;
@@ -9341,6 +9437,16 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf) 
         }
         if (((IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1) 
              == (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister2))) {
+            Top__DOT__decodeIssue__DOT__block2 = 1U;
+        }
+        if ((IData)(((0x2000000U == (0x6000000U & vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U])) 
+                     & (((IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1) 
+                         == (0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                                      >> 2U))) | ((IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister1) 
+                                                  == 
+                                                  (0x1fU 
+                                                   & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] 
+                                                      >> 7U))))))) {
             Top__DOT__decodeIssue__DOT__block2 = 1U;
         }
         if (vlSelf->Top__DOT__decodeIssue__DOT__internalBadData) {

@@ -70,11 +70,10 @@ module RegisterFile (
     end
     
     
-    always_ff @(posedge clock) begin
+    always_ff @(negedge clock) begin
         if (!reset) begin
             $display(
-                "\n=== Register File Cycle %0d ===\nx00=%08h  x01=%08h  x02=%08h  x03=%08h\nx04=%08h  x05=%08h  x06=%08h  x07=%08h\nx08=%08h  x09=%08h  x10=%08h  x11=%08h\nx12=%08h  x13=%08h  x14=%08h  x15=%08h\nx16=%08h  x17=%08h  x18=%08h  x19=%08h\nx20=%08h  x21=%08h  x22=%08h  x23=%08h\nx24=%08h  x25=%08h  x26=%08h  x27=%08h\nx28=%08h  x29=%08h  x30=%08h  x31=%08h\n",
-                debugCycle,
+                "Register File\nx00=%08h  x01=%08h  x02=%08h  x03=%08h\nx04=%08h  x05=%08h  x06=%08h  x07=%08h\nx08=%08h  x09=%08h  x10=%08h  x11=%08h\nx12=%08h  x13=%08h  x14=%08h  x15=%08h\nx16=%08h  x17=%08h  x18=%08h  x19=%08h\nx20=%08h  x21=%08h  x22=%08h  x23=%08h\nx24=%08h  x25=%08h  x26=%08h  x27=%08h\nx28=%08h  x29=%08h  x30=%08h  x31=%08h\n",
                 registerFile[0], registerFile[1], registerFile[2], registerFile[3],
                 registerFile[4], registerFile[5], registerFile[6], registerFile[7],
                 registerFile[8], registerFile[9], registerFile[10], registerFile[11],

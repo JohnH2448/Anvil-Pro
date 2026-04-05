@@ -436,3 +436,5 @@ module Top (
     );
 
 endmodule
+
+// some stalls are probably optimal so long as they dont break assumptions

@@ -41,11 +41,11 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__tailPointer;
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__byteSelectTransform;
         CData/*0:0*/ Top__DOT__memoryQueue__DOT__storeTriggered;
-        CData/*2:0*/ Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__unnamedblk4__DOT__index;
+        CData/*2:0*/ Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__unnamedblk5__DOT__index;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__requestPending;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__latchedWriteEnable;
         CData/*3:0*/ Top__DOT__placeholderDMEM__DOT__latchedByteSelect;
-        CData/*2:0*/ Top__DOT__placeholderDMEM__DOT__delayCounter;
+        CData/*1:0*/ Top__DOT__placeholderDMEM__DOT__delayCounter;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__validRequest;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__headPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__tailPointer;
@@ -88,13 +88,10 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ Top__DOT__programCounter;
         VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
         VlWide<4>/*127:0*/ Top__DOT__highFetchData;
-        IData/*31:0*/ Top__DOT__memoryQueue__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedAddress;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedStoreData;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk1__DOT__i;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__nextLoadData;
-        IData/*31:0*/ Top__DOT__reorderBuffer__DOT__debugCycle;
-        IData/*31:0*/ Top__DOT__registerFile__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__execute__DOT__result1;
         IData/*31:0*/ Top__DOT__execute__DOT__result2;
         IData/*31:0*/ Top__DOT__decodeIssue__DOT__IR1;
@@ -137,8 +134,8 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
     };
     VlTriggerVec<1> __VstlTriggered;
     VlTriggerVec<1> __VicoTriggered;
-    VlTriggerVec<1> __VactTriggered;
-    VlTriggerVec<1> __VnbaTriggered;
+    VlTriggerVec<2> __VactTriggered;
+    VlTriggerVec<2> __VnbaTriggered;
 
     // INTERNAL VARIABLES
     VTop__Syms* const vlSymsp;
