@@ -130,11 +130,12 @@ This core is in progress. Do not attempt to use it or understand the HDL unless 
 The ALU instruction pipeline does strong even under directed edge case tests. Redirects are also promisingly close to a confident standard. Stress tests combining chained RAW, branch-after-branch, rst confusion, and forwarding torture all came back positive. While not assuredly "100%", the foundation is strong enough to move towards memory incorperation. The archetecture was deliberately molded to make memory verification seamless, so this is not an expected pain point. The infrastructure is already laid out for easy integration of precice exceptions, sys, and Zicsr, which is to be done after the memory queue. The design is currently running at 1.58 IPC on standard (non-memory/system) assembly, and 1.98 IPC on non-dependent ALU assembly.
 
 ### TODO List
-- CSR File + Zicsr Decode
+- Better Memory Queue Verification
+- Store Buffer / Load Forwarding
+- CSR Ecosystem
 - System Instruction Support
 - Precise Exceptions
 - Interupt Support
-- Memory Queue
 - Illegal Flag + Handling
 - RISCOF Pass
 
