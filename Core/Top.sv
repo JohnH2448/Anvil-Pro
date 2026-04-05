@@ -77,6 +77,7 @@ module Top (
     logic [reorderBufferIndexWidth-1:0] upperTagIndex2;
     logic [reorderBufferIndexWidth-1:0] lowerTagIndex1;
     logic [reorderBufferIndexWidth-1:0] lowerTagIndex2;
+    logic osMemory;
 
     // Register File Outputs
     logic [31:0] upperSourceData1;
@@ -92,6 +93,7 @@ module Top (
     logic [31:0] redirectVector;
     logic redirect1;
     logic redirect2;
+    logic exMemory;
 
     // Walking Window Outputs
     logic [31:0] lowFetchAddress;
@@ -123,10 +125,14 @@ module Top (
         .storeACK(storeACK), // output
         .triggerStore(triggerStore), // input
 
+        .osMemory(osMemory), // input
+        .exMemory(exMemory), // input
+
         .memPayload(memPayload), // input
         .memBusOut(memBusOut), // output
         .memBusIn(memBusIn), // input
-        .completedMemory(completedMemory) // output
+        .completedMemory(completedMemory), // output
+        .memFreeSlot(memFreeSlot) // output
     );
 
     PlaceholderDMEM placeholderDMEM (
@@ -287,6 +293,8 @@ module Top (
         .lowerData1(lowerSourceData1), // input
         .lowerData2(lowerSourceData2), // input
 
+        .osMemory(osMemory), // output
+
         .upperTagIndex1(upperTagIndex1), // output
         .upperTagIndex2(upperTagIndex2), // output
         .lowerTagIndex1(lowerTagIndex1), // output
@@ -320,6 +328,8 @@ module Top (
 
         .redirect1(redirect1), // output
         .redirect2(redirect2), // output
+
+        .exMemory(exMemory), // output
 
         .exPayload1(exPayload1), // input
         .exPayload2(exPayload2), // input
@@ -356,6 +366,8 @@ module Top (
         .nextFreeSlots(nextFreeSlots), // input
         .freeTag1(freeTag1), // input
         .freeTag2(freeTag2), // input
+
+        .memFreeSlot(memFreeSlot), // input
 
         .oldUpperStatusRd(oldUpperStatusRd), // output
         .oldLowerStatusRd(oldLowerStatusRd), // output

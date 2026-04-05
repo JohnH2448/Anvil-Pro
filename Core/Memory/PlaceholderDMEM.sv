@@ -34,7 +34,7 @@ module PlaceholderDMEM #(
     logic [delayCounterWidth-1:0] delayCounter;
 
     logic validRequest;
-    assign validRequest = memBusOut.cycle && memBusOut.strobe;
+    assign validRequest = memBusOut.cycle && memBusOut.strobe && !memBusInRegister.acknowledge;
 
     always_ff @(posedge clock) begin
         if (reset) begin
