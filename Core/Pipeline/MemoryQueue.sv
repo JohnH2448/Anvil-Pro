@@ -219,4 +219,5 @@ endmodule
 // Maybe 16ish entries from most recent stores. configurable size?
 // Actualy this is problematic because address must be known at issue time.
 
- // MUST INTEGRATE THIS INTO RST
+ // Potential Store Buffer that forwards to in-flight loads in ex. they
+ // then go straight to rob and skip mem queue.
