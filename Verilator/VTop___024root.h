@@ -37,14 +37,16 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__redirect;
         CData/*0:0*/ Top__DOT__redirect1;
         CData/*0:0*/ Top__DOT__storeACK;
+        CData/*0:0*/ Top__DOT__memFreeSlot;
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__tailPointer;
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__byteSelectTransform;
         CData/*0:0*/ Top__DOT__memoryQueue__DOT__storeTriggered;
-        CData/*2:0*/ Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__index;
+        CData/*2:0*/ Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__unnamedblk4__DOT__index;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__requestPending;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__latchedWriteEnable;
         CData/*3:0*/ Top__DOT__placeholderDMEM__DOT__latchedByteSelect;
         CData/*2:0*/ Top__DOT__placeholderDMEM__DOT__delayCounter;
+        CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__validRequest;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__headPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__tailPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextHeadPointer;
@@ -78,10 +80,10 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         SData/*9:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex;
         IData/*31:0*/ Top__DOT__requestPC1;
         IData/*31:0*/ Top__DOT__requestPC2;
-        IData/*31:0*/ Top__DOT__redirectVector;
-        IData/*31:0*/ Top__DOT__instruction1;
     };
     struct {
+        IData/*31:0*/ Top__DOT__redirectVector;
+        IData/*31:0*/ Top__DOT__instruction1;
         IData/*31:0*/ Top__DOT__instruction2;
         IData/*31:0*/ Top__DOT__programCounter;
         VlWide<4>/*127:0*/ Top__DOT__lowFetchData;

@@ -22,6 +22,7 @@ module Execute (
 
     // To Memory Queue
     output ExecuteMemoryPayload_ memPayload,
+    output logic exMemory,
 
     // To ROB
     output InputInstruction_ resultPayload1,
@@ -51,6 +52,9 @@ module Execute (
     // Ex/Ex Bypass Gen Logic
     assign lowerOperand1 = !crossLaneExBypass ? exPayload2.operand1 : exPayload2.bypassEnable[0] ? result1 : exPayload2.operand1;
     assign lowerOperand2 = !crossLaneExBypass ? exPayload2.operand2 : exPayload2.bypassEnable[1] ? result1 : exPayload2.operand2;
+
+    // Memory Operation Signal for Capacity
+    assign exMemory = (exPayload1.memoryOperation != MEM_NONE) && exPayload1.valid && !illegal1;
 
     // Result Calculations
     always_comb begin

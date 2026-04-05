@@ -103,6 +103,8 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     Top__DOT__nextFreeSlots = 0;
     CData/*0:0*/ Top__DOT__redirect2;
     Top__DOT__redirect2 = 0;
+    CData/*3:0*/ Top__DOT__memoryQueue__DOT__unnamedblk1__DOT__memFreeSlotsTemp;
+    Top__DOT__memoryQueue__DOT__unnamedblk1__DOT__memFreeSlotsTemp = 0;
     CData/*1:0*/ Top__DOT__reorderBuffer__DOT__retireCount;
     Top__DOT__reorderBuffer__DOT__retireCount = 0;
     CData/*4:0*/ Top__DOT__reorderBuffer__DOT__redirectPointer;
@@ -2286,6 +2288,19 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         vlSelf->Top__DOT__memPayload[1U] = 0U;
         vlSelf->Top__DOT__memPayload[2U] = 0U;
     }
+    vlSelf->Top__DOT__memFreeSlot = 0U;
+    Top__DOT__memoryQueue__DOT__unnamedblk1__DOT__memFreeSlotsTemp 
+        = (0xfU & (((((IData)(8U) - (IData)(vlSelf->Top__DOT__memoryQueue__DOT__tailPointer)) 
+                     + (1U & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) 
+                    - ((0U != (3U & (vlSelf->Top__DOT__payload1[0U] 
+                                     >> 0x19U))) & 
+                       vlSelf->Top__DOT__payload1[0U])) 
+                   - ((0U != (3U & (vlSelf->Top__DOT__exPayload1[0U] 
+                                    >> 8U))) & ((~ (IData)(vlSelf->Top__DOT__execute__DOT__illegal1)) 
+                                                & vlSelf->Top__DOT__exPayload1[0U]))));
+    if ((0U < (IData)(Top__DOT__memoryQueue__DOT__unnamedblk1__DOT__memFreeSlotsTemp))) {
+        vlSelf->Top__DOT__memFreeSlot = 1U;
+    }
     Top__DOT__execute__DOT____VdfgTmp_hb1671e1e__0 
         = ((~ (IData)(vlSelf->Top__DOT__execute__DOT__illegal1)) 
            & (IData)(vlSelf->Top__DOT__redirect1));
@@ -2293,6 +2308,9 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         = VL_LTS_III(32, Top__DOT__execute__DOT__lowerOperand1, Top__DOT__execute__DOT__lowerOperand2);
     Top__DOT__execute__DOT____VdfgExtracted_h4cbec2d7__0 
         = (Top__DOT__execute__DOT__lowerOperand1 < Top__DOT__execute__DOT__lowerOperand2);
+    vlSelf->Top__DOT__placeholderDMEM__DOT__validRequest 
+        = (IData)(((3U == (3U & vlSelf->Top__DOT__memBusOut[0U])) 
+                   & (~ vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
     Top__DOT__redirect2 = 0U;
     if ((1U & vlSelf->Top__DOT__exPayload2[0U])) {
         if ((0x200U & vlSelf->Top__DOT__exPayload2[0U])) {
@@ -4131,6 +4149,11 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         if (vlSelf->Top__DOT__redirect) {
             Top__DOT__decodeIssue__DOT__block1 = 1U;
         }
+        if ((((IData)(vlSelf->Top__DOT__upperInFlightLoad1) 
+              | (IData)(vlSelf->Top__DOT__upperInFlightLoad2)) 
+             | (IData)(vlSelf->Top__DOT__destRegLoad1))) {
+            Top__DOT__decodeIssue__DOT__block1 = 1U;
+        }
         if (vlSelf->Top__DOT__decodeIssue__DOT__illegal2) {
             Top__DOT__decodeIssue__DOT__block2 = 1U;
         }
@@ -4159,7 +4182,6 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         if ((((IData)(vlSelf->Top__DOT__upperInFlightLoad1) 
               | (IData)(vlSelf->Top__DOT__upperInFlightLoad2)) 
              | (IData)(vlSelf->Top__DOT__destRegLoad1))) {
-            Top__DOT__decodeIssue__DOT__block1 = 1U;
             Top__DOT__decodeIssue__DOT__block2 = 1U;
         }
         if ((((IData)(vlSelf->Top__DOT__lowerInFlightLoad1) 
@@ -4173,6 +4195,11 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
              | (((0x1fU & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[2U] 
                            >> 7U)) == (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister2)) 
                 & (0U != (IData)(vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister2))))) {
+            Top__DOT__decodeIssue__DOT__block2 = 1U;
+        }
+        if (((0U != (3U & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U] 
+                           >> 0x19U))) & (~ (IData)(vlSelf->Top__DOT__memFreeSlot)))) {
+            Top__DOT__decodeIssue__DOT__block1 = 1U;
             Top__DOT__decodeIssue__DOT__block2 = 1U;
         }
     } else {
@@ -4671,6 +4698,7 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     VL_RAND_RESET_W(71, vlSelf->Top__DOT__memBusOut);
     VL_RAND_RESET_W(128, vlSelf->Top__DOT__lowFetchData);
     VL_RAND_RESET_W(128, vlSelf->Top__DOT__highFetchData);
+    vlSelf->Top__DOT__memFreeSlot = VL_RAND_RESET_I(1);
     for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
         VL_RAND_RESET_W(78, vlSelf->Top__DOT__memoryQueue__DOT__queueEntry[__Vi0]);
     }
@@ -4678,7 +4706,7 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__memoryQueue__DOT__debugCycle = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform = VL_RAND_RESET_I(4);
     vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered = VL_RAND_RESET_I(1);
-    vlSelf->Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__index = VL_RAND_RESET_I(3);
+    vlSelf->Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__unnamedblk4__DOT__index = VL_RAND_RESET_I(3);
     for (int __Vi0 = 0; __Vi0 < 1024; ++__Vi0) {
         vlSelf->Top__DOT__placeholderDMEM__DOT__memory[__Vi0] = VL_RAND_RESET_I(32);
     }
@@ -4689,6 +4717,7 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__placeholderDMEM__DOT__latchedWriteEnable = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__placeholderDMEM__DOT__latchedByteSelect = VL_RAND_RESET_I(4);
     vlSelf->Top__DOT__placeholderDMEM__DOT__delayCounter = VL_RAND_RESET_I(3);
+    vlSelf->Top__DOT__placeholderDMEM__DOT__validRequest = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__placeholderDMEM__DOT__unnamedblk1__DOT__i = 0;
     vlSelf->Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex = VL_RAND_RESET_I(10);
     vlSelf->Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__nextLoadData = VL_RAND_RESET_I(32);

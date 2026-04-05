@@ -36,6 +36,9 @@ module OperandSelect (
     input logic [31:0] lowerData1,
     input logic [31:0] lowerData2,
 
+    // To Mem Queue for Capacity
+    output logic osMemory,
+
     // Quad Index Forward Requests To ROB
     output logic [reorderBufferIndexWidth-1:0] upperTagIndex1,
     output logic [reorderBufferIndexWidth-1:0] upperTagIndex2,
@@ -110,6 +113,9 @@ module OperandSelect (
 
     assign branchTarget1 = payload1.programCounter + payload1.immediate;
     assign branchTarget2 = payload2.programCounter + payload2.immediate;
+
+    // Memory Op Signal for Capacity
+    assign osMemory = (payload1.memoryOperation != MEM_NONE) && payload1.valid;
 
     // Register Portion of Operand Mux
     always_comb begin

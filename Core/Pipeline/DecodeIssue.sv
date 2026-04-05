@@ -31,6 +31,9 @@ module DecodeIssue (
     // ROB Communication
     input logic [1:0] nextFreeSlots,
 
+    // Memory Queue Capacity
+    input logic memFreeSlot,
+
     // Read From RST
     output logic [4:0] upperIssuerRegister1,
     output logic [4:0] upperIssuerRegister2,
@@ -305,7 +308,12 @@ module DecodeIssue (
                 (tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
                 block2 = 1'b1;
                 reasonBackwardDependency = 1'b1;
-                end
+            end
+            // Block Memory Ops If Memory Queue is Full
+            if (tempPayload1.memoryOperation != MEM_NONE && !memFreeSlot) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
+            end
         end else begin
             block1 = 1'b1;
             block2 = 1'b1;
@@ -515,8 +523,6 @@ endmodule
 // On No WB, hardwire rd=x0
 
 // ============ ISSUE RULES ============
-// Memory Queue must have space for new memory ops
-// Assess Memory Queue fullness as x-1 to accomindate in flight
 // slot 1 can never be to an non-ready rd MAYBE?????
 // One CSR in pipe at a time
 

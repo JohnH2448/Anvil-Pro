@@ -20,7 +20,14 @@ module MemoryQueue (
     input WishboneSlave_ memBusIn,
 
     // Data to ROB
-    output InputInstruction_ completedMemory
+    output InputInstruction_ completedMemory,
+
+    // Free Slots to Issuer
+    output logic memFreeSlot,
+
+    // Pipeline Metadata for Capacity
+    input logic osMemory,
+    input logic exMemory
 
 );
 
@@ -34,6 +41,18 @@ module MemoryQueue (
     // Entry Processed Completion Bit
     logic completed;
     assign completed = memBusIn.acknowledge;
+
+    // Free Slot Calculation
+    always_comb begin
+        logic [3:0] memFreeSlotsTemp;
+        memFreeSlot = 1'b0;
+        memFreeSlotsTemp = 4'd8 - tailPointer + 
+        {3'b000, completed} - {3'b000, osMemory} - {3'b000, exMemory};
+        if (memFreeSlotsTemp > 4'd0) begin
+            memFreeSlot = 1'b1;
+        end
+
+    end
 
     // Converts Width to Wishbone Format
     logic [3:0] byteSelectTransform;
@@ -118,10 +137,10 @@ module MemoryQueue (
         end
     end
 
-
-
     // Reset + Accept New Instruction + Shift Queue
     always_ff @(posedge clock) begin
+        logic canAccept;
+        canAccept = ((tailPointer != 4'd8) || completed);
         if (reset) begin
             debugCycle <= 0;
             for (int i=0; i<8; i++) begin
@@ -132,21 +151,21 @@ module MemoryQueue (
             // Accept New Instruction
             logic [2:0] index;
             index = tailPointer[2:0] - {2'b00, completed};
-            if ((tailPointer != 4'd8) && (memPayload.memoryOperation != MEM_NONE)) begin
-                queueEntry[index] <= memPayload;
-            end else if (completed) begin
-                // Can be removed
-                queueEntry[7] <= '0;
-            end
             // Shift Queue if Completed
             if (completed) begin
                 for (int i=0; i<7; i++) begin
                     queueEntry[i] <= queueEntry[i+1];
                 end
             end
+            if (canAccept && (memPayload.memoryOperation != MEM_NONE)) begin
+                queueEntry[index] <= memPayload;
+            end else if (completed) begin
+                // Can be removed
+                queueEntry[7] <= '0;
+            end
             // Tail Pointer Update
             tailPointer <= tailPointer - {3'b00, completed}
-            + {3'b000, ((tailPointer != 4'd8) && (memPayload.memoryOperation != MEM_NONE))};
+            + {3'b000, (canAccept && (memPayload.memoryOperation != MEM_NONE))};
 
             debugCycle <= debugCycle + 1;
         end
@@ -155,40 +174,18 @@ module MemoryQueue (
     // Memory Queue Debug Print
     always_ff @(posedge clock) begin
         if (!reset) begin
+            $display(
+                "\n=== Memory Queue Cycle %0d ===\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b",
+                debugCycle,
+                tailPointer,
+                completed,
+                triggerStore,
+                storeTriggered,
+                memBusIn.acknowledge,
+            );
             if (tailPointer == '0) begin
-                $display(
-                    "\n=== Memory Queue Cycle %0d ===\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b bus(cyc=%0b stb=%0b we=%0b sel=%04b addr=%08h wdata=%08h rdata=%08h) empty\n",
-                    debugCycle,
-                    tailPointer,
-                    completed,
-                    triggerStore,
-                    storeTriggered,
-                    memBusIn.acknowledge,
-                    memBusOut.cycle,
-                    memBusOut.strobe,
-                    memBusOut.writeEnable,
-                    memBusOut.byteSelect,
-                    memBusOut.address,
-                    memBusOut.storeData,
-                    memBusIn.loadData
-                );
+                $display("empty");
             end else begin
-                $display(
-                    "\n=== Memory Queue Cycle %0d ===\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b bus(cyc=%0b stb=%0b we=%0b sel=%04b addr=%08h wdata=%08h rdata=%08h)\n",
-                    debugCycle,
-                    tailPointer,
-                    completed,
-                    triggerStore,
-                    storeTriggered,
-                    memBusIn.acknowledge,
-                    memBusOut.cycle,
-                    memBusOut.strobe,
-                    memBusOut.writeEnable,
-                    memBusOut.byteSelect,
-                    memBusOut.address,
-                    memBusOut.storeData,
-                    memBusIn.loadData
-                );
                 for (int unsigned i = 0; i < 8; i++) begin
                     if (i < tailPointer) begin
                         $display("[%0d] op=%0d addr=%08h data=%08h width=%02b sign=%0b tag=%0d rd=x%0d",
@@ -202,16 +199,6 @@ module MemoryQueue (
                             queueEntry[i].destinationRegister);
                     end
                 end
-            end
-            if (memPayload.memoryOperation != MEM_NONE) begin
-                $display("in : op=%0d addr=%08h data=%08h width=%02b sign=%0b tag=%0d rd=x%0d",
-                    memPayload.memoryOperation,
-                    memPayload.address,
-                    memPayload.storeData,
-                    memPayload.memoryWidth,
-                    memPayload.memorySigned,
-                    memPayload.ageTag,
-                    memPayload.destinationRegister);
             end
         end
     end
