@@ -251,6 +251,7 @@ module DecodeIssue (
                 reasonSlot1Memory = 1'b1;
             end
             // Block WAW To Simplify Forwarding/RST Logic
+            // FIXABLE BY REUSING STALEVECTOR MACHINARY MAYBE
             if (destinationRegister1 == destinationRegister2) begin
                 block2 = 1'b1; 
                 reasonWawConflict = 1'b1;
@@ -264,12 +265,19 @@ module DecodeIssue (
                     reasonSlotDependency = 1'b1;
                 end
             end else begin
-                // Ex/Ex Bypass Bits
-                if (tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) begin
-                    bypassEnable[0] = 1'd1;
-                end
-                if (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0) begin
-                    bypassEnable[1] = 1'd1;
+                // Ensures Slot 1 Isn't Used Load
+                if ((tempPayload1.memoryOperation == MEM_LOAD) 
+                && ((destinationRegister1 == tempPayload2.sourceRegister1)
+                || (destinationRegister1 == tempPayload2.sourceRegister2))) begin
+                    block2 = 1'b1;
+                end else begin
+                    // Ex/Ex Bypass Bits
+                    if (tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) begin
+                        bypassEnable[0] = 1'd1;
+                    end
+                    if (tempPayload2.sourceRegister2 == destinationRegister1 && destinationRegister1 != 5'd0) begin
+                        bypassEnable[1] = 1'd1;
+                    end
                 end
             end
             // Block Issue on Bad Fetch
@@ -517,10 +525,6 @@ module DecodeIssue (
     */
 
 endmodule
-
-// ============ ISSUER MUST ============
-// Deposit Rd and PC to ROB
-// On No WB, hardwire rd=x0
 
 // ============ ISSUE RULES ============
 // slot 1 can never be to an non-ready rd MAYBE?????
