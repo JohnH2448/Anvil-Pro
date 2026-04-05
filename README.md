@@ -73,25 +73,26 @@ If the next instruction cannot safely dispatch due to operand availability or st
 Under strict in-order issue, issue refusal and traditional stall models exhibit similar IPC behavior during true dependency waits. The primary advantage of Anvil-Pro’s methodology is structural: reduced control depth, simplified verification, and improved timing characteristics. The tradeoff is modest additional resume latency when a previously blocked instruction becomes eligible to issue, since it must traverse the full backend pipeline rather than resuming mid-stage. It was concluded that the simplicity and timing benefits generally outweigh the marginal latency impact for this implementation.
 
 ### Issuer Contract
-The issuer guarantees that any dispatched instruction group satisfies the following invariants:
-```bash
-# Issuer Contract
-- Slot 1 may not issue a memory operation
-- Slot 1 may not issue if it writes the same destination register as slot 0
-- If EX/EX bypass is disabled, slot 1 may not issue if it depends on slot 0
-- If EX/EX bypass is enabled, slot 1 slot-0 dependencies must use explicit bypass signals
-- Slot 1 may not issue when badData is asserted
-- Slot 1 may not issue if only 1 ROB slot is available
-- Neither slot may issue if no ROB slots are available
-- Neither slot may issue if slot 0 depends on an unresolved load
-- Slot 1 may not issue if it depends on an unresolved load
-- Neither slot may issue if slot 0 writes a destination register owned by an unresolved load
-- Slot 1 may not issue if it writes a destination register owned by an unresolved load
-- Slot 1 may not issue if slot 0 reads the destination register written by slot 1
-- Neither slot may issue if slot 0 is illegal
-- Slot 1 may not issue if slot 1 is illegal
-- Memory operations may not issue unless the memory queue has sufficient free space
-- CSR operations may not issue if another CSR operation is already in flight
+The issuer guarantees that any dispatched instruction group satisfies the following invariants for these common instructions:
+```txt
+# Single Slot Access to LSU
+- Lower Slot May Not Issue Memory Operations
+# Solves RST Ownership Conflicts
+- Lower Slot Must Not Issue When Writing to an Upper Slot Source Register
+# Solves RST Ownership + Forwarding Conflicts
+- Upper and Lower Slot Must Not Write the Same Register
+# Handles Edge Case Window Alignment Failure
+- Lower Slot Must Not Issue on Bad Fetch
+# Solves RST Ownership Conflicts
+- Neither Slot May Issue When It's Destination Register is Being Loaded
+# Prevents Ghost Instructions
+- Neither Slot May Issue When Reorder Buffer is Full
+# Ensures Pipeline is Flushed Correctly
+- Neither Slot May Issue During a Redirect
+# Prevents Stalls for Arbitrary Load Latency
+- Neither Slot May Issue When It's Source Register is Being Loaded
+# Prevents Ghost Memory Operations
+- Neither Slot May Issue Memory Operations When Memory Queue is Full
 ```
 ## Backend
 ### Philosophy
