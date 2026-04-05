@@ -2,6 +2,221 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
+module MemoryQueue (
+
+    // Standard
+    input logic clock,
+    input logic reset,
+
+    // ROB Store Coms
+    output logic storeACK,
+    input logic triggerStore,
+
+    // Instruction Input
+    input ExecuteMemoryPayload_ memPayload,
+
+    // Memory Bus
+    output WishboneMaster_ memBusOut,
+    input WishboneSlave_ memBusIn,
+
+    // Data to ROB
+    output InputInstruction_ completedMemory
+
+);
+
+    // Queue Instantiation
+    MemoryQueueEntry_ queueEntry[0:7];
+
+    // Tail Pointer
+    logic [3:0] tailPointer;
+    integer debugCycle;
+
+    // Entry Processed Completion Bit
+    logic completed;
+    assign completed = memBusIn.acknowledge;
+
+    // Converts Width to Wishbone Format
+    logic [3:0] byteSelectTransform;
+    always_comb begin
+        unique case (queueEntry[0].memoryWidth)
+            2'b00: byteSelectTransform = 4'b0001;
+            2'b01: byteSelectTransform = 4'b0011;
+            2'b11: byteSelectTransform = 4'b1111;
+        endcase
+    end
+
+    // Small Store FSM
+    logic storeTriggered;
+    always_ff @(posedge clock) begin
+        if (reset) begin
+            storeTriggered <= 1'b0;
+        end else begin
+            if (triggerStore && !storeTriggered) begin
+                storeTriggered <= 1'b1;
+            end
+            if (memBusIn.acknowledge && storeTriggered) begin
+                storeTriggered <= 1'b0;
+            end
+        end
+    end
+
+    // Drives Wishbone Bus
+    always_comb begin
+        memBusOut = '0;
+        if (queueEntry[0].memoryOperation == MEM_LOAD) begin
+            memBusOut.address = queueEntry[0].address;
+            memBusOut.writeEnable = 1'b0;
+            memBusOut.byteSelect = byteSelectTransform;
+            memBusOut.cycle = 1'b1;
+            memBusOut.strobe = 1'b1;
+        end
+        if (queueEntry[0].memoryOperation == MEM_STORE) begin
+            memBusOut.address = queueEntry[0].address;
+            memBusOut.writeEnable = 1'b1;
+            memBusOut.byteSelect = byteSelectTransform;
+            memBusOut.storeData = queueEntry[0].storeData;
+            if (!storeTriggered) begin
+                memBusOut.cycle = triggerStore;
+                memBusOut.strobe = triggerStore;
+            end else begin
+                memBusOut.cycle = storeTriggered;
+                memBusOut.strobe = storeTriggered;
+            end
+        end
+    end
+
+    // Packet Construction for ROB
+    always_comb begin
+        // Load Packet + Sign Extention
+        completedMemory = '0;
+        storeACK = 1'b0;
+        if ((queueEntry[0].memoryOperation == MEM_LOAD) && memBusIn.acknowledge) begin
+            unique case (queueEntry[0].memoryWidth)
+                2'b00: begin
+                    if (queueEntry[0].memorySigned) begin
+                        completedMemory.instructionResult = {{24{memBusIn.loadData[7]}}, memBusIn.loadData[7:0]};
+                    end else begin
+                        completedMemory.instructionResult = {24'b0, memBusIn.loadData[7:0]};
+                    end
+                end
+                2'b01: begin
+                    if (queueEntry[0].memorySigned) begin
+                        completedMemory.instructionResult = {{16{memBusIn.loadData[15]}}, memBusIn.loadData[15:0]};
+                    end else begin
+                        completedMemory.instructionResult = {16'b0, memBusIn.loadData[15:0]};
+                    end
+                end
+                2'b11: completedMemory.instructionResult = memBusIn.loadData;
+            endcase
+            completedMemory.ageTag = queueEntry[0].ageTag;
+            completedMemory.destinationRegister = queueEntry[0].destinationRegister;
+            completedMemory.accept = 1'b1;
+        end
+        // Store Packet
+        if ((queueEntry[0].memoryOperation == MEM_STORE) && memBusIn.acknowledge) begin
+            storeACK = 1'b1;
+        end
+    end
+
+
+
+    // Reset + Accept New Instruction + Shift Queue
+    always_ff @(posedge clock) begin
+        if (reset) begin
+            debugCycle <= 0;
+            for (int i=0; i<8; i++) begin
+                queueEntry[i] <= '0;
+            end
+            tailPointer <= '0;
+        end else begin
+            // Accept New Instruction
+            logic [2:0] index;
+            index = tailPointer[2:0] - {2'b00, completed};
+            if ((tailPointer != 4'd8) && (memPayload.memoryOperation != MEM_NONE)) begin
+                queueEntry[index] <= memPayload;
+            end else if (completed) begin
+                // Can be removed
+                queueEntry[7] <= '0;
+            end
+            // Shift Queue if Completed
+            if (completed) begin
+                for (int i=0; i<7; i++) begin
+                    queueEntry[i] <= queueEntry[i+1];
+                end
+            end
+            // Tail Pointer Update
+            tailPointer <= tailPointer - {3'b00, completed}
+            + {3'b000, ((tailPointer != 4'd8) && (memPayload.memoryOperation != MEM_NONE))};
+
+            debugCycle <= debugCycle + 1;
+        end
+    end
+
+    // Memory Queue Debug Print
+    always_ff @(posedge clock) begin
+        if (!reset) begin
+            if (tailPointer == '0) begin
+                $display(
+                    "\n=== Memory Queue Cycle %0d ===\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b bus(cyc=%0b stb=%0b we=%0b sel=%04b addr=%08h wdata=%08h rdata=%08h) empty\n",
+                    debugCycle,
+                    tailPointer,
+                    completed,
+                    triggerStore,
+                    storeTriggered,
+                    memBusIn.acknowledge,
+                    memBusOut.cycle,
+                    memBusOut.strobe,
+                    memBusOut.writeEnable,
+                    memBusOut.byteSelect,
+                    memBusOut.address,
+                    memBusOut.storeData,
+                    memBusIn.loadData
+                );
+            end else begin
+                $display(
+                    "\n=== Memory Queue Cycle %0d ===\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b bus(cyc=%0b stb=%0b we=%0b sel=%04b addr=%08h wdata=%08h rdata=%08h)\n",
+                    debugCycle,
+                    tailPointer,
+                    completed,
+                    triggerStore,
+                    storeTriggered,
+                    memBusIn.acknowledge,
+                    memBusOut.cycle,
+                    memBusOut.strobe,
+                    memBusOut.writeEnable,
+                    memBusOut.byteSelect,
+                    memBusOut.address,
+                    memBusOut.storeData,
+                    memBusIn.loadData
+                );
+                for (int unsigned i = 0; i < 8; i++) begin
+                    if (i < tailPointer) begin
+                        $display("[%0d] op=%0d addr=%08h data=%08h width=%02b sign=%0b tag=%0d rd=x%0d",
+                            i,
+                            queueEntry[i].memoryOperation,
+                            queueEntry[i].address,
+                            queueEntry[i].storeData,
+                            queueEntry[i].memoryWidth,
+                            queueEntry[i].memorySigned,
+                            queueEntry[i].ageTag,
+                            queueEntry[i].destinationRegister);
+                    end
+                end
+            end
+            if (memPayload.memoryOperation != MEM_NONE) begin
+                $display("in : op=%0d addr=%08h data=%08h width=%02b sign=%0b tag=%0d rd=x%0d",
+                    memPayload.memoryOperation,
+                    memPayload.address,
+                    memPayload.storeData,
+                    memPayload.memoryWidth,
+                    memPayload.memorySigned,
+                    memPayload.ageTag,
+                    memPayload.destinationRegister);
+            end
+        end
+    end
+
+endmodule
 // mini single req store buffer with forwarding so you dont need to wait for ack
 // back. fairly simple, just hold recent outgoing store and forward
 // to in flight loads. This is past ROB and lets stores commit fast.
@@ -16,3 +231,5 @@ import Enumerations::*;
 // definitely do a store buffer that bypasses issue restrictions. It can forward to OS
 // Maybe 16ish entries from most recent stores. configurable size?
 // Actualy this is problematic because address must be known at issue time.
+
+ // MUST INTEGRATE THIS INTO RST

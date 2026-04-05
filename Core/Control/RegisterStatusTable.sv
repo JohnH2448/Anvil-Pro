@@ -65,6 +65,11 @@ module RegisterStatusTable (
     input logic [reorderBufferIndexWidth-1:0] readyAgeTag1,
     input logic [reorderBufferIndexWidth-1:0] readyAgeTag2,
 
+    // Ready Signal From Memory
+    input logic memReady,
+    input logic [4:0] memReg,
+    input logic [reorderBufferIndexWidth-1:0] memAgeTag,
+
     // Restore State Buses from ROB
     input RestoreStateBus_ rstBus1,
     input RestoreStateBus_ rstBus2,
@@ -113,6 +118,7 @@ module RegisterStatusTable (
                 (!instructionConsumed1 || (retireRegister1 != rstDestinationRegister1)) &&
                 (!ready2 || (retireRegister1 != readyRegister2)) &&
                 (!ready1 || (retireRegister1 != readyRegister1)) &&
+                (!memReady || (retireRegister1 != memReg)) &&
                 (!retire2 || (retireRegister1 != retireRegister2))) begin
                 // Instruction Retired From ROB 1
                 if (registerStatusTable[retireRegister1].ageTag == retireAgeTag1) begin
@@ -137,11 +143,21 @@ module RegisterStatusTable (
                     registerStatusTable[readyRegister2].resultCommitted <= 1'd0;
                 end
             end
+            // Mem Ready
+            if (memReady) begin
+                // Load Data Arrived
+                if (registerStatusTable[memReg].ageTag == memAgeTag) begin
+                    registerStatusTable[memReg].resultReady <= 1'd1;
+                    registerStatusTable[memReg].resultCommitted <= 1'd0;
+                end
+            end
+
             if (retire2 &&
                 (!instructionConsumed2 || (retireRegister2 != rstDestinationRegister2)) &&
                 (!instructionConsumed1 || (retireRegister2 != rstDestinationRegister1)) &&
                 (!ready2 || (retireRegister2 != readyRegister2)) &&
-                (!ready1 || (retireRegister2 != readyRegister1))) begin
+                (!ready1 || (retireRegister2 != readyRegister1)) &&
+                (!memReady || (retireRegister2 != memReg))) begin
                 // Instruction Retired From ROB 2
                 if (registerStatusTable[retireRegister2].ageTag == retireAgeTag2) begin
                     registerStatusTable[retireRegister2].resultReady <= 1'd1;
@@ -276,6 +292,5 @@ module RegisterStatusTable (
 
 endmodule
 // May be wise to split into two tables. Issuer only needs 1 bit
-// zero isLoad on redirect restore. may actually be a load but its irrelevant once ready
-// retire gets priority over state restore
+
 

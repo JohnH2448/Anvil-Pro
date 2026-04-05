@@ -451,6 +451,7 @@ module DecodeIssue (
     end
 
     // Single-line issue summary trace.
+    /*
     always_ff @(posedge clock) begin
         string slot0Summary;
         string slot1Summary;
@@ -505,6 +506,7 @@ module DecodeIssue (
                 debugCycle, slot0Summary, slot1Summary);
         end
     end
+    */
 
 endmodule
 

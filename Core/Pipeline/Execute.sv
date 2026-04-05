@@ -168,7 +168,7 @@ module Execute (
         // Packet 1
         resultPayload1 = '0;
         resultPayload1.ageTag = exPayload1.ageTag;
-        if (exPayload1.valid && !reset) begin
+        if (exPayload1.valid && !reset && (exPayload1.memoryOperation == MEM_NONE)) begin
             resultPayload1.accept = 1'd1;
             resultPayload1.destinationRegister = exPayload1.destinationRegister;
             if (exPayload1.jumpType != JUMP_NONE) begin
@@ -188,6 +188,26 @@ module Execute (
             end else begin
                 resultPayload2.instructionResult = result2;
             end
+        end
+    end
+
+    // Memory Packet Construction
+    always_comb begin
+        if (exPayload1.valid && !illegal1) begin
+            unique case (exPayload1.memoryOperation)
+                MEM_NONE: memPayload = '0;
+                MEM_LOAD, MEM_STORE: begin
+                    memPayload.address = result1;
+                    memPayload.storeData = exPayload1.extraField;
+                    memPayload.memoryOperation = exPayload1.memoryOperation;
+                    memPayload.memoryWidth = exPayload1.memoryWidth;
+                    memPayload.memorySigned = exPayload1.memorySigned;
+                    memPayload.destinationRegister = exPayload1.destinationRegister;
+                    memPayload.ageTag = exPayload1.ageTag;
+                end
+            endcase
+        end else begin
+            memPayload = '0;
         end
     end
 

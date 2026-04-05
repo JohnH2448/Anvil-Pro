@@ -101,9 +101,40 @@ module Top (
     logic [31:0] programCounter;
     logic badData;
 
+    // Memory Queue Outputs
+    logic storeACK;
+    InputInstruction_ completedMemory;
+    WishboneMaster_ memBusOut;
+
+    // Data Memory Outputs
+    WishboneSlave_ memBusIn;
+
     // Instruction Memory Outputs
     logic [127:0] lowFetchData;
     logic [127:0] highFetchData;
+
+
+
+
+    MemoryQueue memoryQueue (
+        .clock(clock), // input
+        .reset(reset), // input
+
+        .storeACK(storeACK), // output
+        .triggerStore(triggerStore), // input
+
+        .memPayload(memPayload), // input
+        .memBusOut(memBusOut), // output
+        .memBusIn(memBusIn), // input
+        .completedMemory(completedMemory) // output
+    );
+
+    PlaceholderDMEM placeholderDMEM (
+        .clock(clock), // input
+        .reset(reset), // input
+        .memBusOut(memBusOut), // input
+        .memBusIn(memBusIn) // output
+    );
 
     ReorderBuffer reorderBuffer (
 
@@ -115,7 +146,7 @@ module Top (
         .redirect1(redirect1), // input
         .redirect2(redirect2), // input
 
-        .completedMemory(), // input
+        .completedMemory(completedMemory), // input
         .completedInstruction1(resultPayload1), // input
         .completedInstruction2(resultPayload2), // input
         .issuedInstruction1(instructionPacket1), // input
@@ -129,7 +160,7 @@ module Top (
         .freeTag1(freeTag1), // output
         .freeTag2(freeTag2), // output
 
-        .storeACK(), // input
+        .storeACK(storeACK), // input
 
         .rstBus1(rstBus1), // output
         .rstBus2(rstBus2), // output
@@ -190,6 +221,10 @@ module Top (
         .isLoad2(isLoad2), // input
         .ageTag1(ageTag1), // input
         .ageTag2(ageTag2), // input
+
+        .memReady(completedMemory.accept), // input
+        .memReg(completedMemory.destinationRegister), // input
+        .memAgeTag(completedMemory.ageTag), // input
 
         .retire1(resolvedInstruction1.valid), // input
         .retire2(resolvedInstruction2.valid), // input
@@ -389,4 +424,3 @@ module Top (
     );
 
 endmodule
-
