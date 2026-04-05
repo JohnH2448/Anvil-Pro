@@ -73,7 +73,7 @@ If the next instruction cannot safely dispatch due to operand availability or st
 Under strict in-order issue, issue refusal and traditional stall models exhibit similar IPC behavior during true dependency waits. The primary advantage of Anvil-Pro’s methodology is structural: reduced control depth, simplified verification, and improved timing characteristics. The tradeoff is modest additional resume latency when a previously blocked instruction becomes eligible to issue, since it must traverse the full backend pipeline rather than resuming mid-stage. It was concluded that the simplicity and timing benefits generally outweigh the marginal latency impact for this implementation.
 
 ### Issuer Contract
-The issuer guarantees that any dispatched instruction group satisfies the following invariants for these common instructions:
+The issuer guarantees that any dispatched work satisfies the following invariants for common instruction types:
 ```txt
 # Single Slot Access to LSU
 - Lower Slot May Not Issue Memory Operations
