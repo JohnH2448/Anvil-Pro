@@ -69,7 +69,7 @@ module RegisterFile (
         end
     end
     
-    /*
+    
     always_ff @(posedge clock) begin
         if (!reset) begin
             $display(
@@ -86,6 +86,6 @@ module RegisterFile (
             );
         end
     end
-    */
+    
 
 endmodule

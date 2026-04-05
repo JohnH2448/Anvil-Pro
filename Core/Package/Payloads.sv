@@ -148,6 +148,31 @@ package Payloads;
         logic valid;
     } RestoreStateBus_;
 
+    typedef struct packed {
+        logic [31:0] address;
+        logic [31:0] storeData;
+        logic writeEnable;
+        logic [3:0] byteSelect;
+        logic cycle;
+        logic strobe;
+    } WishboneMaster_;
+
+    typedef struct packed {
+        logic [31:0] loadData;
+        logic acknowledge;
+    } WishboneSlave_;
+
+    // Memory Queue Entry
+    typedef struct packed {
+        logic [31:0] address;
+        logic [31:0] storeData;
+        MemoryOperation_ memoryOperation;
+        logic [1:0] memoryWidth;
+        logic memorySigned;
+        logic [4:0] destinationRegister;
+        logic [reorderBufferIndexWidth-1:0] ageTag;
+    } MemoryQueueEntry_;
+
 endpackage
 
 

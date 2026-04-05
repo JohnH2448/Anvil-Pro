@@ -136,6 +136,3 @@ module WalkingWindow (
 
 endmodule
 
-// Only one case prevents bad data. PC in windows final slot, then two dual consumes
-// decode controls pc, prefetch always feeds pc and pc+4
-// decode handles consumption. must only consume on valids

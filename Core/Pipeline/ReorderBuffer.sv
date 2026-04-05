@@ -190,8 +190,8 @@ module ReorderBuffer (
         resolvedInstruction2 = '0;
         retireCount = 2'b00;
         triggerStore = 1'd0;
-        if ((entries > 'd1) && (reorderBuffer[headIndexer].completed || reorderBuffer[headIndexer].destinationRegister == 5'd0)
-        && (reorderBuffer[headIndexer+'d1].completed || reorderBuffer[headIndexer+'d1].destinationRegister == 5'd0)) begin
+        if ((entries > 'd1) && (reorderBuffer[headIndexer].completed || (reorderBuffer[headIndexer].destinationRegister == 5'd0 && !reorderBuffer[headIndexer].isStore))
+        && (reorderBuffer[headIndexer+'d1].completed || (reorderBuffer[headIndexer+'d1].destinationRegister == 5'd0 && !reorderBuffer[headIndexer+'d1].isStore))) begin
             // Commit Slot 0 and 1
             retireCount = 2'b10;
             if ((reorderBuffer[headIndexer].destinationRegister != 5'd0) && (reorderBuffer[headIndexer].destinationRegister == reorderBuffer[headIndexer+1].destinationRegister)) begin
@@ -216,7 +216,7 @@ module ReorderBuffer (
                     resolvedInstruction2.valid = 1'd1; 
                 end
             end
-        end else if ((entries > 5'd0) && (reorderBuffer[headIndexer].completed || reorderBuffer[headIndexer].destinationRegister == 5'd0)) begin
+        end else if ((entries > 5'd0) && (reorderBuffer[headIndexer].completed || (reorderBuffer[headIndexer].destinationRegister == 5'd0 && !reorderBuffer[headIndexer].isStore))) begin
             // Commit Slot 0
             retireCount = 2'b01;
             // Slot 0 Packet
@@ -230,7 +230,7 @@ module ReorderBuffer (
             // Launch Store
             triggerStore = 1'd1;
         end
-    end
+    end // can retire stores 1 cycle faster with (outgoingStore && storeACK) comb
 
     // Store ACK FSM
     logic outgoingStore;
@@ -425,7 +425,6 @@ module ReorderBuffer (
     // Most stages function the same under illegal vs redirect
 
     // ROB Debug Print
-    
     always_ff @(posedge clock) begin
         if (!reset) begin
             if (entries == '0) begin
@@ -459,6 +458,7 @@ endmodule
 // full empty use case missing maybe?
 // mem ops must detect illegal before buffer
 // robentry[i].ageTag is implicit in index. need to remove that logic
+// also may not need destinationRegister in CompletedInstructions_
 
 
 
