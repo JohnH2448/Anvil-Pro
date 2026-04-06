@@ -131,7 +131,8 @@ This core is in progress. Do not attempt to use it or understand the HDL unless 
 The ALU instruction pipeline does strong even under directed edge case tests. Redirects are also promisingly close to a confident standard. Stress tests combining chained RAW, branch-after-branch, rst confusion, and forwarding torture all came back positive. While not assuredly "100%", the foundation is strong enough to move towards other goals. The design is currently running at 1.58 IPC on standard (non-memory/system) assembly, and 1.98 IPC on non-dependent ALU assembly. Just recently, the memory subsystem was added. It currently waits for store acknowlegement from DMEM before commiting the instruction. This, unfortunantly, craters performance, which necessitates a store buffer. Ideally, loads that use the store buffer have their results passed to them in execute, which would dramatically boost IPC. As for verification, the current memory system looks decent. Basic directed tests were applied and came back correct, but trickier code hasn't yet been tried. This is the current undertaking, and shortly after the store buffer.
 
 ### TODO List
-- Better Memory Queue Verification
+- Remove Store ACK FSMs
+- Improve Retirement Allowance
 - Store Buffer / Load Forwarding
 - CSR Ecosystem
 - System Instruction Support
