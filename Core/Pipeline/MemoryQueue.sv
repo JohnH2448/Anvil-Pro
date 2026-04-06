@@ -185,17 +185,6 @@ endmodule
 // basically stall mem queue but forward to loads if needed. must keep
 // bus live to maintain transaction for ack.
 // actually with inter queue forwarding this may not be necissary.
-// unless theres a case im missing, rob doesnt need ack 
 
-// to start, rob will wait for ack. optimize later with above
-// StoreACK to ROB must be broadcast in this domain by Queue until next edge
-
-// definitely do a store buffer that bypasses issue restrictions. It can forward to OS
-// Maybe 16ish entries from most recent stores. configurable size?
-// Actualy this is problematic because address must be known at issue time.
-
- // Potential Store Buffer that forwards to in-flight loads in ex. they
- // then go straight to rob and skip mem queue.
-
- // redo retirement logic so that its more streamlined and can fire two stores
- // and doesnt wait for ack.
+// Potential Store Buffer that forwards to in-flight loads in ex. they
+// then go straight to rob and skip mem queue.
