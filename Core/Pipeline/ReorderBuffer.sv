@@ -366,8 +366,14 @@ module ReorderBuffer (
                 rstBus1.destinationRegister = flushDest1;
                 rstBus1.ageTag = minIndex1;
                 if (found1) begin
-                    rstBus1.ready = 1'b1;
-                    rstBus1.retired = 1'b0;
+                    if ((minIndex1 == resolvedInstruction1.ageTag && resolvedInstruction1.valid)
+                    || (minIndex1 == resolvedInstruction2.ageTag && resolvedInstruction2.valid)) begin
+                        rstBus1.ready = 1'b1;
+                        rstBus1.retired = 1'b1;
+                    end else begin
+                        rstBus1.ready = 1'b1;
+                        rstBus1.retired = 1'b0;
+                    end
                 end else begin
                     rstBus1.ready = 1'b1;
                     rstBus1.retired = 1'b1;

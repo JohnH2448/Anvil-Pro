@@ -371,7 +371,8 @@ module DecodeIssue (
             finalUpperPayload.ageTag = freeTag1;
             finalUpperPayload.oldStatus = oldUpperStatus;
             // Ensures Stale RST Doesn't Otherwise Change Next Cycle
-            // Redirect Isn't a concern. THis will flush
+            // PROB AN ISSUE WITH MEM READY HERE
+            // Redirect Isn't a concern. This will flush
             if (((oldUpperStatus.ageTag == retireTag1) && retireValid1)
                 || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
