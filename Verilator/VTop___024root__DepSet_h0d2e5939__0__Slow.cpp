@@ -288,9 +288,85 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                              [0U][0U] >> 0xaU)))) {
         vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform = 0xfU;
     }
+    if ((0U != (0x1fU & (vlSelf->Top__DOT__payload1[2U] 
+                         >> 2U)))) {
+        vlSelf->Top__DOT__upperSourceData1 = vlSelf->Top__DOT__registerFile__DOT__registerFile
+            [(0x1fU & (vlSelf->Top__DOT__payload1[2U] 
+                       >> 2U))];
+        vlSelf->Top__DOT__upperSource1Status = ((1U 
+                                                 & (IData)(vlSelf->Top__DOT__upperSource1Status)) 
+                                                | ((0x20U 
+                                                    & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
+                                                       [
+                                                       (0x1fU 
+                                                        & (vlSelf->Top__DOT__payload1[2U] 
+                                                           >> 2U))] 
+                                                       << 4U)) 
+                                                   | (0x1eU 
+                                                      & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
+                                                         [
+                                                         (0x1fU 
+                                                          & (vlSelf->Top__DOT__payload1[2U] 
+                                                             >> 2U))] 
+                                                         >> 1U))));
+        vlSelf->Top__DOT__upperSource1Status = ((0x3eU 
+                                                 & (IData)(vlSelf->Top__DOT__upperSource1Status)) 
+                                                | (1U 
+                                                   & vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
+                                                   [
+                                                   (0x1fU 
+                                                    & (vlSelf->Top__DOT__payload1[2U] 
+                                                       >> 2U))]));
+    } else {
+        vlSelf->Top__DOT__upperSourceData1 = 0U;
+        vlSelf->Top__DOT__upperSource1Status = (0x20U 
+                                                | (IData)(vlSelf->Top__DOT__upperSource1Status));
+        vlSelf->Top__DOT__upperSource1Status = (1U 
+                                                | (IData)(vlSelf->Top__DOT__upperSource1Status));
+    }
+    if ((0U != (0x1fU & (vlSelf->Top__DOT__payload1[2U] 
+                         >> 7U)))) {
+        vlSelf->Top__DOT__upperSourceData2 = vlSelf->Top__DOT__registerFile__DOT__registerFile
+            [(0x1fU & (vlSelf->Top__DOT__payload1[2U] 
+                       >> 7U))];
+        vlSelf->Top__DOT__upperSource2Status = ((1U 
+                                                 & (IData)(vlSelf->Top__DOT__upperSource2Status)) 
+                                                | ((0x20U 
+                                                    & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
+                                                       [
+                                                       (0x1fU 
+                                                        & (vlSelf->Top__DOT__payload1[2U] 
+                                                           >> 7U))] 
+                                                       << 4U)) 
+                                                   | (0x1eU 
+                                                      & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
+                                                         [
+                                                         (0x1fU 
+                                                          & (vlSelf->Top__DOT__payload1[2U] 
+                                                             >> 7U))] 
+                                                         >> 1U))));
+        vlSelf->Top__DOT__upperSource2Status = ((0x3eU 
+                                                 & (IData)(vlSelf->Top__DOT__upperSource2Status)) 
+                                                | (1U 
+                                                   & vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
+                                                   [
+                                                   (0x1fU 
+                                                    & (vlSelf->Top__DOT__payload1[2U] 
+                                                       >> 7U))]));
+    } else {
+        vlSelf->Top__DOT__upperSourceData2 = 0U;
+        vlSelf->Top__DOT__upperSource2Status = (0x20U 
+                                                | (IData)(vlSelf->Top__DOT__upperSource2Status));
+        vlSelf->Top__DOT__upperSource2Status = (1U 
+                                                | (IData)(vlSelf->Top__DOT__upperSource2Status));
+    }
     if ((0U != (0x1fU & ((vlSelf->Top__DOT__payload2[2U] 
                           << 1U) | (vlSelf->Top__DOT__payload2[1U] 
                                     >> 0x1fU))))) {
+        vlSelf->Top__DOT__lowerSourceData1 = vlSelf->Top__DOT__registerFile__DOT__registerFile
+            [(0x1fU & ((vlSelf->Top__DOT__payload2[2U] 
+                        << 1U) | (vlSelf->Top__DOT__payload2[1U] 
+                                  >> 0x1fU)))];
         vlSelf->Top__DOT__lowerSource1Status = ((1U 
                                                  & (IData)(vlSelf->Top__DOT__lowerSource1Status)) 
                                                 | ((0x20U 
@@ -322,77 +398,17 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                        | (vlSelf->Top__DOT__payload2[1U] 
                                                           >> 0x1fU)))]));
     } else {
+        vlSelf->Top__DOT__lowerSourceData1 = 0U;
         vlSelf->Top__DOT__lowerSource1Status = (0x20U 
                                                 | (IData)(vlSelf->Top__DOT__lowerSource1Status));
         vlSelf->Top__DOT__lowerSource1Status = (1U 
                                                 | (IData)(vlSelf->Top__DOT__lowerSource1Status));
     }
-    if ((0U != (0x1fU & (vlSelf->Top__DOT__payload1[2U] 
-                         >> 7U)))) {
-        vlSelf->Top__DOT__upperSource2Status = ((1U 
-                                                 & (IData)(vlSelf->Top__DOT__upperSource2Status)) 
-                                                | ((0x20U 
-                                                    & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
-                                                       [
-                                                       (0x1fU 
-                                                        & (vlSelf->Top__DOT__payload1[2U] 
-                                                           >> 7U))] 
-                                                       << 4U)) 
-                                                   | (0x1eU 
-                                                      & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
-                                                         [
-                                                         (0x1fU 
-                                                          & (vlSelf->Top__DOT__payload1[2U] 
-                                                             >> 7U))] 
-                                                         >> 1U))));
-        vlSelf->Top__DOT__upperSource2Status = ((0x3eU 
-                                                 & (IData)(vlSelf->Top__DOT__upperSource2Status)) 
-                                                | (1U 
-                                                   & vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
-                                                   [
-                                                   (0x1fU 
-                                                    & (vlSelf->Top__DOT__payload1[2U] 
-                                                       >> 7U))]));
-    } else {
-        vlSelf->Top__DOT__upperSource2Status = (0x20U 
-                                                | (IData)(vlSelf->Top__DOT__upperSource2Status));
-        vlSelf->Top__DOT__upperSource2Status = (1U 
-                                                | (IData)(vlSelf->Top__DOT__upperSource2Status));
-    }
-    if ((0U != (0x1fU & (vlSelf->Top__DOT__payload1[2U] 
-                         >> 2U)))) {
-        vlSelf->Top__DOT__upperSource1Status = ((1U 
-                                                 & (IData)(vlSelf->Top__DOT__upperSource1Status)) 
-                                                | ((0x20U 
-                                                    & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
-                                                       [
-                                                       (0x1fU 
-                                                        & (vlSelf->Top__DOT__payload1[2U] 
-                                                           >> 2U))] 
-                                                       << 4U)) 
-                                                   | (0x1eU 
-                                                      & (vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
-                                                         [
-                                                         (0x1fU 
-                                                          & (vlSelf->Top__DOT__payload1[2U] 
-                                                             >> 2U))] 
-                                                         >> 1U))));
-        vlSelf->Top__DOT__upperSource1Status = ((0x3eU 
-                                                 & (IData)(vlSelf->Top__DOT__upperSource1Status)) 
-                                                | (1U 
-                                                   & vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable
-                                                   [
-                                                   (0x1fU 
-                                                    & (vlSelf->Top__DOT__payload1[2U] 
-                                                       >> 2U))]));
-    } else {
-        vlSelf->Top__DOT__upperSource1Status = (0x20U 
-                                                | (IData)(vlSelf->Top__DOT__upperSource1Status));
-        vlSelf->Top__DOT__upperSource1Status = (1U 
-                                                | (IData)(vlSelf->Top__DOT__upperSource1Status));
-    }
     if ((0U != (0x1fU & (vlSelf->Top__DOT__payload2[2U] 
                          >> 4U)))) {
+        vlSelf->Top__DOT__lowerSourceData2 = vlSelf->Top__DOT__registerFile__DOT__registerFile
+            [(0x1fU & (vlSelf->Top__DOT__payload2[2U] 
+                       >> 4U))];
         vlSelf->Top__DOT__lowerSource2Status = ((1U 
                                                  & (IData)(vlSelf->Top__DOT__lowerSource2Status)) 
                                                 | ((0x20U 
@@ -418,6 +434,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                     & (vlSelf->Top__DOT__payload2[2U] 
                                                        >> 4U))]));
     } else {
+        vlSelf->Top__DOT__lowerSourceData2 = 0U;
         vlSelf->Top__DOT__lowerSource2Status = (0x20U 
                                                 | (IData)(vlSelf->Top__DOT__lowerSource2Status));
         vlSelf->Top__DOT__lowerSource2Status = (1U 
@@ -2175,6 +2192,38 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__placeholderDMEM__DOT__validRequest 
         = (IData)(((3U == (3U & vlSelf->Top__DOT__memBusOut[0U])) 
                    & (~ vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
+    vlSelf->Top__DOT__lowerROBData1 = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status) 
+                                                  >> 1U))][1U] 
+                                        << 0x15U) | 
+                                       (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status) 
+                                                  >> 1U))][0U] 
+                                        >> 0xbU));
+    vlSelf->Top__DOT__upperROBData2 = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status) 
+                                                  >> 1U))][1U] 
+                                        << 0x15U) | 
+                                       (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status) 
+                                                  >> 1U))][0U] 
+                                        >> 0xbU));
+    vlSelf->Top__DOT__upperROBData1 = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status) 
+                                                  >> 1U))][1U] 
+                                        << 0x15U) | 
+                                       (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status) 
+                                                  >> 1U))][0U] 
+                                        >> 0xbU));
+    vlSelf->Top__DOT__lowerROBData2 = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status) 
+                                                  >> 1U))][1U] 
+                                        << 0x15U) | 
+                                       (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                        [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status) 
+                                                  >> 1U))][0U] 
+                                        >> 0xbU));
     vlSelf->Top__DOT__reorderBuffer__DOT__nextHeadPointer 
         = (0x1fU & ((IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer) 
                     + (IData)(Top__DOT__reorderBuffer__DOT__retireCount)));
@@ -2518,18 +2567,10 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         Top__DOT__operandSelect__DOT__upperOperand1 = 0U;
     } else if ((1U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status))) {
         Top__DOT__operandSelect__DOT__upperOperand1 
-            = ((0U != (0x1fU & (vlSelf->Top__DOT__payload1[2U] 
-                                >> 2U))) ? vlSelf->Top__DOT__registerFile__DOT__registerFile
-               [(0x1fU & (vlSelf->Top__DOT__payload1[2U] 
-                          >> 2U))] : 0U);
+            = vlSelf->Top__DOT__upperSourceData1;
     } else if ((0x20U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status))) {
         Top__DOT__operandSelect__DOT__upperOperand1 
-            = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status) 
-                          >> 1U))][1U] << 0x15U) | 
-               (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status) 
-                          >> 1U))][0U] >> 0xbU));
+            = vlSelf->Top__DOT__upperROBData1;
     } else if ((((0xfU & (IData)((vlSelf->Top__DOT__resultPayload2 
                                   >> 0x26U))) == (0xfU 
                                                   & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status) 
@@ -2551,18 +2592,10 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         Top__DOT__operandSelect__DOT__upperOperand2 = 0U;
     } else if ((1U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status))) {
         Top__DOT__operandSelect__DOT__upperOperand2 
-            = ((0U != (0x1fU & (vlSelf->Top__DOT__payload1[2U] 
-                                >> 7U))) ? vlSelf->Top__DOT__registerFile__DOT__registerFile
-               [(0x1fU & (vlSelf->Top__DOT__payload1[2U] 
-                          >> 7U))] : 0U);
+            = vlSelf->Top__DOT__upperSourceData2;
     } else if ((0x20U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status))) {
         Top__DOT__operandSelect__DOT__upperOperand2 
-            = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status) 
-                          >> 1U))][1U] << 0x15U) | 
-               (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status) 
-                          >> 1U))][0U] >> 0xbU));
+            = vlSelf->Top__DOT__upperROBData2;
     } else if ((((0xfU & (IData)((vlSelf->Top__DOT__resultPayload2 
                                   >> 0x26U))) == (0xfU 
                                                   & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status) 
@@ -2764,21 +2797,10 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         Top__DOT__operandSelect__DOT__lowerOperand1 = 0U;
     } else if ((1U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status))) {
         Top__DOT__operandSelect__DOT__lowerOperand1 
-            = ((0U != (0x1fU & ((vlSelf->Top__DOT__payload2[2U] 
-                                 << 1U) | (vlSelf->Top__DOT__payload2[1U] 
-                                           >> 0x1fU))))
-                ? vlSelf->Top__DOT__registerFile__DOT__registerFile
-               [(0x1fU & ((vlSelf->Top__DOT__payload2[2U] 
-                           << 1U) | (vlSelf->Top__DOT__payload2[1U] 
-                                     >> 0x1fU)))] : 0U);
+            = vlSelf->Top__DOT__lowerSourceData1;
     } else if ((0x20U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status))) {
         Top__DOT__operandSelect__DOT__lowerOperand1 
-            = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status) 
-                          >> 1U))][1U] << 0x15U) | 
-               (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status) 
-                          >> 1U))][0U] >> 0xbU));
+            = vlSelf->Top__DOT__lowerROBData1;
     } else if ((((0xfU & (IData)((vlSelf->Top__DOT__resultPayload2 
                                   >> 0x26U))) == (0xfU 
                                                   & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status) 
@@ -2800,18 +2822,10 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         Top__DOT__operandSelect__DOT__lowerOperand2 = 0U;
     } else if ((1U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status))) {
         Top__DOT__operandSelect__DOT__lowerOperand2 
-            = ((0U != (0x1fU & (vlSelf->Top__DOT__payload2[2U] 
-                                >> 4U))) ? vlSelf->Top__DOT__registerFile__DOT__registerFile
-               [(0x1fU & (vlSelf->Top__DOT__payload2[2U] 
-                          >> 4U))] : 0U);
+            = vlSelf->Top__DOT__lowerSourceData2;
     } else if ((0x20U & (IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status))) {
         Top__DOT__operandSelect__DOT__lowerOperand2 
-            = ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status) 
-                          >> 1U))][1U] << 0x15U) | 
-               (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                [(0xfU & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status) 
-                          >> 1U))][0U] >> 0xbU));
+            = vlSelf->Top__DOT__lowerROBData2;
     } else if ((((0xfU & (IData)((vlSelf->Top__DOT__resultPayload2 
                                   >> 0x26U))) == (0xfU 
                                                   & ((IData)(vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status) 
@@ -4049,25 +4063,12 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                      >> 1U)));
     Top__DOT__nextFreeSlots = (((IData)(Top__DOT__reorderBuffer__DOT__moreThanOne) 
                                 << 1U) | (1U & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries)));
-    vlSelf->Top__DOT__rstBus1 = 0U;
     vlSelf->Top__DOT__rstBus2 = 0U;
+    vlSelf->Top__DOT__rstBus1 = 0U;
     vlSelf->Top__DOT__rstBus3 = 0U;
     if (vlSelf->Top__DOT__redirect) {
         vlSelf->Top__DOT__freeTag1 = (0xfU & ((IData)(1U) 
                                               + (IData)(Top__DOT__reorderBuffer__DOT____VdfgTmp_hce32cc98__0)));
-        if (((0U < (IData)(Top__DOT__reorderBuffer__DOT__flushCount)) 
-             & (0U != (IData)(Top__DOT__reorderBuffer__DOT__flushDest1)))) {
-            vlSelf->Top__DOT__rstBus1 = (1U | (IData)(vlSelf->Top__DOT__rstBus1));
-            vlSelf->Top__DOT__rstBus1 = ((1U & (IData)(vlSelf->Top__DOT__rstBus1)) 
-                                         | (((IData)(Top__DOT__reorderBuffer__DOT__flushDest1) 
-                                             << 7U) 
-                                            | (((IData)(Top__DOT__reorderBuffer__DOT__minIndex1) 
-                                                << 3U) 
-                                               | (((IData)(Top__DOT__reorderBuffer__DOT__found1)
-                                                    ? 2U
-                                                    : 3U) 
-                                                  << 1U))));
-        }
         if (((1U < (IData)(Top__DOT__reorderBuffer__DOT__flushCount)) 
              & ((0U != (IData)(Top__DOT__reorderBuffer__DOT__flushDest2)) 
                 & ((IData)(Top__DOT__reorderBuffer__DOT__flushDest1) 
@@ -4082,6 +4083,36 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                     ? 2U
                                                     : 3U) 
                                                   << 1U))));
+        }
+        if (((0U < (IData)(Top__DOT__reorderBuffer__DOT__flushCount)) 
+             & (0U != (IData)(Top__DOT__reorderBuffer__DOT__flushDest1)))) {
+            vlSelf->Top__DOT__rstBus1 = (1U | (IData)(vlSelf->Top__DOT__rstBus1));
+            vlSelf->Top__DOT__rstBus1 = ((7U & (IData)(vlSelf->Top__DOT__rstBus1)) 
+                                         | (((IData)(Top__DOT__reorderBuffer__DOT__flushDest1) 
+                                             << 7U) 
+                                            | ((IData)(Top__DOT__reorderBuffer__DOT__minIndex1) 
+                                               << 3U)));
+            vlSelf->Top__DOT__rstBus1 = ((0xff9U & (IData)(vlSelf->Top__DOT__rstBus1)) 
+                                         | (((IData)(Top__DOT__reorderBuffer__DOT__found1)
+                                              ? (((
+                                                   ((IData)(Top__DOT__reorderBuffer__DOT__minIndex1) 
+                                                    == 
+                                                    (0xfU 
+                                                     & (IData)(
+                                                               (vlSelf->Top__DOT__resolvedInstruction1 
+                                                                >> 1U)))) 
+                                                   & (IData)(vlSelf->Top__DOT__resolvedInstruction1)) 
+                                                  | (((IData)(Top__DOT__reorderBuffer__DOT__minIndex1) 
+                                                      == 
+                                                      (0xfU 
+                                                       & (IData)(
+                                                                 (vlSelf->Top__DOT__resolvedInstruction2 
+                                                                  >> 1U)))) 
+                                                     & (IData)(vlSelf->Top__DOT__resolvedInstruction2)))
+                                                  ? 3U
+                                                  : 2U)
+                                              : 3U) 
+                                            << 1U));
         }
         if (((2U < (IData)(Top__DOT__reorderBuffer__DOT__flushCount)) 
              & ((0U != (IData)(Top__DOT__reorderBuffer__DOT__flushDest3)) 
@@ -4662,6 +4693,10 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->reset = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__resolvedInstruction1 = VL_RAND_RESET_Q(42);
     vlSelf->Top__DOT__resolvedInstruction2 = VL_RAND_RESET_Q(42);
+    vlSelf->Top__DOT__upperROBData1 = VL_RAND_RESET_I(32);
+    vlSelf->Top__DOT__upperROBData2 = VL_RAND_RESET_I(32);
+    vlSelf->Top__DOT__lowerROBData1 = VL_RAND_RESET_I(32);
+    vlSelf->Top__DOT__lowerROBData2 = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__freeTag1 = VL_RAND_RESET_I(4);
     vlSelf->Top__DOT__rstBus1 = VL_RAND_RESET_I(12);
     vlSelf->Top__DOT__rstBus2 = VL_RAND_RESET_I(12);
@@ -4688,6 +4723,10 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__instructionPacket2 = VL_RAND_RESET_Q(43);
     VL_RAND_RESET_W(120, vlSelf->Top__DOT__exPayload1);
     VL_RAND_RESET_W(117, vlSelf->Top__DOT__exPayload2);
+    vlSelf->Top__DOT__upperSourceData1 = VL_RAND_RESET_I(32);
+    vlSelf->Top__DOT__upperSourceData2 = VL_RAND_RESET_I(32);
+    vlSelf->Top__DOT__lowerSourceData1 = VL_RAND_RESET_I(32);
+    vlSelf->Top__DOT__lowerSourceData2 = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__resultPayload1 = VL_RAND_RESET_Q(42);
     vlSelf->Top__DOT__resultPayload2 = VL_RAND_RESET_Q(42);
     VL_RAND_RESET_W(78, vlSelf->Top__DOT__memPayload);
@@ -4748,6 +4787,7 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     }
     VL_RAND_RESET_W(120, vlSelf->Top__DOT__operandSelect__DOT__exPayloadCandidate1);
     VL_RAND_RESET_W(117, vlSelf->Top__DOT__operandSelect__DOT__exPayloadCandidate2);
+    vlSelf->Top__DOT__operandSelect__DOT__debugCycle = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__operandSelect__DOT__upperSource1Status = VL_RAND_RESET_I(6);
     vlSelf->Top__DOT__operandSelect__DOT__upperSource2Status = VL_RAND_RESET_I(6);
     vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status = VL_RAND_RESET_I(6);

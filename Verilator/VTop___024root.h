@@ -74,20 +74,29 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         SData/*11:0*/ Top__DOT__rstBus2;
         SData/*11:0*/ Top__DOT__rstBus3;
         SData/*9:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex;
+        IData/*31:0*/ Top__DOT__upperROBData1;
+        IData/*31:0*/ Top__DOT__upperROBData2;
+        IData/*31:0*/ Top__DOT__lowerROBData1;
+        IData/*31:0*/ Top__DOT__lowerROBData2;
         IData/*31:0*/ Top__DOT__requestPC1;
         IData/*31:0*/ Top__DOT__requestPC2;
+    };
+    struct {
+        IData/*31:0*/ Top__DOT__upperSourceData1;
+        IData/*31:0*/ Top__DOT__upperSourceData2;
+        IData/*31:0*/ Top__DOT__lowerSourceData1;
+        IData/*31:0*/ Top__DOT__lowerSourceData2;
         IData/*31:0*/ Top__DOT__redirectVector;
         IData/*31:0*/ Top__DOT__instruction1;
         IData/*31:0*/ Top__DOT__instruction2;
         IData/*31:0*/ Top__DOT__programCounter;
-    };
-    struct {
         VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
         VlWide<4>/*127:0*/ Top__DOT__highFetchData;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedAddress;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedStoreData;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk1__DOT__i;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__nextLoadData;
+        IData/*31:0*/ Top__DOT__operandSelect__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__execute__DOT__result1;
         IData/*31:0*/ Top__DOT__execute__DOT__result2;
         IData/*31:0*/ Top__DOT__decodeIssue__DOT__IR1;

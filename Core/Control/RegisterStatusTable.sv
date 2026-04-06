@@ -166,32 +166,23 @@ module RegisterStatusTable (
             end
             // RST Redirect State Restore
             // Should Never Conflict With Consumed/Ready or Eachother
-            if (!((retireRegister1 == rstBus1.destinationRegister) && retire1) &&
-                !((retireRegister2 == rstBus1.destinationRegister) && retire2)) begin
-                    if (rstBus1.valid) begin
-                        registerStatusTable[rstBus1.destinationRegister].ageTag <= rstBus1.ageTag;
-                        registerStatusTable[rstBus1.destinationRegister].resultReady <= rstBus1.ready;
-                        registerStatusTable[rstBus1.destinationRegister].resultCommitted <= rstBus1.retired;
-                        registerStatusTable[rstBus1.destinationRegister].isLoad <= 1'd0;
-                    end
+            if (rstBus1.valid) begin
+                registerStatusTable[rstBus1.destinationRegister].ageTag <= rstBus1.ageTag;
+                registerStatusTable[rstBus1.destinationRegister].resultReady <= rstBus1.ready;
+                registerStatusTable[rstBus1.destinationRegister].resultCommitted <= rstBus1.retired;
+                registerStatusTable[rstBus1.destinationRegister].isLoad <= 1'd0;
             end
-            if (!((retireRegister1 == rstBus2.destinationRegister) && retire1) &&
-                !((retireRegister2 == rstBus2.destinationRegister) && retire2)) begin
-                    if (rstBus2.valid) begin
-                        registerStatusTable[rstBus2.destinationRegister].ageTag <= rstBus2.ageTag;
-                        registerStatusTable[rstBus2.destinationRegister].resultReady <= rstBus2.ready;
-                        registerStatusTable[rstBus2.destinationRegister].resultCommitted <= rstBus2.retired;
-                        registerStatusTable[rstBus2.destinationRegister].isLoad <= 1'd0;
-                    end
-                end
-            if (!((retireRegister1 == rstBus3.destinationRegister) && retire1) &&
-                !((retireRegister2 == rstBus3.destinationRegister) && retire2)) begin
-                    if (rstBus3.valid) begin
-                        registerStatusTable[rstBus3.destinationRegister].ageTag <= rstBus3.ageTag;
-                        registerStatusTable[rstBus3.destinationRegister].resultReady <= rstBus3.ready;
-                        registerStatusTable[rstBus3.destinationRegister].resultCommitted <= rstBus3.retired;
-                        registerStatusTable[rstBus3.destinationRegister].isLoad <= 1'd0;
-                    end
+            if (rstBus2.valid) begin
+                registerStatusTable[rstBus2.destinationRegister].ageTag <= rstBus2.ageTag;
+                registerStatusTable[rstBus2.destinationRegister].resultReady <= rstBus2.ready;
+                registerStatusTable[rstBus2.destinationRegister].resultCommitted <= rstBus2.retired;
+                registerStatusTable[rstBus2.destinationRegister].isLoad <= 1'd0;
+            end
+            if (rstBus3.valid) begin
+                registerStatusTable[rstBus3.destinationRegister].ageTag <= rstBus3.ageTag;
+                registerStatusTable[rstBus3.destinationRegister].resultReady <= rstBus3.ready;
+                registerStatusTable[rstBus3.destinationRegister].resultCommitted <= rstBus3.retired;
+                registerStatusTable[rstBus3.destinationRegister].isLoad <= 1'd0;
             end
         end
     end
@@ -292,5 +283,6 @@ module RegisterStatusTable (
 
 endmodule
 // May be wise to split into two tables. Issuer only needs 1 bit
+// Restore logic may need to account for memory ops ready from queue
 
 
