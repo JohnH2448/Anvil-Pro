@@ -23,6 +23,10 @@ module ReorderBuffer (
     input IssuedIntruction_ issuedInstruction1,
     input IssuedIntruction_ issuedInstruction2,
 
+    // Store Enqueue
+    input logic [reorderBufferIndexWidth-1:0] enqueuedStoreTag,
+    input MemoryOperation_ enqueuedStoreAccept,
+
     // Writeback Output
     output RetiredInstruction_ resolvedInstruction1,
     output RetiredInstruction_ resolvedInstruction2,
@@ -31,10 +35,6 @@ module ReorderBuffer (
     output logic [1:0] nextFreeSlots,
     output logic [reorderBufferIndexWidth-1:0] freeTag1,
     output logic [reorderBufferIndexWidth-1:0] freeTag2,
-
-    // Store Logic
-    input logic storeACK,
-    output logic triggerStore,
 
     // Quad Index Forward Requests From OS
     input logic [reorderBufferIndexWidth-1:0] upperTagIndex1,
@@ -169,14 +169,14 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail].programCounter <= issuedInstruction1.programCounter;
                 reorderBuffer[redirectAdjustedTail].destinationRegister <= issuedInstruction1.destinationRegister;
                 reorderBuffer[redirectAdjustedTail].ageTag <= redirectAdjustedTail;
-                reorderBuffer[redirectAdjustedTail].isStore <= issuedInstruction1.isStore;
+                reorderBuffer[redirectAdjustedTail].standardOp <= issuedInstruction1.standardOp;
                 reorderBuffer[redirectAdjustedTail].completed <= 1'b0;
             end
             if (issuedInstruction2.confirm) begin
                 reorderBuffer[redirectAdjustedTail + 'd1].programCounter <= issuedInstruction2.programCounter;
                 reorderBuffer[redirectAdjustedTail + 'd1].destinationRegister <= issuedInstruction2.destinationRegister;
                 reorderBuffer[redirectAdjustedTail + 'd1].ageTag <= redirectAdjustedTail + 'd1;
-                reorderBuffer[redirectAdjustedTail + 'd1].isStore <= issuedInstruction2.isStore;
+                reorderBuffer[redirectAdjustedTail + 'd1].standardOp <= issuedInstruction2.standardOp;
                 reorderBuffer[redirectAdjustedTail + 'd1].completed <= 1'b0;
             end
         end
@@ -185,13 +185,13 @@ module ReorderBuffer (
     // Instruction Resolution
     logic [reorderBufferIndexWidth:0] entries;
     assign entries = tailPointer - headPointer;
-    always_comb begin
+    always_comb begin 
         resolvedInstruction1 = '0;
         resolvedInstruction2 = '0;
         retireCount = 2'b00;
-        triggerStore = 1'd0;
-        if ((entries > 'd1) && (reorderBuffer[headIndexer].completed || (reorderBuffer[headIndexer].destinationRegister == 5'd0 && !reorderBuffer[headIndexer].isStore))
-        && (reorderBuffer[headIndexer+'d1].completed || (reorderBuffer[headIndexer+'d1].destinationRegister == 5'd0 && !reorderBuffer[headIndexer+'d1].isStore))) begin
+        if ((entries > 'd1)
+        && (reorderBuffer[headIndexer].completed || ((reorderBuffer[headIndexer].destinationRegister == 5'd0) && reorderBuffer[headIndexer].standardOp))
+        && (reorderBuffer[headIndexer+'d1].completed || ((reorderBuffer[headIndexer+'d1].destinationRegister == 5'd0) && reorderBuffer[headIndexer+'d1].standardOp))) begin
             // Commit Slot 0 and 1
             retireCount = 2'b10;
             if ((reorderBuffer[headIndexer].destinationRegister != 5'd0) && (reorderBuffer[headIndexer].destinationRegister == reorderBuffer[headIndexer+1].destinationRegister)) begin
@@ -216,7 +216,8 @@ module ReorderBuffer (
                     resolvedInstruction2.valid = 1'd1; 
                 end
             end
-        end else if ((entries > 5'd0) && (reorderBuffer[headIndexer].completed || (reorderBuffer[headIndexer].destinationRegister == 5'd0 && !reorderBuffer[headIndexer].isStore))) begin
+        end else if ((entries > 'd0)
+        && (reorderBuffer[headIndexer].completed || ((reorderBuffer[headIndexer].destinationRegister == 5'd0) && reorderBuffer[headIndexer].standardOp))) begin
             // Commit Slot 0
             retireCount = 2'b01;
             // Slot 0 Packet
@@ -226,28 +227,8 @@ module ReorderBuffer (
                 resolvedInstruction1.destinationRegister = reorderBuffer[headIndexer].destinationRegister;
                 resolvedInstruction1.valid = 1'd1; 
             end
-        end else if ((entries > 5'd0) && reorderBuffer[headIndexer].isStore) begin
-            // Launch Store
-            triggerStore = 1'd1;
-        end
-    end // can retire stores 1 cycle faster with (outgoingStore && storeACK) comb
-
-    // Store ACK FSM
-    logic outgoingStore;
-    always_ff @(posedge clock) begin
-        if (reset) begin
-            outgoingStore <= 1'd0;
-        end else begin
-            if (triggerStore && !outgoingStore) begin
-                outgoingStore <= 1'd1;
-            end
-            if (outgoingStore && storeACK) begin
-                outgoingStore <= 1'd0;
-                reorderBuffer[headIndexer].completed <= 1'd1;
-            end
         end
     end
-    // also dont need to wait for ack back to retire so long as queue keeps driving it
 
     // Forward Quad Index Unit
     always_comb begin
@@ -273,9 +254,11 @@ module ReorderBuffer (
                 reorderBuffer[completedMemory.ageTag].instructionResult <= completedMemory.instructionResult;
                 reorderBuffer[completedMemory.ageTag].completed <= 1'b1;
             end
+            if (enqueuedStoreAccept == MEM_STORE) begin
+                reorderBuffer[enqueuedStoreTag].completed <= 1'b1;
+            end
         end
     end
-
 
     // Calculate Flush Count 0-3
     logic [1:0] flushCount;
@@ -437,13 +420,13 @@ module ReorderBuffer (
                     logic [reorderBufferIndexWidth-1:0] queueIndex;
                     if (offset < entries) begin
                         queueIndex = headIndexer + reorderBufferIndexWidth'(offset);
-                        $display("[%0d] pc=%08h rd=x%0d tag=%0d ready=%0b store=%0b data=%08h",
+                        $display("[%0d] pc=%08h rd=x%0d tag=%0d ready=%0b stdOp=%0b data=%08h",
                             queueIndex,
                             reorderBuffer[queueIndex].programCounter,
                             reorderBuffer[queueIndex].destinationRegister,
                             reorderBuffer[queueIndex].ageTag,
                             reorderBuffer[queueIndex].completed,
-                            reorderBuffer[queueIndex].isStore,
+                            reorderBuffer[queueIndex].standardOp,
                             reorderBuffer[queueIndex].instructionResult);
                     end
                 end

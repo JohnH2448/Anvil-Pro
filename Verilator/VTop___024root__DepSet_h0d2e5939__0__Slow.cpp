@@ -187,13 +187,11 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     Top__DOT__decodeIssue__DOT__block1 = 0;
     CData/*0:0*/ Top__DOT__decodeIssue__DOT__block2;
     Top__DOT__decodeIssue__DOT__block2 = 0;
-    VlWide<3>/*95:0*/ __Vtemp_1;
+    CData/*0:0*/ Top__DOT__decodeIssue__DOT__standardOp1;
+    Top__DOT__decodeIssue__DOT__standardOp1 = 0;
+    CData/*0:0*/ Top__DOT__decodeIssue__DOT__standardOp2;
+    Top__DOT__decodeIssue__DOT__standardOp2 = 0;
     // Body
-    vlSelf->Top__DOT__storeACK = 0U;
-    if (((2U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                       [0U][0U] >> 0xcU))) & (IData)(vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister))) {
-        vlSelf->Top__DOT__storeACK = 1U;
-    }
     vlSelf->Top__DOT__completedMemory = 0ULL;
     Top__DOT__memoryQueue__DOT__unnamedblk2__DOT__shiftedLoadData 
         = VL_SHIFTR_III(32,32,32, (IData)((vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister 
@@ -1620,6 +1618,112 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                      (Top__DOT__execute__DOT__upperOperand1 
                                                       + Top__DOT__execute__DOT__upperOperand2))));
     }
+    vlSelf->Top__DOT__memBusOut[0U] = 0U;
+    vlSelf->Top__DOT__memBusOut[1U] = 0U;
+    vlSelf->Top__DOT__memBusOut[2U] = 0U;
+    if ((1U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                      [0U][0U] >> 0xcU)))) {
+        vlSelf->Top__DOT__memBusOut[1U] = ((0x7fU & 
+                                            vlSelf->Top__DOT__memBusOut[1U]) 
+                                           | (0xffffff80U 
+                                              & ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [0U][2U] 
+                                                  << 0x19U) 
+                                                 | (0x1ffff80U 
+                                                    & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                       [0U][1U] 
+                                                       >> 7U)))));
+        vlSelf->Top__DOT__memBusOut[2U] = (0x7fU & 
+                                           (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                            [0U][2U] 
+                                            >> 7U));
+        vlSelf->Top__DOT__memBusOut[0U] = (3U | ((0xffffff80U 
+                                                  & vlSelf->Top__DOT__memBusOut[0U]) 
+                                                 | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
+                                                    << 2U)));
+    }
+    if ((2U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                      [0U][0U] >> 0xcU)))) {
+        vlSelf->Top__DOT__memBusOut[1U] = ((0x7fU & 
+                                            vlSelf->Top__DOT__memBusOut[1U]) 
+                                           | (0xffffff80U 
+                                              & ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                  [0U][2U] 
+                                                  << 0x19U) 
+                                                 | (0x1ffff80U 
+                                                    & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                       [0U][1U] 
+                                                       >> 7U)))));
+        vlSelf->Top__DOT__memBusOut[2U] = (0x7fU & 
+                                           (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                            [0U][2U] 
+                                            >> 7U));
+        vlSelf->Top__DOT__memBusOut[0U] = ((1U & vlSelf->Top__DOT__memBusOut[0U]) 
+                                           | ((IData)(
+                                                      (((QData)((IData)(
+                                                                        VL_SHIFTL_III(32,32,32, 
+                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                                VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U)))) 
+                                                        << 6U) 
+                                                       | (QData)((IData)(
+                                                                         (0x21U 
+                                                                          | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
+                                                                             << 1U)))))) 
+                                              << 1U));
+        vlSelf->Top__DOT__memBusOut[1U] = ((0xffffff80U 
+                                            & vlSelf->Top__DOT__memBusOut[1U]) 
+                                           | (((IData)(
+                                                       (((QData)((IData)(
+                                                                         VL_SHIFTL_III(32,32,32, 
+                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                                VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U)))) 
+                                                         << 6U) 
+                                                        | (QData)((IData)(
+                                                                          (0x21U 
+                                                                           | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
+                                                                              << 1U)))))) 
+                                               >> 0x1fU) 
+                                              | ((IData)(
+                                                         ((((QData)((IData)(
+                                                                            VL_SHIFTL_III(32,32,32, 
+                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                << 0x12U) 
+                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][0U] 
+                                                                                >> 0xeU)), 
+                                                                                VL_SHIFTL_III(32,32,32, 
+                                                                                (3U 
+                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
+                                                                                [0U][1U] 
+                                                                                >> 0xeU)), 3U)))) 
+                                                            << 6U) 
+                                                           | (QData)((IData)(
+                                                                             (0x21U 
+                                                                              | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
+                                                                                << 1U))))) 
+                                                          >> 0x20U)) 
+                                                 << 1U)));
+        vlSelf->Top__DOT__memBusOut[0U] = (1U | vlSelf->Top__DOT__memBusOut[0U]);
+    }
     vlSelf->Top__DOT__operandSelect__DOT__lowerSource1Status 
         = (0x3fU & ((0x80U & vlSelf->Top__DOT__payload2[0U])
                      ? ((vlSelf->Top__DOT__payload2[0U] 
@@ -1640,53 +1744,6 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                      ? ((vlSelf->Top__DOT__payload2[0U] 
                          << 0x1fU) | (vlSelf->Top__DOT__payload2[0U] 
                                       >> 1U)) : (IData)(vlSelf->Top__DOT__lowerSource2Status)));
-    vlSelf->Top__DOT__triggerStore = 0U;
-    if ((1U & (~ (((1U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)) 
-                   & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                      [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                      | ((0U == (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                          [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                                          >> 6U))) 
-                         & (~ (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                               [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                               >> 1U))))) & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                             [(0xfU 
-                                               & ((IData)(1U) 
-                                                  + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][0U] 
-                                             | ((0U 
-                                                 == 
-                                                 (0x1fU 
-                                                  & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                     [
-                                                     (0xfU 
-                                                      & ((IData)(1U) 
-                                                         + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][0U] 
-                                                     >> 6U))) 
-                                                & (~ 
-                                                   (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [
-                                                    (0xfU 
-                                                     & ((IData)(1U) 
-                                                        + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][0U] 
-                                                    >> 1U)))))))) {
-        if ((1U & (~ ((0U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)) 
-                      & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                         [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                         | ((0U == (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                             [(0xfU 
-                                               & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                                             >> 6U))) 
-                            & (~ (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                  [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                                  >> 1U)))))))) {
-            if (((0U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)) 
-                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                    [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                    >> 1U))) {
-                vlSelf->Top__DOT__triggerStore = 1U;
-            }
-        }
-    }
     vlSelf->Top__DOT__resolvedInstruction1 = 0ULL;
     vlSelf->Top__DOT__resolvedInstruction2 = 0ULL;
     Top__DOT__reorderBuffer__DOT__retireCount = 0U;
@@ -1695,20 +1752,20 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
              [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
              | ((0U == (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
                                  [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                                 >> 6U))) & (~ (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [(0xfU 
-                                                  & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                                                >> 1U))))) 
+                                 >> 6U))) & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                             [(0xfU 
+                                               & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
+                                             >> 1U)))) 
          & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
             [(0xfU & ((IData)(1U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][0U] 
             | ((0U == (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
                                 [(0xfU & ((IData)(1U) 
                                           + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][0U] 
-                                >> 6U))) & (~ (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                               [(0xfU 
-                                                 & ((IData)(1U) 
-                                                    + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][0U] 
-                                               >> 1U)))))) {
+                                >> 6U))) & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                            [(0xfU 
+                                              & ((IData)(1U) 
+                                                 + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][0U] 
+                                            >> 1U))))) {
         if (((0U != (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
                               [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
                               >> 6U))) & ((0x1fU & 
@@ -1832,12 +1889,12 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                    [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
                    | ((0U == (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
                                        [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                                       >> 6U))) & (~ 
-                                                   (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                    [
-                                                    (0xfU 
-                                                     & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
-                                                    >> 1U)))))) {
+                                       >> 6U))) & (
+                                                   vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
+                                                   [
+                                                   (0xfU 
+                                                    & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
+                                                   >> 1U))))) {
         if ((0U != (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
                              [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
                              >> 6U)))) {
@@ -2115,164 +2172,9 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                   << 0xbU) 
                                                  | (vlSelf->Top__DOT__exPayload2[1U] 
                                                     >> 0x15U)));
-    vlSelf->Top__DOT__memBusOut[0U] = 0U;
-    vlSelf->Top__DOT__memBusOut[1U] = 0U;
-    vlSelf->Top__DOT__memBusOut[2U] = 0U;
-    if ((1U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                      [0U][0U] >> 0xcU)))) {
-        vlSelf->Top__DOT__memBusOut[1U] = ((0x7fU & 
-                                            vlSelf->Top__DOT__memBusOut[1U]) 
-                                           | (0xffffff80U 
-                                              & ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                  [0U][2U] 
-                                                  << 0x19U) 
-                                                 | (0x1ffff80U 
-                                                    & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                       [0U][1U] 
-                                                       >> 7U)))));
-        vlSelf->Top__DOT__memBusOut[2U] = (0x7fU & 
-                                           (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                            [0U][2U] 
-                                            >> 7U));
-        vlSelf->Top__DOT__memBusOut[0U] = (3U | ((0xffffff80U 
-                                                  & vlSelf->Top__DOT__memBusOut[0U]) 
-                                                 | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
-                                                    << 2U)));
-    }
-    if ((2U == (3U & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                      [0U][0U] >> 0xcU)))) {
-        __Vtemp_1[1U] = (((IData)((((QData)((IData)(
-                                                    ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                      [0U][2U] 
-                                                      << 0x12U) 
-                                                     | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                        [0U][1U] 
-                                                        >> 0xeU)))) 
-                                    << 0x20U) | (QData)((IData)(
-                                                                VL_SHIFTL_III(32,32,32, 
-                                                                              ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                << 0x12U) 
-                                                                               | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][0U] 
-                                                                                >> 0xeU)), 
-                                                                              VL_SHIFTL_III(32,32,32, 
-                                                                                (3U 
-                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                >> 0xeU)), 3U)))))) 
-                          >> 0x1bU) | ((IData)(((((QData)((IData)(
-                                                                  ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                    [0U][2U] 
-                                                                    << 0x12U) 
-                                                                   | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                      [0U][1U] 
-                                                                      >> 0xeU)))) 
-                                                  << 0x20U) 
-                                                 | (QData)((IData)(
-                                                                   VL_SHIFTL_III(32,32,32, 
-                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                << 0x12U) 
-                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][0U] 
-                                                                                >> 0xeU)), 
-                                                                                VL_SHIFTL_III(32,32,32, 
-                                                                                (3U 
-                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                >> 0xeU)), 3U))))) 
-                                                >> 0x20U)) 
-                                       << 5U));
-        vlSelf->Top__DOT__memBusOut[0U] = (0x40U | 
-                                           ((3U & vlSelf->Top__DOT__memBusOut[0U]) 
-                                            | (((IData)(
-                                                        (((QData)((IData)(
-                                                                          ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                            [0U][2U] 
-                                                                            << 0x12U) 
-                                                                           | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                              [0U][1U] 
-                                                                              >> 0xeU)))) 
-                                                          << 0x20U) 
-                                                         | (QData)((IData)(
-                                                                           VL_SHIFTL_III(32,32,32, 
-                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                << 0x12U) 
-                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][0U] 
-                                                                                >> 0xeU)), 
-                                                                                VL_SHIFTL_III(32,32,32, 
-                                                                                (3U 
-                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                >> 0xeU)), 3U)))))) 
-                                                << 7U) 
-                                               | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
-                                                  << 2U))));
-        vlSelf->Top__DOT__memBusOut[1U] = (((3U & ((IData)(
-                                                           (((QData)((IData)(
-                                                                             ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                               [0U][2U] 
-                                                                               << 0x12U) 
-                                                                              | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                >> 0xeU)))) 
-                                                             << 0x20U) 
-                                                            | (QData)((IData)(
-                                                                              VL_SHIFTL_III(32,32,32, 
-                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                << 0x12U) 
-                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][0U] 
-                                                                                >> 0xeU)), 
-                                                                                VL_SHIFTL_III(32,32,32, 
-                                                                                (3U 
-                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                >> 0xeU)), 3U)))))) 
-                                                   >> 0x19U)) 
-                                            | ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform) 
-                                               >> 0x1eU)) 
-                                           | (__Vtemp_1[1U] 
-                                              << 2U));
-        vlSelf->Top__DOT__memBusOut[2U] = (0x7fU & 
-                                           ((__Vtemp_1[1U] 
-                                             >> 0x1eU) 
-                                            | (0x7cU 
-                                               & ((IData)(
-                                                          ((((QData)((IData)(
-                                                                             ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                               [0U][2U] 
-                                                                               << 0x12U) 
-                                                                              | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                >> 0xeU)))) 
-                                                             << 0x20U) 
-                                                            | (QData)((IData)(
-                                                                              VL_SHIFTL_III(32,32,32, 
-                                                                                ((vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                << 0x12U) 
-                                                                                | (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][0U] 
-                                                                                >> 0xeU)), 
-                                                                                VL_SHIFTL_III(32,32,32, 
-                                                                                (3U 
-                                                                                & (vlSelf->Top__DOT__memoryQueue__DOT__queueEntry
-                                                                                [0U][1U] 
-                                                                                >> 0xeU)), 3U))))) 
-                                                           >> 0x20U)) 
-                                                  >> 0x19U))));
-        vlSelf->Top__DOT__memBusOut[0U] = ((0xfffffffcU 
-                                            & vlSelf->Top__DOT__memBusOut[0U]) 
-                                           | (3U & 
-                                              ((IData)(vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered)
-                                                ? (- (IData)((IData)(vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered)))
-                                                : (- (IData)((IData)(vlSelf->Top__DOT__triggerStore))))));
-    }
+    vlSelf->Top__DOT__placeholderDMEM__DOT__validRequest 
+        = (IData)(((3U == (3U & vlSelf->Top__DOT__memBusOut[0U])) 
+                   & (~ vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
     vlSelf->Top__DOT__reorderBuffer__DOT__nextHeadPointer 
         = (0x1fU & ((IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer) 
                     + (IData)(Top__DOT__reorderBuffer__DOT__retireCount)));
@@ -2391,9 +2293,6 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         = VL_LTS_III(32, Top__DOT__execute__DOT__lowerOperand1, Top__DOT__execute__DOT__lowerOperand2);
     Top__DOT__execute__DOT____VdfgExtracted_h4cbec2d7__0 
         = (Top__DOT__execute__DOT__lowerOperand1 < Top__DOT__execute__DOT__lowerOperand2);
-    vlSelf->Top__DOT__placeholderDMEM__DOT__validRequest 
-        = (IData)(((3U == (3U & vlSelf->Top__DOT__memBusOut[0U])) 
-                   & (~ vlSelf->Top__DOT__placeholderDMEM__DOT__memBusInRegister)));
     Top__DOT__redirect2 = 0U;
     if ((1U & vlSelf->Top__DOT__exPayload2[0U])) {
         if ((0x200U & vlSelf->Top__DOT__exPayload2[0U])) {
@@ -4340,7 +4239,17 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                         + vlSelf->Top__DOT__programCounter);
     }
     vlSelf->Top__DOT__instructionPacket1 = 0ULL;
+    Top__DOT__decodeIssue__DOT__standardOp1 = (IData)(
+                                                      (0U 
+                                                       == 
+                                                       (0x6386000U 
+                                                        & vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U])));
     vlSelf->Top__DOT__instructionPacket2 = 0ULL;
+    Top__DOT__decodeIssue__DOT__standardOp2 = (IData)(
+                                                      (0U 
+                                                       == 
+                                                       (0x6386000U 
+                                                        & vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[0U])));
     if (((IData)(vlSelf->Top__DOT__instructionConsumed1) 
          & (IData)(vlSelf->Top__DOT__instructionConsumed2))) {
         vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
@@ -4513,11 +4422,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                                         << 5U) 
                                                                        | (((IData)(vlSelf->Top__DOT__freeTag1) 
                                                                            << 1U) 
-                                                                          | (2U 
-                                                                             == 
-                                                                             (3U 
-                                                                              & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U] 
-                                                                                >> 0x19U))))))) 
+                                                                          | (IData)(Top__DOT__decodeIssue__DOT__standardOp1))))) 
                                                       << 1U)));
         vlSelf->Top__DOT__instructionPacket1 = (1ULL 
                                                 | vlSelf->Top__DOT__instructionPacket1);
@@ -4532,11 +4437,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                                            & (((IData)(1U) 
                                                                                + (IData)(vlSelf->Top__DOT__freeTag1)) 
                                                                               << 1U)) 
-                                                                          | (2U 
-                                                                             == 
-                                                                             (3U 
-                                                                              & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[0U] 
-                                                                                >> 0x19U))))))) 
+                                                                          | (IData)(Top__DOT__decodeIssue__DOT__standardOp2))))) 
                                                       << 1U)));
         vlSelf->Top__DOT__instructionPacket2 = (1ULL 
                                                 | vlSelf->Top__DOT__instructionPacket2);
@@ -4610,11 +4511,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                                         << 5U) 
                                                                        | (((IData)(vlSelf->Top__DOT__freeTag1) 
                                                                            << 1U) 
-                                                                          | (2U 
-                                                                             == 
-                                                                             (3U 
-                                                                              & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U] 
-                                                                                >> 0x19U))))))) 
+                                                                          | (IData)(Top__DOT__decodeIssue__DOT__standardOp1))))) 
                                                       << 1U)));
         vlSelf->Top__DOT__instructionPacket1 = (1ULL 
                                                 | vlSelf->Top__DOT__instructionPacket1);
@@ -4765,7 +4662,6 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->reset = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__resolvedInstruction1 = VL_RAND_RESET_Q(42);
     vlSelf->Top__DOT__resolvedInstruction2 = VL_RAND_RESET_Q(42);
-    vlSelf->Top__DOT__triggerStore = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__freeTag1 = VL_RAND_RESET_I(4);
     vlSelf->Top__DOT__rstBus1 = VL_RAND_RESET_I(12);
     vlSelf->Top__DOT__rstBus2 = VL_RAND_RESET_I(12);
@@ -4801,18 +4697,16 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__instruction1 = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__instruction2 = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__programCounter = VL_RAND_RESET_I(32);
-    vlSelf->Top__DOT__storeACK = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__completedMemory = VL_RAND_RESET_Q(42);
     VL_RAND_RESET_W(71, vlSelf->Top__DOT__memBusOut);
+    vlSelf->Top__DOT__memFreeSlot = VL_RAND_RESET_I(1);
     VL_RAND_RESET_W(128, vlSelf->Top__DOT__lowFetchData);
     VL_RAND_RESET_W(128, vlSelf->Top__DOT__highFetchData);
-    vlSelf->Top__DOT__memFreeSlot = VL_RAND_RESET_I(1);
     for (int __Vi0 = 0; __Vi0 < 8; ++__Vi0) {
         VL_RAND_RESET_W(78, vlSelf->Top__DOT__memoryQueue__DOT__queueEntry[__Vi0]);
     }
     vlSelf->Top__DOT__memoryQueue__DOT__tailPointer = VL_RAND_RESET_I(4);
     vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform = VL_RAND_RESET_I(4);
-    vlSelf->Top__DOT__memoryQueue__DOT__storeTriggered = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__unnamedblk5__DOT__index = VL_RAND_RESET_I(3);
     for (int __Vi0 = 0; __Vi0 < 1024; ++__Vi0) {
         vlSelf->Top__DOT__placeholderDMEM__DOT__memory[__Vi0] = VL_RAND_RESET_I(32);
@@ -4837,7 +4731,6 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     }
     vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries = VL_RAND_RESET_I(5);
     vlSelf->Top__DOT__reorderBuffer__DOT__entries = VL_RAND_RESET_I(5);
-    vlSelf->Top__DOT__reorderBuffer__DOT__outgoingStore = VL_RAND_RESET_I(1);
     for (int __Vi0 = 0; __Vi0 < 16; ++__Vi0) {
         vlSelf->Top__DOT__reorderBuffer__DOT__sortGrid[__Vi0] = VL_RAND_RESET_I(4);
     }

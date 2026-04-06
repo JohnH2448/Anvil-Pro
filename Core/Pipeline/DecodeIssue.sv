@@ -118,7 +118,7 @@ module DecodeIssue (
     UpperIssuerOperandPayload_ finalUpperPayload;
     LowerIssuerOperandPayload_ finalLowerPayload;
 
-    // Registered Instructions and PCs for Decode
+    // Registered Instructions and PCs for Decode 
     logic [31:0] IR1;
     logic [31:0] IR2;
     logic [31:0] PC1;
@@ -434,28 +434,36 @@ module DecodeIssue (
     end
 
     // Instruction Packet Construction
+    logic standardOp1;
+    logic standardOp2;
     always_comb begin
         instructionPacket1 = '0;
         instructionPacket2 = '0;
+        standardOp1 = ((tempPayload1.memoryOperation == MEM_NONE)
+        && (tempPayload1.branchType == BR_NONE)
+        && (tempPayload1.jumpType == JUMP_NONE));
+        standardOp2 = ((tempPayload2.memoryOperation == MEM_NONE)
+        && (tempPayload2.branchType == BR_NONE)
+        && (tempPayload2.jumpType == JUMP_NONE));
         if (instructionConsumed1 && instructionConsumed2) begin
             // Instruction 1 to ROB
             instructionPacket1.programCounter = PC1;
             instructionPacket1.destinationRegister = destinationRegister1;
             instructionPacket1.ageTag = freeTag1;
-            instructionPacket1.isStore = (tempPayload1.memoryOperation == MEM_STORE);
+            instructionPacket1.standardOp = standardOp1;
             instructionPacket1.confirm = 1'd1;
             // Instruction 2 to ROB
             instructionPacket2.programCounter = PC2;
             instructionPacket2.destinationRegister = destinationRegister2;
             instructionPacket2.ageTag = freeTag2;
-            instructionPacket2.isStore = (tempPayload2.memoryOperation == MEM_STORE);
+            instructionPacket2.standardOp = standardOp2;
             instructionPacket2.confirm = 1'd1;
         end else if (instructionConsumed1) begin
             // Instruction 1 to ROB
             instructionPacket1.programCounter = PC1;
             instructionPacket1.destinationRegister = destinationRegister1;
             instructionPacket1.ageTag = freeTag1;
-            instructionPacket1.isStore = (tempPayload1.memoryOperation == MEM_STORE);
+            instructionPacket1.standardOp = standardOp1;
             instructionPacket1.confirm = 1'd1;
         end
     end

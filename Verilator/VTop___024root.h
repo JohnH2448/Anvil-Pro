@@ -18,7 +18,6 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
     struct {
         VL_IN8(clock,0,0);
         VL_IN8(reset,0,0);
-        CData/*0:0*/ Top__DOT__triggerStore;
         CData/*3:0*/ Top__DOT__freeTag1;
         CData/*5:0*/ Top__DOT__upperSource1Status;
         CData/*5:0*/ Top__DOT__upperSource2Status;
@@ -36,11 +35,9 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__instructionConsumed2;
         CData/*0:0*/ Top__DOT__redirect;
         CData/*0:0*/ Top__DOT__redirect1;
-        CData/*0:0*/ Top__DOT__storeACK;
         CData/*0:0*/ Top__DOT__memFreeSlot;
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__tailPointer;
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__byteSelectTransform;
-        CData/*0:0*/ Top__DOT__memoryQueue__DOT__storeTriggered;
         CData/*2:0*/ Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__unnamedblk5__DOT__index;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__requestPending;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__latchedWriteEnable;
@@ -53,7 +50,6 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextTailPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__freeEntries;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__entries;
-        CData/*0:0*/ Top__DOT__reorderBuffer__DOT__outgoingStore;
         CData/*3:0*/ Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource1Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource2Status;
@@ -80,12 +76,12 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         SData/*9:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex;
         IData/*31:0*/ Top__DOT__requestPC1;
         IData/*31:0*/ Top__DOT__requestPC2;
-    };
-    struct {
         IData/*31:0*/ Top__DOT__redirectVector;
         IData/*31:0*/ Top__DOT__instruction1;
         IData/*31:0*/ Top__DOT__instruction2;
         IData/*31:0*/ Top__DOT__programCounter;
+    };
+    struct {
         VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
         VlWide<4>/*127:0*/ Top__DOT__highFetchData;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedAddress;
