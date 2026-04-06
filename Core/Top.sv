@@ -14,7 +14,6 @@ module Top (
     // Reorder Buffer Outputs
     RetiredInstruction_ resolvedInstruction1;
     RetiredInstruction_ resolvedInstruction2;
-    logic triggerStore;
     logic [1:0] nextFreeSlots;
     logic [31:0] upperROBData1;
     logic [31:0] upperROBData2;
@@ -104,9 +103,9 @@ module Top (
     logic badData;
 
     // Memory Queue Outputs
-    logic storeACK;
     InputInstruction_ completedMemory;
     WishboneMaster_ memBusOut;
+    logic memFreeSlot;
 
     // Data Memory Outputs
     WishboneSlave_ memBusIn;
@@ -121,9 +120,6 @@ module Top (
     MemoryQueue memoryQueue (
         .clock(clock), // input
         .reset(reset), // input
-
-        .storeACK(storeACK), // output
-        .triggerStore(triggerStore), // input
 
         .osMemory(osMemory), // input
         .exMemory(exMemory), // input
@@ -160,13 +156,13 @@ module Top (
 
         .resolvedInstruction1(resolvedInstruction1), // output
         .resolvedInstruction2(resolvedInstruction2), // output
-        .triggerStore(triggerStore), // output
 
         .nextFreeSlots(nextFreeSlots), // output
         .freeTag1(freeTag1), // output
         .freeTag2(freeTag2), // output
 
-        .storeACK(storeACK), // input
+        .enqueuedStoreTag(memPayload.ageTag), // input
+        .enqueuedStoreAccept(memPayload.memoryOperation), // input
 
         .rstBus1(rstBus1), // output
         .rstBus2(rstBus2), // output

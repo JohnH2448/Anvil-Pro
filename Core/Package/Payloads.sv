@@ -118,7 +118,7 @@ package Payloads;
         logic [31:0] programCounter;
         logic [4:0] destinationRegister;
         logic [reorderBufferIndexWidth-1:0] ageTag;
-        logic isStore;
+        logic standardOp;
         logic confirm;
     } IssuedIntruction_;
 
@@ -128,8 +128,8 @@ package Payloads;
         logic [31:0] instructionResult;
         logic [4:0] destinationRegister;
         logic [reorderBufferIndexWidth-1:0] ageTag;
-        logic isStore;
-        logic completed; // On store ack, set high
+        logic standardOp;
+        logic completed;
     } QueueEntry_;
 
     // ROB Output to Regiser File

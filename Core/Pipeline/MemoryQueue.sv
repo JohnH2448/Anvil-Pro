@@ -8,10 +8,6 @@ module MemoryQueue (
     input logic clock,
     input logic reset,
 
-    // ROB Store Coms
-    output logic storeACK,
-    input logic triggerStore,
-
     // Instruction Input
     input ExecuteMemoryPayload_ memPayload,
 
@@ -51,7 +47,6 @@ module MemoryQueue (
         if (memFreeSlotsTemp > 4'd0) begin
             memFreeSlot = 1'b1;
         end
-
     end
 
     // Converts Width to Wishbone Format
@@ -64,21 +59,6 @@ module MemoryQueue (
             2'b11: byteSelectTransform = 4'b1111;
         endcase
         alignedStoreData = queueEntry[0].storeData << (8 * queueEntry[0].address[1:0]);
-    end
-
-    // Small Store FSM
-    logic storeTriggered;
-    always_ff @(posedge clock) begin
-        if (reset) begin
-            storeTriggered <= 1'b0;
-        end else begin
-            if (triggerStore && !storeTriggered) begin
-                storeTriggered <= 1'b1;
-            end
-            if (memBusIn.acknowledge && storeTriggered) begin
-                storeTriggered <= 1'b0;
-            end
-        end
     end
 
     // Drives Wishbone Bus
@@ -96,13 +76,8 @@ module MemoryQueue (
             memBusOut.writeEnable = 1'b1;
             memBusOut.byteSelect = byteSelectTransform;
             memBusOut.storeData = alignedStoreData;
-            if (!storeTriggered) begin
-                memBusOut.cycle = triggerStore;
-                memBusOut.strobe = triggerStore;
-            end else begin
-                memBusOut.cycle = storeTriggered;
-                memBusOut.strobe = storeTriggered;
-            end
+            memBusOut.cycle = 1'b1;
+            memBusOut.strobe = 1'b1;
         end
     end
 
@@ -113,7 +88,6 @@ module MemoryQueue (
         logic [15:0] loadHalf;
         // Load Packet + Sign Extention
         completedMemory = '0;
-        storeACK = 1'b0;
         shiftedLoadData = memBusIn.loadData >> (8 * queueEntry[0].address[1:0]);
         loadByte = shiftedLoadData[7:0];
         loadHalf = memBusIn.loadData >> (16 * queueEntry[0].address[1]);
@@ -138,10 +112,6 @@ module MemoryQueue (
             completedMemory.ageTag = queueEntry[0].ageTag;
             completedMemory.destinationRegister = queueEntry[0].destinationRegister;
             completedMemory.accept = 1'b1;
-        end
-        // Store Packet
-        if ((queueEntry[0].memoryOperation == MEM_STORE) && memBusIn.acknowledge) begin
-            storeACK = 1'b1;
         end
     end
 
@@ -183,12 +153,10 @@ module MemoryQueue (
     always_ff @(negedge clock) begin
         if (!reset) begin
             $display(
-                "Memory Queue\ntail=%0d completed=%0b trig=%0b hold=%0b ack=%0b",
+                "Memory Queue\ntail=%0d completed=%0b ack=%0b",
                 tailPointer,
                 completed,
-                triggerStore,
-                storeTriggered,
-                memBusIn.acknowledge,
+                memBusIn.acknowledge
             );
             if (tailPointer == '0) begin
                 $display("empty");
