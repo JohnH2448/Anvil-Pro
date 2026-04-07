@@ -137,7 +137,22 @@ This dependency can always be avoided conservatively by refusing such instructio
 There is also an orange arrow from the memory queue to the upper execute slot. This corresponds to store-load forwarding, which is handled separately from ordinary register-result forwarding. Recent stores are held in a small store buffer, allowing younger dependent loads to source their data directly without waiting for the full external memory round trip. This substantially reduces effective load latency, prevents unnecessary pressure on the memory queue, and allows store retirement to remain decoupled from external DMEM acknowledgement.
 
 ### Register Status Table
-The results held in RST are only meaninful to the perspective of the operand select stage, so that any reference to it from outside the operand select stage has the potential to be incorrect. However, since reads to the RST outside operand select are minimal and deliberately corrected for, this invariant preserves correctness regardless. 
+The Register Status Table is the central ownership structure for architectural registers in Anvil-Pro. It does not merely indicate that a register is busy. For each register, it tracks the current producing age tag, whether that producer is a load, whether the result has been produced, and whether it has committed. This gives the pipeline a precise view of register state from the perspective of in-flight work rather than only architected state.
+
+This information is consumed in multiple places. At issue time, the RST is consulted to determine whether source operands are blocked behind unresolved loads, and whether a destination register is currently load-owned in a way that would violate the issue contract. When an instruction is accepted, the destination register is reassigned to the newly issued age tag and marked unready and uncommitted. When a fixed-latency instruction completes, or when a load returns from the memory queue, the corresponding entry is marked ready. When the ROB retires that same age tag, the entry is finally marked committed.
+
+Because the same structure is used for issue gating, operand ownership, and completion bookkeeping, operand select can interpret it directly into a forwarding decision without requiring a separate rename map, a separate scoreboard, or backend repair logic. The RST therefore acts as the pipeline-time source of truth for where each operand should come from and whether a register is safe to consume or overwrite.
+
+This same structure is also restored on redirect. Rather than checkpointing the entire table, the ROB reconstructs the correct prior owner for each flushed destination register and drives that state back into the RST over a small number of restore buses. The result is that register ownership, readiness, and commit visibility are all repaired precisely without introducing broader snapshot machinery.
+
+### Stale Vectors
+Stale vectors exist to solve a specific pipeline-time ownership problem created by early destination claiming. When an instruction issues, its destination register is immediately written into the RST as the new owner. For most instructions this is correct. However, for instructions whose source register is the same as their destination register, operand select in the following stage must not observe that newly written ownership. It must instead observe the older producer that existed before issue.
+
+To handle this, the issuer computes a two-bit stale vector for each dispatched instruction. Each bit corresponds to one source operand and indicates whether that source should ignore the live RST view. At the same time, the issuer captures the previous RST state of the destination register and carries it alongside the instruction payload. In operand select, each source operand chooses between the live RST entry and this captured older state according to the stale vector.
+
+This keeps self-referential instructions aligned with correct pipeline-time ownership without weakening the normal RST model. An instruction such as `addi x1, x1, 1` must read the previous owner of `x1`, not the age tag that was just assigned to itself one cycle earlier. The stale-vector mechanism enforces exactly that behavior.
+
+The old-status path is also adjusted for same-cycle ready and retire events before the payload is registered forward. This is necessary because the captured state may otherwise lag the true pipeline view by one cycle. By patching that state before operand select consumes it, Anvil-Pro avoids false dependencies and source mis-selection without introducing heavier inter-stage correction logic.
 
 ## Implimentation
 ### Notice
