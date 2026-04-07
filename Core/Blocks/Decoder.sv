@@ -187,7 +187,7 @@ module Decoder (
             end
 
             OPCODE_SYSTEM: begin
-                // CSR / ecall / ebreak
+                illegal = 1'b1;
             end
 
             default: begin

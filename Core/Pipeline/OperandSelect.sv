@@ -72,62 +72,6 @@ module OperandSelect (
     LowerOperandExecutePayload_ exPayloadCandidate2;
     integer debugCycle;
 
-    task automatic printOperandDecision(
-        input string laneName,
-        input string operandName,
-        input logic [4:0] sourceRegister,
-        input RegisterStatusOutput_ sourceStatus,
-        input logic [31:0] registerFileData,
-        input logic [31:0] robData,
-        input logic [31:0] lowerExecuteData,
-        input logic lowerExecuteHit,
-        input logic [31:0] upperExecuteData,
-        input logic upperExecuteHit
-    );
-        string selectedSource;
-        logic [31:0] selectedValue;
-        begin
-            if (sourceRegister == 5'd0) begin
-                selectedSource = "ZERO";
-                selectedValue = 32'd0;
-            end else if (sourceStatus.resultCommitted) begin
-                selectedSource = "REGFILE";
-                selectedValue = registerFileData;
-            end else if (sourceStatus.resultReady) begin
-                selectedSource = "ROB";
-                selectedValue = robData;
-            end else if (lowerExecuteHit) begin
-                selectedSource = "LOWER_EX";
-                selectedValue = lowerExecuteData;
-            end else if (upperExecuteHit) begin
-                selectedSource = "UPPER_EX";
-                selectedValue = upperExecuteData;
-            end else begin
-                selectedSource = "ZERO_FALLBACK";
-                selectedValue = 32'd0;
-            end
-
-            $display(
-                "[OperandSelect][cycle %0d] %s %s rs=x%0d status={tag=%0d ready=%0b committed=%0b} candidates={reg=%08h rob=%08h lower_ex=%08h hit=%0b upper_ex=%08h hit=%0b} selected=%s value=%08h",
-                debugCycle,
-                laneName,
-                operandName,
-                sourceRegister,
-                sourceStatus.ageTag,
-                sourceStatus.resultReady,
-                sourceStatus.resultCommitted,
-                registerFileData,
-                robData,
-                lowerExecuteData,
-                lowerExecuteHit,
-                upperExecuteData,
-                upperExecuteHit,
-                selectedSource,
-                selectedValue
-            );
-        end
-    endtask
-
     // Register Values
     logic [31:0] upperOperand1;
     logic [31:0] upperOperand2;
@@ -356,59 +300,6 @@ module OperandSelect (
         end
         exPayload1 <= exPayloadCandidate1;
         exPayload2 <= exPayloadCandidate2;
-    end
-
-    always_ff @(posedge clock) begin
-        if (!reset) begin
-            printOperandDecision(
-                "UPPER",
-                "RS1",
-                payload1.sourceRegister1,
-                upperSource1Status,
-                upperData1,
-                upperROBData1,
-                lowerExData,
-                (lowerExTag == upperSource1Status.ageTag) && lowerExValid,
-                upperExData,
-                (upperExTag == upperSource1Status.ageTag)
-            );
-            printOperandDecision(
-                "UPPER",
-                "RS2",
-                payload1.sourceRegister2,
-                upperSource2Status,
-                upperData2,
-                upperROBData2,
-                lowerExData,
-                (lowerExTag == upperSource2Status.ageTag) && lowerExValid,
-                upperExData,
-                (upperExTag == upperSource2Status.ageTag)
-            );
-            printOperandDecision(
-                "LOWER",
-                "RS1",
-                payload2.sourceRegister1,
-                lowerSource1Status,
-                lowerData1,
-                lowerROBData1,
-                lowerExData,
-                (lowerExTag == lowerSource1Status.ageTag) && lowerExValid,
-                upperExData,
-                (upperExTag == lowerSource1Status.ageTag)
-            );
-            printOperandDecision(
-                "LOWER",
-                "RS2",
-                payload2.sourceRegister2,
-                lowerSource2Status,
-                lowerData2,
-                lowerROBData2,
-                lowerExData,
-                (lowerExTag == lowerSource2Status.ageTag) && lowerExValid,
-                upperExData,
-                (upperExTag == lowerSource2Status.ageTag)
-            );
-        end
     end
 
 endmodule
