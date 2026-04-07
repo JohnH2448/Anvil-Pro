@@ -159,38 +159,40 @@ module PrefetchQueue (
     end
 
     always_ff @(posedge clock) begin
-        $strobe("----- PREFETCH QUEUE (logical order) -----");
+        if (debugMode) begin
+            $strobe("----- PREFETCH QUEUE (logical order) -----");
 
-        $strobe("  [0] PC=%08h INST=%08h REQ=%0d RDY=%0d",
-            ringBuffer[headPointer].programCounter,
-            ringBuffer[headPointer].instructionData,
-            ringBuffer[headPointer].requested,
-            ringBuffer[headPointer].ready
-        );
+            $strobe("  [0] PC=%08h INST=%08h REQ=%0d RDY=%0d",
+                ringBuffer[headPointer].programCounter,
+                ringBuffer[headPointer].instructionData,
+                ringBuffer[headPointer].requested,
+                ringBuffer[headPointer].ready
+            );
 
-        $strobe("  [1] PC=%08h INST=%08h REQ=%0d RDY=%0d",
-            ringBuffer[headPointer + 2'd1].programCounter,
-            ringBuffer[headPointer + 2'd1].instructionData,
-            ringBuffer[headPointer + 2'd1].requested,
-            ringBuffer[headPointer + 2'd1].ready
-        );
+            $strobe("  [1] PC=%08h INST=%08h REQ=%0d RDY=%0d",
+                ringBuffer[headPointer + 2'd1].programCounter,
+                ringBuffer[headPointer + 2'd1].instructionData,
+                ringBuffer[headPointer + 2'd1].requested,
+                ringBuffer[headPointer + 2'd1].ready
+            );
 
-        $strobe("  [2] PC=%08h INST=%08h REQ=%0d RDY=%0d",
-            ringBuffer[headPointer + 2'd2].programCounter,
-            ringBuffer[headPointer + 2'd2].instructionData,
-            ringBuffer[headPointer + 2'd2].requested,
-            ringBuffer[headPointer + 2'd2].ready
-        );
+            $strobe("  [2] PC=%08h INST=%08h REQ=%0d RDY=%0d",
+                ringBuffer[headPointer + 2'd2].programCounter,
+                ringBuffer[headPointer + 2'd2].instructionData,
+                ringBuffer[headPointer + 2'd2].requested,
+                ringBuffer[headPointer + 2'd2].ready
+            );
 
-        $strobe("  [3] PC=%08h INST=%08h REQ=%0d RDY=%0d",
-            ringBuffer[headPointer + 2'd3].programCounter,
-            ringBuffer[headPointer + 2'd3].instructionData,
-            ringBuffer[headPointer + 2'd3].requested,
-            ringBuffer[headPointer + 2'd3].ready
-        );
+            $strobe("  [3] PC=%08h INST=%08h REQ=%0d RDY=%0d",
+                ringBuffer[headPointer + 2'd3].programCounter,
+                ringBuffer[headPointer + 2'd3].instructionData,
+                ringBuffer[headPointer + 2'd3].requested,
+                ringBuffer[headPointer + 2'd3].ready
+            );
 
-        $strobe("  head=%0d  PC=%08h", headPointer, programCounter);
-        $strobe("------------------------------------------------\n");
+            $strobe("  head=%0d  PC=%08h", headPointer, programCounter);
+            $strobe("------------------------------------------------\n");
+        end
     end
 
 

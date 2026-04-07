@@ -151,7 +151,7 @@ module MemoryQueue (
 
     // Memory Queue Debug Print
     always_ff @(negedge clock) begin
-        if (!reset) begin
+        if (!reset && debugMode) begin
             $display(
                 "Memory Queue\ntail=%0d completed=%0b ack=%0b",
                 tailPointer,

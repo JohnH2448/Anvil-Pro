@@ -409,13 +409,12 @@ module ReorderBuffer (
             end
         end
     end
-
     // Can probably reuse this machinary and redirect line for illegal
     // Most stages function the same under illegal vs redirect
 
     // ROB Debug Print
     always_ff @(negedge clock) begin
-        if (!reset) begin
+        if (!reset && debugMode) begin
             if (entries == '0) begin
                 $display("\nReorder Buffer\nhead=%0d tail=%0d entries=%0d free=%0d empty\n",
                     headPointer, tailPointer, entries, freeEntries);
@@ -437,6 +436,19 @@ module ReorderBuffer (
                     end
                 end
             end
+        end
+    end
+
+    always_ff @(negedge clock) begin
+        if (!reset) begin
+            case (retireCount)
+                2'b01: $display("Retired 0x%08h", reorderBuffer[headIndexer].programCounter);
+                2'b10: begin
+                    $display("Retired 0x%08h", reorderBuffer[headIndexer].programCounter);
+                    $display("Retired 0x%08h", reorderBuffer[headIndexer+'d1].programCounter);
+                end
+                default: begin end
+            endcase
         end
     end
     

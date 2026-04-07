@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdint>
+#include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
 
@@ -38,6 +39,36 @@ static void tick_full_cycle(VTop* top) {
     top->eval();
 }
 
+static void run_cycle(VTop* top, uint64_t cycle) {
+    std::cout << "============ CYCLE " << cycle << " ============\n\n";
+    top->reset = 0;
+    top->eval();
+    tick_full_cycle(top);
+}
+
+static void run_cycles_silent(VTop* top, uint64_t& cycle, int count) {
+    const int saved_stdout = dup(STDOUT_FILENO);
+    const int null_fd = open("/dev/null", O_WRONLY);
+
+    if (saved_stdout >= 0 && null_fd >= 0) {
+        dup2(null_fd, STDOUT_FILENO);
+    }
+
+    for (int i = 0; i < count; ++i) {
+        cycle++;
+        top->reset = 0;
+        top->eval();
+        tick_full_cycle(top);
+    }
+
+    if (saved_stdout >= 0 && null_fd >= 0) {
+        fflush(stdout);
+        dup2(saved_stdout, STDOUT_FILENO);
+    }
+    if (null_fd >= 0) close(null_fd);
+    if (saved_stdout >= 0) close(saved_stdout);
+}
+
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
 
@@ -55,6 +86,7 @@ int main(int argc, char** argv) {
     std::cout <<
         "Keys:\n"
         "  n : next cycle\n"
+        "  h : next 100 cycles\n"
         "  r : reset cycle\n"
         "  q : quit\n";
 
@@ -79,10 +111,13 @@ int main(int argc, char** argv) {
 
         if (c == 'n') {
             cycle++;
-            std::cout << "============ CYCLE " << cycle << " ============\n\n";
-            top->reset = 0;
-            top->eval();
-            tick_full_cycle(top);
+            run_cycle(top, cycle);
+        }
+
+        if (c == 'h') {
+            run_cycles_silent(top, cycle, 99);
+            cycle++;
+            run_cycle(top, cycle);
         }
     }
 

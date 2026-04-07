@@ -44,13 +44,11 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*3:0*/ Top__DOT__placeholderDMEM__DOT__latchedByteSelect;
         CData/*1:0*/ Top__DOT__placeholderDMEM__DOT__delayCounter;
         CData/*0:0*/ Top__DOT__placeholderDMEM__DOT__validRequest;
+        CData/*1:0*/ Top__DOT__reorderBuffer__DOT__retireCount;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__headPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__tailPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextHeadPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextTailPointer;
-        CData/*4:0*/ Top__DOT__reorderBuffer__DOT__freeEntries;
-        CData/*4:0*/ Top__DOT__reorderBuffer__DOT__entries;
-        CData/*3:0*/ Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource1Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource2Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__lowerSource1Status;
@@ -74,29 +72,20 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         SData/*11:0*/ Top__DOT__rstBus2;
         SData/*11:0*/ Top__DOT__rstBus3;
         SData/*9:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex;
-        IData/*31:0*/ Top__DOT__upperROBData1;
-        IData/*31:0*/ Top__DOT__upperROBData2;
-        IData/*31:0*/ Top__DOT__lowerROBData1;
-        IData/*31:0*/ Top__DOT__lowerROBData2;
         IData/*31:0*/ Top__DOT__requestPC1;
         IData/*31:0*/ Top__DOT__requestPC2;
-    };
-    struct {
-        IData/*31:0*/ Top__DOT__upperSourceData1;
-        IData/*31:0*/ Top__DOT__upperSourceData2;
-        IData/*31:0*/ Top__DOT__lowerSourceData1;
-        IData/*31:0*/ Top__DOT__lowerSourceData2;
         IData/*31:0*/ Top__DOT__redirectVector;
         IData/*31:0*/ Top__DOT__instruction1;
         IData/*31:0*/ Top__DOT__instruction2;
         IData/*31:0*/ Top__DOT__programCounter;
         VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
         VlWide<4>/*127:0*/ Top__DOT__highFetchData;
+    };
+    struct {
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedAddress;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedStoreData;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk1__DOT__i;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__nextLoadData;
-        IData/*31:0*/ Top__DOT__operandSelect__DOT__debugCycle;
         IData/*31:0*/ Top__DOT__execute__DOT__result1;
         IData/*31:0*/ Top__DOT__execute__DOT__result2;
         IData/*31:0*/ Top__DOT__decodeIssue__DOT__IR1;
