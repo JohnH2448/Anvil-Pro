@@ -108,8 +108,6 @@ This is where the reorder buffer becomes central to the backend organization. Al
 
 Because of this structure, the issuer treats non-blocking and blocking instructions differently. Non-blocking instructions benefit from the backend’s fixed-latency assumptions and can be issued permissively. Blocking instructions require a more conservative issue policy, since unresolved memory operations can create dependencies that cannot be repaired later by backend stall logic. The design therefore attempts to hide the latency of blocking instructions through buffering, but when true dependencies arise, progress is regulated at issue time rather than by freezing the backend.
 
-These same design premises simplify the forwarding network. Since slot 0 is always older than slot 1 and backend stalls are disallowed by construction, the operand-select stage only needs to consider a small, age-ordered set of candidate data sources. With EX/EX bypass disabled, each source operand can come from one of four places: the register file, the reorder buffer entry identified by the age tag, slot 1 execute, or slot 0 execute. The register status table determines which source is correct. This keeps the forwarding structure compact and avoids excessive fanout and FPGA routing complexity while still preserving correct data ordering.
-
 Additionally, if EX/EX bypass is enabled, data can be forwarded directly from the output of slot 0’s ALU to one or both input operands of slot 1’s ALU. This allows specific same-cycle inter-slot dependencies to be handled explicitly, while still preserving the broader philosophy of issue-time hazard prevention and a stall-free backend.
 
 ### Redirect Handling
@@ -122,6 +120,24 @@ To flush invalid blocking-instruction queues, the microarchitecture implicitly p
 Restoring correct RST state is subtle, yet absolutely critical to a proper redirect mechanism. Checkpoint-based systems were considered, but ultimately rejected due to unnecessary state and complexity. Instead, Anvil-Pro derives prior RST state directly from reorder buffer metadata. At most, only three additional instructions can be in the pipeline that may have corrupted RST state. As a result, only three buses or write indexes into the RST are required, which is surprisingly lightweight. On redirect, the pipeline examines the registers modified by speculative work, checks the reorder buffer to determine whether a previous owner exists, and derives the prior state from that metadata. That state is then broadcast to the RST, which restores itself on the following clock edge. The ROB contains three exclusive buses to the RST that are unrolled exclusively on redirect. An internal counter sums the entries being flushed, allocates a bus, checks reduncancy, and finally reconstructs final state and passes it to RST.
 
 Pipeline invalidation is simple and arguably unnecessary, but it is still performed to eliminate ambiguity around valid and invalid work. On redirect, all younger instructions in the pipeline are invalidated. This prevents any edge-case architectural state change and ensures that no speculative work can take effect.
+
+### Forwarding Network
+Anvil-Pro dedicates an entire pipeline stage to the multiplexing and selection of operands, and since slot 0 is always older than slot 1, the operand-select stage only needs to consider a small, age-ordered set of candidate data sources. Each source operand can come from one of four places: the register file, the reorder buffer entry identified by the relevant age tag, slot 1 execute, or slot 0 execute.
+
+Selecting the correct producer in the presence of multiple in-flight candidates is the responsibility of the Register Status Table. The RST is deliberately engineered to reflect, from the perspective of operand-select pipeline time, where each architectural register should source from at that exact moment. It tracks the current age-wise owner of each register result, along with whether that result is still in flight, already produced, or fully committed. Operand select interprets this state to arrive at a final source decision. By construction, and under the guarantees established by the issuer contract, one of these candidate sources is always valid. As a result, operand resolution never depends on replay behavior, backend freeze logic, or dynamic stall repair.
+
+The candidate data sources are visualized in the following diagram.
+
+![Pipeline](Docs/Forwarding.png)
+
+The blue arrows in the diagram correspond to data sources for the lower pipeline lane, while the green arrows correspond to data sources for the upper lane. The light red arrow from the upper execute stage to the lower execute stage indicates an additional and optional source path. In a dual-issue superscalar machine, a same-cycle cross-lane dependency can arise when one instruction depends on a value being produced by the other instruction issued alongside it. Resolving this dependency requires dataflow that passes through both ALUs within the same cycle, which can become a timing hazard depending on the target FPGA fabric.
+
+This dependency can always be avoided conservatively by refusing such instruction pairs at issue time. However, doing so sacrifices real dual-issue opportunities and reduces IPC on common code patterns. Since many FPGA platforms provide specialized arithmetic hardware that significantly shortens ALU delay, this path is left as a compile-time parameter. The user may therefore choose whether Anvil-Pro should explicitly support this dependency through direct cross-lane execute bypass, or block it at issue time in favor of a shorter critical path.
+
+There is also an orange arrow from the memory queue to the upper execute slot. This corresponds to store-load forwarding, which is handled separately from ordinary register-result forwarding. Recent stores are held in a small store buffer, allowing younger dependent loads to source their data directly without waiting for the full external memory round trip. This substantially reduces effective load latency, prevents unnecessary pressure on the memory queue, and allows store retirement to remain decoupled from external DMEM acknowledgement.
+
+### Register Status Table
+The results held in RST are only meaninful to the perspective of the operand select stage, so that any reference to it from outside the operand select stage has the potential to be incorrect. However, since reads to the RST outside operand select are minimal and deliberately corrected for, this invariant preserves correctness regardless. 
 
 ## Implimentation
 ### Notice
