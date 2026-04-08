@@ -93,6 +93,9 @@ module Top (
     logic redirect1;
     logic redirect2;
     logic exMemory;
+    logic [31:0] inputAddress;
+    logic [1:0] loadWidth;
+    logic loadSigned;
 
     // Walking Window Outputs
     logic [31:0] lowFetchAddress;
@@ -106,6 +109,18 @@ module Top (
     InputInstruction_ completedMemory;
     WishboneMaster_ memBusOut;
     logic memFreeSlot;
+    StoreBus_ storeBus1;
+    StoreBus_ storeBus2;
+    StoreBus_ storeBus3;
+    StoreBus_ storeBus4;
+    StoreBus_ storeBus5;
+    StoreBus_ storeBus6;
+    StoreBus_ storeBus7;
+    StoreBus_ storeBus8;
+
+    // Store Buffer Outputs
+    logic [31:0] finalOutputData;
+    logic outputValid;
 
     // Data Memory Outputs
     WishboneSlave_ memBusIn;
@@ -113,9 +128,6 @@ module Top (
     // Instruction Memory Outputs
     logic [127:0] lowFetchData;
     logic [127:0] highFetchData;
-
-
-
 
     MemoryQueue memoryQueue (
         .clock(clock), // input
@@ -128,7 +140,40 @@ module Top (
         .memBusOut(memBusOut), // output
         .memBusIn(memBusIn), // input
         .completedMemory(completedMemory), // output
-        .memFreeSlot(memFreeSlot) // output
+        .memFreeSlot(memFreeSlot), // output
+
+        .storeBus1(storeBus1), // output
+        .storeBus2(storeBus2), // output
+        .storeBus3(storeBus3), // output
+        .storeBus4(storeBus4), // output
+        .storeBus5(storeBus5), // output
+        .storeBus6(storeBus6), // output
+        .storeBus7(storeBus7), // output
+        .storeBus8(storeBus8) // output
+
+    );
+
+    StoreBuffer storeBuffer (
+        .clock(clock), // input
+        .reset(reset), // input
+
+        .storeBus1(storeBus1), // input
+        .storeBus2(storeBus2), // input
+        .storeBus3(storeBus3), // input
+        .storeBus4(storeBus4), // input
+        .storeBus5(storeBus5), // input
+        .storeBus6(storeBus6), // input
+        .storeBus7(storeBus7), // input
+        .storeBus8(storeBus8), // input
+
+        .acknowledge(memBusIn.acknowledge), // input
+
+        .inputAddress(inputAddress), // input
+        .loadWidth(loadWidth), // input
+        .loadSigned(loadSigned), // input
+
+        .finalOutputData(finalOutputData), // output
+        .outputValid(outputValid) // output
     );
 
     PlaceholderDMEM placeholderDMEM (
@@ -331,6 +376,12 @@ module Top (
         .exPayload2(exPayload2), // input
 
         .memPayload(memPayload), // output
+
+        .outputValid(outputValid), // input
+        .finalOutputData(finalOutputData), // input
+        .loadSigned(loadSigned), // output
+        .loadWidth(loadWidth), // output
+        .inputAddress(inputAddress), // output
 
         .resultPayload1(resultPayload1), // output
         .resultPayload2(resultPayload2) // output

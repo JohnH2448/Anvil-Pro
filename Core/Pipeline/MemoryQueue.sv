@@ -23,7 +23,17 @@ module MemoryQueue (
 
     // Pipeline Metadata for Capacity
     input logic osMemory,
-    input logic exMemory
+    input logic exMemory,
+
+    // Buses to Store Buffer
+    output StoreBus_ storeBus1,
+    output StoreBus_ storeBus2,
+    output StoreBus_ storeBus3,
+    output StoreBus_ storeBus4,
+    output StoreBus_ storeBus5,
+    output StoreBus_ storeBus6,
+    output StoreBus_ storeBus7,
+    output StoreBus_ storeBus8
 
 );
 
@@ -33,6 +43,55 @@ module MemoryQueue (
     // Tail Pointer
     logic [3:0] tailPointer;
     integer debugCycle;
+
+    // Store Bus Drivers
+    assign storeBus1.address = queueEntry[0].address;
+    assign storeBus1.storeData = queueEntry[0].storeData;
+    assign storeBus1.memoryBytes = queueEntry[0].memoryBytes;
+    assign storeBus1.valid = (queueEntry[0].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd0);
+
+    assign storeBus2.address = queueEntry[1].address;
+    assign storeBus2.storeData = queueEntry[1].storeData;
+    assign storeBus2.memoryBytes = queueEntry[1].memoryBytes;
+    assign storeBus2.valid = (queueEntry[1].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd1);
+
+    assign storeBus3.address = queueEntry[2].address;
+    assign storeBus3.storeData = queueEntry[2].storeData;
+    assign storeBus3.memoryBytes = queueEntry[2].memoryBytes;
+    assign storeBus3.valid = (queueEntry[2].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd2);
+
+    assign storeBus4.address = queueEntry[3].address;
+    assign storeBus4.storeData = queueEntry[3].storeData;
+    assign storeBus4.memoryBytes = queueEntry[3].memoryBytes;
+    assign storeBus4.valid = (queueEntry[3].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd3);
+
+    assign storeBus5.address = queueEntry[4].address;
+    assign storeBus5.storeData = queueEntry[4].storeData;
+    assign storeBus5.memoryBytes = queueEntry[4].memoryBytes;
+    assign storeBus5.valid = (queueEntry[4].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd4);
+
+    assign storeBus6.address = queueEntry[5].address;
+    assign storeBus6.storeData = queueEntry[5].storeData;
+    assign storeBus6.memoryBytes = queueEntry[5].memoryBytes;
+    assign storeBus6.valid = (queueEntry[5].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd5);
+
+    assign storeBus7.address = queueEntry[6].address;
+    assign storeBus7.storeData = queueEntry[6].storeData;
+    assign storeBus7.memoryBytes = queueEntry[6].memoryBytes;
+    assign storeBus7.valid = (queueEntry[6].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd6);
+
+    assign storeBus8.address = queueEntry[7].address;
+    assign storeBus8.storeData = queueEntry[7].storeData;
+    assign storeBus8.memoryBytes = queueEntry[7].memoryBytes;
+    assign storeBus8.valid = (queueEntry[7].memoryOperation == MEM_STORE)
+    && (tailPointer > 'd7);
 
     // Entry Processed Completion Bit
     logic completed;
@@ -53,12 +112,13 @@ module MemoryQueue (
     logic [3:0] byteSelectTransform;
     logic [31:0] alignedStoreData;
     always_comb begin
-        unique case (queueEntry[0].memoryWidth)
-            2'b00: byteSelectTransform = 4'b0001 << queueEntry[0].address[1:0];
-            2'b01: byteSelectTransform = 4'b0011 << queueEntry[0].address[1:0];
+        unique case (memPayload.memoryWidth)
+            2'b00: byteSelectTransform = 4'b0001 << memPayload.address[1:0];
+            2'b01: byteSelectTransform = 4'b0011 << memPayload.address[1:0];
             2'b11: byteSelectTransform = 4'b1111;
         endcase
-        alignedStoreData = queueEntry[0].storeData << (8 * queueEntry[0].address[1:0]);
+        // Latched on Enqueue
+        alignedStoreData = memPayload.storeData << (8 * memPayload.address[1:0]);
     end
 
     // Drives Wishbone Bus
@@ -67,15 +127,15 @@ module MemoryQueue (
         if (queueEntry[0].memoryOperation == MEM_LOAD) begin
             memBusOut.address = queueEntry[0].address;
             memBusOut.writeEnable = 1'b0;
-            memBusOut.byteSelect = byteSelectTransform;
+            memBusOut.byteSelect = queueEntry[0].memoryBytes;
             memBusOut.cycle = 1'b1;
             memBusOut.strobe = 1'b1;
         end
         if (queueEntry[0].memoryOperation == MEM_STORE) begin
             memBusOut.address = queueEntry[0].address;
             memBusOut.writeEnable = 1'b1;
-            memBusOut.byteSelect = byteSelectTransform;
-            memBusOut.storeData = alignedStoreData;
+            memBusOut.byteSelect = queueEntry[0].memoryBytes;
+            memBusOut.storeData = queueEntry[0].storeData;
             memBusOut.cycle = 1'b1;
             memBusOut.strobe = 1'b1;
         end
@@ -136,7 +196,16 @@ module MemoryQueue (
                 end
             end
             if (canAccept && (memPayload.memoryOperation != MEM_NONE)) begin
-                queueEntry[index] <= memPayload;
+                queueEntry[index].address <= memPayload.address;
+                queueEntry[index].address <= memPayload.address;
+                queueEntry[index].memoryOperation <= memPayload.memoryOperation;
+                queueEntry[index].memorySigned <= memPayload.memorySigned;
+                queueEntry[index].destinationRegister <= memPayload.destinationRegister;
+                queueEntry[index].ageTag <= memPayload.ageTag;
+                queueEntry[index].memoryWidth <= memPayload.memoryWidth;
+                // Precomputed Store Formatting for StoreBuffer
+                queueEntry[index].storeData <= alignedStoreData; 
+                queueEntry[index].memoryBytes <= byteSelectTransform;
             end else if (completed) begin
                 // Can be removed
                 queueEntry[7] <= '0;
@@ -147,7 +216,7 @@ module MemoryQueue (
 
             debugCycle <= debugCycle + 1;
         end
-    end
+    end 
 
     // Memory Queue Debug Print
     always_ff @(negedge clock) begin
@@ -163,12 +232,11 @@ module MemoryQueue (
             end else begin
                 for (int unsigned i = 0; i < 8; i++) begin
                     if (i < tailPointer) begin
-                        $display("[%0d] op=%0d addr=%08h data=%08h width=%02b sign=%0b tag=%0d rd=x%0d",
+                        $display("[%0d] op=%0d addr=%08h data=%08h sign=%0b tag=%0d rd=x%0d",
                             i,
                             queueEntry[i].memoryOperation,
                             queueEntry[i].address,
                             queueEntry[i].storeData,
-                            queueEntry[i].memoryWidth,
                             queueEntry[i].memorySigned,
                             queueEntry[i].ageTag,
                             queueEntry[i].destinationRegister);

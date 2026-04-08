@@ -36,6 +36,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__redirect;
         CData/*0:0*/ Top__DOT__redirect1;
         CData/*0:0*/ Top__DOT__memFreeSlot;
+        CData/*0:0*/ Top__DOT__outputValid;
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__tailPointer;
         CData/*3:0*/ Top__DOT__memoryQueue__DOT__byteSelectTransform;
         CData/*2:0*/ Top__DOT__memoryQueue__DOT__unnamedblk3__DOT__unnamedblk5__DOT__index;
@@ -49,6 +50,9 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__tailPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextHeadPointer;
         CData/*4:0*/ Top__DOT__reorderBuffer__DOT__nextTailPointer;
+        CData/*4:0*/ Top__DOT__reorderBuffer__DOT__freeEntries;
+        CData/*4:0*/ Top__DOT__reorderBuffer__DOT__entries;
+        CData/*3:0*/ Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource1Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource2Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__lowerSource1Status;
@@ -76,12 +80,13 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ Top__DOT__requestPC2;
         IData/*31:0*/ Top__DOT__redirectVector;
         IData/*31:0*/ Top__DOT__instruction1;
-        IData/*31:0*/ Top__DOT__instruction2;
-        IData/*31:0*/ Top__DOT__programCounter;
-        VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
-        VlWide<4>/*127:0*/ Top__DOT__highFetchData;
     };
     struct {
+        IData/*31:0*/ Top__DOT__instruction2;
+        IData/*31:0*/ Top__DOT__programCounter;
+        IData/*31:0*/ Top__DOT__finalOutputData;
+        VlWide<4>/*127:0*/ Top__DOT__lowFetchData;
+        VlWide<4>/*127:0*/ Top__DOT__highFetchData;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedAddress;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__latchedStoreData;
         IData/*31:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk1__DOT__i;
@@ -110,6 +115,8 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         VlWide<3>/*77:0*/ Top__DOT__memPayload;
         QData/*41:0*/ Top__DOT__completedMemory;
         VlWide<3>/*70:0*/ Top__DOT__memBusOut;
+        VlWide<3>/*68:0*/ Top__DOT__storeBus1;
+        VlWide<3>/*68:0*/ Top__DOT__storeBuffer__DOT____Vlvbound_hf16badd7__0;
         QData/*32:0*/ Top__DOT__placeholderDMEM__DOT__memBusInRegister;
         VlWide<4>/*119:0*/ Top__DOT__operandSelect__DOT__exPayloadCandidate1;
         VlWide<4>/*116:0*/ Top__DOT__operandSelect__DOT__exPayloadCandidate2;
@@ -117,7 +124,8 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         VlWide<4>/*107:0*/ Top__DOT__decodeIssue__DOT__tempPayload1;
         VlWide<4>/*107:0*/ Top__DOT__decodeIssue__DOT__finalUpperPayload;
         VlWide<4>/*104:0*/ Top__DOT__decodeIssue__DOT__finalLowerPayload;
-        VlUnpacked<VlWide<3>/*77:0*/, 8> Top__DOT__memoryQueue__DOT__queueEntry;
+        VlUnpacked<VlWide<3>/*81:0*/, 8> Top__DOT__memoryQueue__DOT__queueEntry;
+        VlUnpacked<VlWide<3>/*68:0*/, 10> Top__DOT__storeBuffer__DOT__shiftEntries;
         VlUnpacked<IData/*31:0*/, 1024> Top__DOT__placeholderDMEM__DOT__memory;
         VlUnpacked<VlWide<3>/*74:0*/, 16> Top__DOT__reorderBuffer__DOT__reorderBuffer;
         VlUnpacked<CData/*3:0*/, 16> Top__DOT__reorderBuffer__DOT__sortGrid;

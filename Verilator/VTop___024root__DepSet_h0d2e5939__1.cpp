@@ -5,49 +5,18 @@
 #include "VTop__pch.h"
 #include "VTop___024root.h"
 
-VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__1(VTop___024root* vlSelf) {
-    if (false && vlSelf) {}  // Prevent unused
-    VTop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    VL_DEBUG_IF(VL_DBG_MSGF("+    VTop___024root___nba_sequent__TOP__1\n"); );
-    // Body
-    if ((1U & (~ (IData)(vlSelf->reset)))) {
-        if (VL_UNLIKELY((1U == (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__retireCount)))) {
-            VL_WRITEF("Retired 0x%08x\n",32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                              [(0xfU 
-                                                & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][2U] 
-                                              << 0x15U) 
-                                             | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                                [(0xfU 
-                                                  & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][1U] 
-                                                >> 0xbU)));
-        } else if (VL_UNLIKELY((2U == (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__retireCount)))) {
-            VL_WRITEF("Retired 0x%08x\nRetired 0x%08x\n",
-                      32,((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                           [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][2U] 
-                           << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                        [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][1U] 
-                                        >> 0xbU)),32,
-                      ((vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                        [(0xfU & ((IData)(1U) + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][2U] 
-                        << 0x15U) | (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
-                                     [(0xfU & ((IData)(1U) 
-                                               + (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)))][1U] 
-                                     >> 0xbU)));
-        }
-    }
-}
-
 void VTop___024root___nba_sequent__TOP__0(VTop___024root* vlSelf);
+void VTop___024root___nba_sequent__TOP__1(VTop___024root* vlSelf);
 
 void VTop___024root___eval_nba(VTop___024root* vlSelf) {
     if (false && vlSelf) {}  // Prevent unused
     VTop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    VTop___024root___eval_nba\n"); );
     // Body
-    if ((1ULL & vlSelf->__VnbaTriggered.word(0U))) {
+    if ((2ULL & vlSelf->__VnbaTriggered.word(0U))) {
         VTop___024root___nba_sequent__TOP__0(vlSelf);
     }
-    if ((2ULL & vlSelf->__VnbaTriggered.word(0U))) {
+    if ((1ULL & vlSelf->__VnbaTriggered.word(0U))) {
         VTop___024root___nba_sequent__TOP__1(vlSelf);
     }
 }
