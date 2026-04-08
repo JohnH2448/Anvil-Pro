@@ -26,7 +26,14 @@ module Execute (
 
     // To ROB
     output InputInstruction_ resultPayload1,
-    output InputInstruction_ resultPayload2
+    output InputInstruction_ resultPayload2,
+
+    // Store Buffer Coms
+    input logic [31:0] finalOutputData,
+    input logic outputValid,
+    output logic [31:0] inputAddress,
+    output logic [1:0] loadWidth,
+    output logic loadSigned
 
 );
 
@@ -55,6 +62,11 @@ module Execute (
 
     // Memory Operation Signal for Capacity
     assign exMemory = (exPayload1.memoryOperation != MEM_NONE) && exPayload1.valid && !illegal1;
+
+    // Signal Drivers to Store Buffer
+    assign inputAddress = result1;
+    assign loadWidth = exPayload1.memoryWidth;
+    assign loadSigned = exPayload1.memorySigned;
 
     // Result Calculations
     always_comb begin
@@ -172,13 +184,21 @@ module Execute (
         // Packet 1
         resultPayload1 = '0;
         resultPayload1.ageTag = exPayload1.ageTag;
-        if (exPayload1.valid && !reset && (exPayload1.memoryOperation == MEM_NONE)) begin
-            resultPayload1.accept = 1'd1;
-            resultPayload1.destinationRegister = exPayload1.destinationRegister;
-            if (exPayload1.jumpType != JUMP_NONE) begin
-                resultPayload1.instructionResult = exPayload1.extraField;
-            end else begin
-                resultPayload1.instructionResult = result1;
+        if (!(outputValid && exPayload1.memoryOperation == MEM_LOAD)) begin
+            if (exPayload1.valid && !reset && (exPayload1.memoryOperation == MEM_NONE)) begin
+                resultPayload1.accept = 1'd1;
+                resultPayload1.destinationRegister = exPayload1.destinationRegister;
+                if (exPayload1.jumpType != JUMP_NONE) begin
+                    resultPayload1.instructionResult = exPayload1.extraField;
+                end else begin
+                    resultPayload1.instructionResult = result1;
+                end
+            end
+        end else begin
+            if (exPayload1.valid && !reset) begin
+                resultPayload1.accept = 1'd1;
+                resultPayload1.destinationRegister = exPayload1.destinationRegister;
+                resultPayload1.instructionResult = finalOutputData;
             end
         end
         // Packet 2
@@ -197,7 +217,7 @@ module Execute (
 
     // Memory Packet Construction
     always_comb begin
-        if (exPayload1.valid && !illegal1) begin
+        if (exPayload1.valid && !illegal1 && !(outputValid && exPayload1.memoryOperation == MEM_LOAD)) begin
             unique case (exPayload1.memoryOperation)
                 MEM_NONE: memPayload = '0;
                 MEM_LOAD, MEM_STORE: begin

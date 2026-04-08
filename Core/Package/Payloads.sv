@@ -167,11 +167,19 @@ package Payloads;
         logic [31:0] address;
         logic [31:0] storeData;
         MemoryOperation_ memoryOperation;
+        logic [3:0] memoryBytes;
         logic [1:0] memoryWidth;
         logic memorySigned;
         logic [4:0] destinationRegister;
         logic [reorderBufferIndexWidth-1:0] ageTag;
     } MemoryQueueEntry_;
+
+    typedef struct packed {
+        logic [31:0] address;
+        logic [31:0] storeData;
+        logic [3:0] memoryBytes;
+        logic valid;
+    } StoreBus_;
 
 endpackage
 
