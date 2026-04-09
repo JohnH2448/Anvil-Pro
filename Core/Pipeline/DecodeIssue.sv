@@ -377,8 +377,9 @@ module DecodeIssue (
                 || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b1;
-            end else if (((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) begin
+            end else if ((((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) &&
+                !oldUpperStatus.resultCommitted) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b0;
             end
@@ -402,8 +403,9 @@ module DecodeIssue (
                 || ((oldLowerStatus.ageTag == retireTag2) && retireValid2)) begin
                 finalLowerPayload.oldStatus.resultReady = 1'b1;
                 finalLowerPayload.oldStatus.resultCommitted = 1'b1;
-            end else if (((oldLowerStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((oldLowerStatus.ageTag == acceptTag2) && acceptValid2)) begin
+            end else if ((((oldLowerStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((oldLowerStatus.ageTag == acceptTag2) && acceptValid2)) &&
+                !oldLowerStatus.resultCommitted) begin
                 finalLowerPayload.oldStatus.resultReady = 1'b1;
                 finalLowerPayload.oldStatus.resultCommitted = 1'b0;
             end
@@ -418,8 +420,9 @@ module DecodeIssue (
                 || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b1;
-            end else if (((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) begin
+            end else if ((((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) &&
+                !oldUpperStatus.resultCommitted) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b0;
             end
