@@ -2050,16 +2050,18 @@ VL_INLINE_OPT void VTop___024root___ico_sequent__TOP__0(VTop___024root* vlSelf) 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (2U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
-        } else if (((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                               >> 1U)) == (0xfU & (IData)(
-                                                          (vlSelf->Top__DOT__resultPayload1 
-                                                           >> 0x26U)))) 
-                     & (IData)(vlSelf->Top__DOT__resultPayload1)) 
-                    | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                                 >> 1U)) == (0xfU & (IData)(
-                                                            (vlSelf->Top__DOT__resultPayload2 
-                                                             >> 0x26U)))) 
-                       & (IData)(vlSelf->Top__DOT__resultPayload2)))) {
+        } else if ((((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                >> 1U)) == (0xfU & (IData)(
+                                                           (vlSelf->Top__DOT__resultPayload1 
+                                                            >> 0x26U)))) 
+                      & (IData)(vlSelf->Top__DOT__resultPayload1)) 
+                     | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                  >> 1U)) == (0xfU 
+                                              & (IData)(
+                                                        (vlSelf->Top__DOT__resultPayload2 
+                                                         >> 0x26U)))) 
+                        & (IData)(vlSelf->Top__DOT__resultPayload2))) 
+                    & (~ (IData)(vlSelf->Top__DOT__oldUpperStatus)))) {
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
@@ -2079,16 +2081,18 @@ VL_INLINE_OPT void VTop___024root___ico_sequent__TOP__0(VTop___024root* vlSelf) 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U] 
                 = (2U | vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U]);
-        } else if (((((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
-                               >> 1U)) == (0xfU & (IData)(
-                                                          (vlSelf->Top__DOT__resultPayload1 
-                                                           >> 0x26U)))) 
-                     & (IData)(vlSelf->Top__DOT__resultPayload1)) 
-                    | (((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
-                                 >> 1U)) == (0xfU & (IData)(
-                                                            (vlSelf->Top__DOT__resultPayload2 
-                                                             >> 0x26U)))) 
-                       & (IData)(vlSelf->Top__DOT__resultPayload2)))) {
+        } else if ((((((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
+                                >> 1U)) == (0xfU & (IData)(
+                                                           (vlSelf->Top__DOT__resultPayload1 
+                                                            >> 0x26U)))) 
+                      & (IData)(vlSelf->Top__DOT__resultPayload1)) 
+                     | (((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
+                                  >> 1U)) == (0xfU 
+                                              & (IData)(
+                                                        (vlSelf->Top__DOT__resultPayload2 
+                                                         >> 0x26U)))) 
+                        & (IData)(vlSelf->Top__DOT__resultPayload2))) 
+                    & (~ (IData)(vlSelf->Top__DOT__oldLowerStatus)))) {
             vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U] 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U] 
@@ -2170,16 +2174,18 @@ VL_INLINE_OPT void VTop___024root___ico_sequent__TOP__0(VTop___024root* vlSelf) 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (2U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
-        } else if (((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                               >> 1U)) == (0xfU & (IData)(
-                                                          (vlSelf->Top__DOT__resultPayload1 
-                                                           >> 0x26U)))) 
-                     & (IData)(vlSelf->Top__DOT__resultPayload1)) 
-                    | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                                 >> 1U)) == (0xfU & (IData)(
-                                                            (vlSelf->Top__DOT__resultPayload2 
-                                                             >> 0x26U)))) 
-                       & (IData)(vlSelf->Top__DOT__resultPayload2)))) {
+        } else if ((((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                >> 1U)) == (0xfU & (IData)(
+                                                           (vlSelf->Top__DOT__resultPayload1 
+                                                            >> 0x26U)))) 
+                      & (IData)(vlSelf->Top__DOT__resultPayload1)) 
+                     | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                  >> 1U)) == (0xfU 
+                                              & (IData)(
+                                                        (vlSelf->Top__DOT__resultPayload2 
+                                                         >> 0x26U)))) 
+                        & (IData)(vlSelf->Top__DOT__resultPayload2))) 
+                    & (~ (IData)(vlSelf->Top__DOT__oldUpperStatus)))) {
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
@@ -11680,16 +11686,18 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__1(VTop___024root* vlSelf) 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (2U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
-        } else if (((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                               >> 1U)) == (0xfU & (IData)(
-                                                          (vlSelf->Top__DOT__resultPayload1 
-                                                           >> 0x26U)))) 
-                     & (IData)(vlSelf->Top__DOT__resultPayload1)) 
-                    | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                                 >> 1U)) == (0xfU & (IData)(
-                                                            (vlSelf->Top__DOT__resultPayload2 
-                                                             >> 0x26U)))) 
-                       & (IData)(vlSelf->Top__DOT__resultPayload2)))) {
+        } else if ((((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                >> 1U)) == (0xfU & (IData)(
+                                                           (vlSelf->Top__DOT__resultPayload1 
+                                                            >> 0x26U)))) 
+                      & (IData)(vlSelf->Top__DOT__resultPayload1)) 
+                     | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                  >> 1U)) == (0xfU 
+                                              & (IData)(
+                                                        (vlSelf->Top__DOT__resultPayload2 
+                                                         >> 0x26U)))) 
+                        & (IData)(vlSelf->Top__DOT__resultPayload2))) 
+                    & (~ (IData)(vlSelf->Top__DOT__oldUpperStatus)))) {
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
@@ -11709,16 +11717,18 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__1(VTop___024root* vlSelf) 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U] 
                 = (2U | vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U]);
-        } else if (((((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
-                               >> 1U)) == (0xfU & (IData)(
-                                                          (vlSelf->Top__DOT__resultPayload1 
-                                                           >> 0x26U)))) 
-                     & (IData)(vlSelf->Top__DOT__resultPayload1)) 
-                    | (((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
-                                 >> 1U)) == (0xfU & (IData)(
-                                                            (vlSelf->Top__DOT__resultPayload2 
-                                                             >> 0x26U)))) 
-                       & (IData)(vlSelf->Top__DOT__resultPayload2)))) {
+        } else if ((((((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
+                                >> 1U)) == (0xfU & (IData)(
+                                                           (vlSelf->Top__DOT__resultPayload1 
+                                                            >> 0x26U)))) 
+                      & (IData)(vlSelf->Top__DOT__resultPayload1)) 
+                     | (((0xfU & ((IData)(vlSelf->Top__DOT__oldLowerStatus) 
+                                  >> 1U)) == (0xfU 
+                                              & (IData)(
+                                                        (vlSelf->Top__DOT__resultPayload2 
+                                                         >> 0x26U)))) 
+                        & (IData)(vlSelf->Top__DOT__resultPayload2))) 
+                    & (~ (IData)(vlSelf->Top__DOT__oldLowerStatus)))) {
             vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U] 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalLowerPayload[0U] 
@@ -11800,16 +11810,18 @@ VL_INLINE_OPT void VTop___024root___nba_sequent__TOP__1(VTop___024root* vlSelf) 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (2U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
-        } else if (((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                               >> 1U)) == (0xfU & (IData)(
-                                                          (vlSelf->Top__DOT__resultPayload1 
-                                                           >> 0x26U)))) 
-                     & (IData)(vlSelf->Top__DOT__resultPayload1)) 
-                    | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
-                                 >> 1U)) == (0xfU & (IData)(
-                                                            (vlSelf->Top__DOT__resultPayload2 
-                                                             >> 0x26U)))) 
-                       & (IData)(vlSelf->Top__DOT__resultPayload2)))) {
+        } else if ((((((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                >> 1U)) == (0xfU & (IData)(
+                                                           (vlSelf->Top__DOT__resultPayload1 
+                                                            >> 0x26U)))) 
+                      & (IData)(vlSelf->Top__DOT__resultPayload1)) 
+                     | (((0xfU & ((IData)(vlSelf->Top__DOT__oldUpperStatus) 
+                                  >> 1U)) == (0xfU 
+                                              & (IData)(
+                                                        (vlSelf->Top__DOT__resultPayload2 
+                                                         >> 0x26U)))) 
+                        & (IData)(vlSelf->Top__DOT__resultPayload2))) 
+                    & (~ (IData)(vlSelf->Top__DOT__oldUpperStatus)))) {
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
                 = (0x40U | vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U]);
             vlSelf->Top__DOT__decodeIssue__DOT__finalUpperPayload[0U] 
