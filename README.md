@@ -154,6 +154,9 @@ This keeps self-referential instructions aligned with correct pipeline-time owne
 
 The old-status path is also adjusted for same-cycle ready and retire events before the payload is registered forward. This is necessary because the captured state may otherwise lag the true pipeline view by one cycle. By patching that state before operand select consumes it, Anvil-Pro avoids false dependencies and source mis-selection without introducing heavier inter-stage correction logic.
 
+### Memory
+Not globally visable at retirement. 
+
 ## Implimentation
 ### Notice
 This core is in progress. Do not attempt to use it or understand the HDL unless you want to waste your time. Nobody but myself and god know the formal assumptions that allow it to function. This README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
