@@ -7,7 +7,10 @@ module Top (
 
     // Standard
     input logic clock,
-    input logic reset
+    input logic reset,
+
+    // DEBUG
+    output logic [31:0] tohost
     
 );
 
@@ -292,6 +295,8 @@ module Top (
 
         .clock(clock), // input
         .reset(reset), // input
+
+        .tohost(tohost), // DEBUG
 
         .upperSourceRegister1(upperAddress1), // input
         .upperSourceRegister2(upperAddress2), // input

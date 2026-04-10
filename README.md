@@ -164,6 +164,10 @@ This core is in progress. Do not attempt to use it or understand the HDL unless 
 ### Status
 The ALU instruction pipeline does strong even under directed edge case tests. Redirects are also now feeling much closer to a confident standard. Stress tests combining chained RAW, branch-after-branch, rst confusion, forwarding torture, store ordering, poison-path control flow, signed and unsigned memory accesses, and even awkward cases like loads into x0 all came back positive under Verilator. While not assuredly "100%", the foundation is strong enough to move towards other goals. The memory system also appears initially strong when hit with directed tests. Notably, it does a better job than anticipated at hiding latency, as IPC hardly changes when DMEM latency is altered. At the moment, the largest killer of IPC is the lack of branch prediction. Most other performance microarchitecural solutions are now im place and functional. As to further goals, heavier verification on the base core and then the CSR subsystem are next on the roadmap. 
 
+### Potential Optimizations
+- Dual Lane Memory Support
+- Allow Issue on Load WAW
+
 ### TODO List
 - CSR Ecosystem
 - System Instruction Support

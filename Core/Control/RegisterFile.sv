@@ -22,11 +22,16 @@ module RegisterFile (
 
     // Retire Writes
     input RetiredInstruction_ resolvedInstruction1,
-    input RetiredInstruction_ resolvedInstruction2
+    input RetiredInstruction_ resolvedInstruction2,
+
+    // DEBUG
+    output logic [31:0] tohost
 );
 
     logic [31:0] registerFile [0:31];
     integer debugCycle;
+
+    assign tohost = registerFile[10];
 
     always_ff @(posedge clock) begin
         if (reset) begin
@@ -70,7 +75,7 @@ module RegisterFile (
     end
     
     always_ff @(negedge clock) begin
-        if (!reset && debugMode) begin
+        if (!reset) begin
             $display(
                 "Register File\nx00=%08h  x01=%08h  x02=%08h  x03=%08h\nx04=%08h  x05=%08h  x06=%08h  x07=%08h\nx08=%08h  x09=%08h  x10=%08h  x11=%08h\nx12=%08h  x13=%08h  x14=%08h  x15=%08h\nx16=%08h  x17=%08h  x18=%08h  x19=%08h\nx20=%08h  x21=%08h  x22=%08h  x23=%08h\nx24=%08h  x25=%08h  x26=%08h  x27=%08h\nx28=%08h  x29=%08h  x30=%08h  x31=%08h\n",
                 registerFile[0], registerFile[1], registerFile[2], registerFile[3],
