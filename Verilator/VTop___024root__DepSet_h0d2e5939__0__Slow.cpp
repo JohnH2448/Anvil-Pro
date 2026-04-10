@@ -153,8 +153,12 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     Top__DOT__reorderBuffer__DOT__redirectPointer = 0;
     CData/*4:0*/ Top__DOT__reorderBuffer__DOT__usedEntries;
     Top__DOT__reorderBuffer__DOT__usedEntries = 0;
+    CData/*4:0*/ Top__DOT__reorderBuffer__DOT__freeEntries;
+    Top__DOT__reorderBuffer__DOT__freeEntries = 0;
     CData/*0:0*/ Top__DOT__reorderBuffer__DOT__moreThanOne;
     Top__DOT__reorderBuffer__DOT__moreThanOne = 0;
+    CData/*4:0*/ Top__DOT__reorderBuffer__DOT__entries;
+    Top__DOT__reorderBuffer__DOT__entries = 0;
     CData/*1:0*/ Top__DOT__reorderBuffer__DOT__flushCount;
     Top__DOT__reorderBuffer__DOT__flushCount = 0;
     CData/*4:0*/ Top__DOT__reorderBuffer__DOT__flushDest1;
@@ -228,6 +232,8 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     CData/*0:0*/ Top__DOT__decodeIssue__DOT__standardOp2;
     Top__DOT__decodeIssue__DOT__standardOp2 = 0;
     // Body
+    vlSelf->tohost = vlSelf->Top__DOT__registerFile__DOT__registerFile
+        [0xaU];
     vlSelf->Top__DOT__memBusOut[0U] = 0U;
     vlSelf->Top__DOT__memBusOut[1U] = 0U;
     vlSelf->Top__DOT__memBusOut[2U] = 0U;
@@ -512,9 +518,9 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
         vlSelf->Top__DOT__lowerSource2Status = (1U 
                                                 | (IData)(vlSelf->Top__DOT__lowerSource2Status));
     }
-    vlSelf->Top__DOT__reorderBuffer__DOT__entries = 
-        (0x1fU & ((IData)(vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer) 
-                  - (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
+    Top__DOT__reorderBuffer__DOT__entries = (0x1fU 
+                                             & ((IData)(vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer) 
+                                                - (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer)));
     vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[0U] = 0U;
     vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[1U] = 0U;
     vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2[2U] = 0U;
@@ -2226,7 +2232,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__resolvedInstruction1 = 0ULL;
     vlSelf->Top__DOT__resolvedInstruction2 = 0ULL;
     vlSelf->Top__DOT__reorderBuffer__DOT__retireCount = 0U;
-    if ((((1U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)) 
+    if ((((1U < (IData)(Top__DOT__reorderBuffer__DOT__entries)) 
           & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
              [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
              | ((0U == (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
@@ -2363,7 +2369,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
             }
         }
         vlSelf->Top__DOT__reorderBuffer__DOT__retireCount = 2U;
-    } else if (((0U < (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__entries)) 
+    } else if (((0U < (IData)(Top__DOT__reorderBuffer__DOT__entries)) 
                 & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
                    [(0xfU & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__headPointer))][0U] 
                    | ((0U == (0x1fU & (vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer
@@ -5728,15 +5734,16 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                       ? (IData)(Top__DOT__reorderBuffer__DOT__redirectPointer)
                                                       : (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__tailPointer)) 
                                                     - (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__nextHeadPointer)));
-    vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries 
-        = (0x1fU & ((IData)(0x10U) - (IData)(Top__DOT__reorderBuffer__DOT__usedEntries)));
+    Top__DOT__reorderBuffer__DOT__freeEntries = (0x1fU 
+                                                 & ((IData)(0x10U) 
+                                                    - (IData)(Top__DOT__reorderBuffer__DOT__usedEntries)));
     Top__DOT__reorderBuffer__DOT__moreThanOne = (0U 
                                                  != 
                                                  (0xfU 
-                                                  & ((IData)(vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries) 
+                                                  & ((IData)(Top__DOT__reorderBuffer__DOT__freeEntries) 
                                                      >> 1U)));
     Top__DOT__nextFreeSlots = (((IData)(Top__DOT__reorderBuffer__DOT__moreThanOne) 
-                                << 1U) | (1U & (IData)(vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries)));
+                                << 1U) | (1U & (IData)(Top__DOT__reorderBuffer__DOT__freeEntries)));
     vlSelf->Top__DOT__rstBus2 = 0U;
     vlSelf->Top__DOT__rstBus1 = 0U;
     vlSelf->Top__DOT__rstBus3 = 0U;
@@ -6371,6 +6378,7 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     // Body
     vlSelf->clock = VL_RAND_RESET_I(1);
     vlSelf->reset = VL_RAND_RESET_I(1);
+    vlSelf->tohost = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__resolvedInstruction1 = VL_RAND_RESET_Q(42);
     vlSelf->Top__DOT__resolvedInstruction2 = VL_RAND_RESET_Q(42);
     vlSelf->Top__DOT__freeTag1 = VL_RAND_RESET_I(4);
@@ -6448,8 +6456,6 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     for (int __Vi0 = 0; __Vi0 < 16; ++__Vi0) {
         VL_RAND_RESET_W(75, vlSelf->Top__DOT__reorderBuffer__DOT__reorderBuffer[__Vi0]);
     }
-    vlSelf->Top__DOT__reorderBuffer__DOT__freeEntries = VL_RAND_RESET_I(5);
-    vlSelf->Top__DOT__reorderBuffer__DOT__entries = VL_RAND_RESET_I(5);
     for (int __Vi0 = 0; __Vi0 < 16; ++__Vi0) {
         vlSelf->Top__DOT__reorderBuffer__DOT__sortGrid[__Vi0] = VL_RAND_RESET_I(4);
     }
@@ -6458,7 +6464,6 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
             vlSelf->Top__DOT__reorderBuffer__DOT__maskGrid[__Vi0][__Vi1] = VL_RAND_RESET_I(1);
         }
     }
-    vlSelf->Top__DOT__reorderBuffer__DOT__unnamedblk11__DOT__unnamedblk12__DOT__queueIndex = VL_RAND_RESET_I(4);
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->Top__DOT__registerStatusTable__DOT__registerStatusTable[__Vi0] = VL_RAND_RESET_I(7);
     }
