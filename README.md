@@ -202,7 +202,8 @@ The ALU instruction pipeline does strong even under directed edge case tests. Re
 ### Potential Optimizations
 - Dual Lane Memory Support
 - Allow Issue on Load WAW
-- Stalls 
+- Stalls
+- Load Skip to Queue Head
 
 ### TODO List
 - CSR Ecosystem
