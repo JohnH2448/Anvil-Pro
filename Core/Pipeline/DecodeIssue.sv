@@ -78,8 +78,14 @@ module DecodeIssue (
     input logic [reorderBufferIndexWidth-1:0] acceptTag1,
     input logic acceptValid1,
     input logic [reorderBufferIndexWidth-1:0] acceptTag2,
-    input logic acceptValid2
+    input logic acceptValid2,
 
+    // Branch Predictor Metadata
+    output logic validAddress,
+    output logic [31:0] precalcAddress,
+    output logic [31:0] branchProgramCounter,
+    input logic taken,
+    output logic outputJal
 
 );
 
@@ -135,7 +141,7 @@ module DecodeIssue (
     logic internalBadData;
 
     always_ff @(posedge clock) begin
-        if (reset || redirect) begin
+        if (reset || redirect || taken) begin
             if (reset) begin
                 debugCycle <= 0;
             end
@@ -196,6 +202,10 @@ module DecodeIssue (
         .destinationRegister(destinationRegister2),
         .illegal(illegal2)
     );
+
+    // Slot 0 Taken Signal
+    logic slot0TakenHelper;
+    assign slot0TakenHelper = ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType == JUMP_JAL) && !illegal1) && taken;
 
     // Issuer Helper Signals
     logic block1;
@@ -322,9 +332,67 @@ module DecodeIssue (
                 block1 = 1'b1;
                 block2 = 1'b1;
             end
+            // Block Slot 1 If Slot 0 is Prediction
+            if (slot0TakenHelper) begin
+                block2 = 1'b1;
+            end
         end else begin
             block1 = 1'b1;
             block2 = 1'b1;
+        end
+    end
+
+    // Redirect Target Precalculation
+    logic [31:0] BrIm1;
+    logic [31:0] BrIm2;
+    logic [31:0] JalIm1;
+    logic [31:0] JalIm2;
+    logic [31:0] target1;
+    logic [31:0] target2;
+    always_comb begin
+        // Immediate Construction
+        BrIm1 = {{19{IR1[31]}}, IR1[31], IR1[7], IR1[30:25], IR1[11:8], 1'b0};
+        BrIm2 = {{19{IR2[31]}}, IR2[31], IR2[7], IR2[30:25], IR2[11:8], 1'b0};
+        JalIm1 = {{12{IR1[31]}},IR1[19:12],IR1[20],IR1[30:21],1'b0};
+        JalIm2 = {{12{IR2[31]}},IR2[19:12],IR2[20],IR2[30:21],1'b0};
+        target1 = '0;
+        target2 = '0;
+        // Result Calculation
+        if (tempPayload1.branchType != BR_NONE) begin
+            target1 = PC1 + BrIm1;
+        end else if (tempPayload1.jumpType == JUMP_JAL) begin
+            target1 = PC1 + JalIm1;
+        end // JALR needs a register
+        if (tempPayload2.branchType != BR_NONE) begin
+            target2 = PC2 + BrIm2;
+        end else if (tempPayload2.jumpType == JUMP_JAL) begin
+            target2 = PC2 + JalIm2;
+        end // JALR needs a register
+    end
+
+    // Redirect Validity
+    logic slot0Taken;
+    always_comb begin
+        validAddress = '0;
+        precalcAddress = '0;
+        slot0Taken = '0;
+        outputJal = '0;
+        branchProgramCounter = '0;
+        if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType == JUMP_JAL) && !illegal1 && !block1) begin
+            precalcAddress = target1;
+            branchProgramCounter = PC1;
+            outputJal = (tempPayload1.jumpType == JUMP_JAL);
+            slot0Taken = taken;
+            validAddress = 1'b1;
+        end else if ((tempPayload2.branchType != BR_NONE || tempPayload2.jumpType == JUMP_JAL) && !illegal1 && !illegal2 && !block1 && !block2) begin
+            precalcAddress = target2;
+            branchProgramCounter = PC2;
+            outputJal = (tempPayload2.jumpType == JUMP_JAL);
+            validAddress = 1'b1;
+        end
+        if (precalcAddress[1:0] != 2'b00) begin 
+            validAddress = 1'b0;
+            slot0Taken = 1'b0;
         end
     end
 
@@ -383,6 +451,7 @@ module DecodeIssue (
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b0;
             end
+            finalUpperPayload.predicted = taken ? (slot0Taken ? 1'b1 : 1'b0) : 1'b0;
             finalUpperPayload.staleVector = staleVector1;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload Splice
@@ -409,6 +478,7 @@ module DecodeIssue (
                 finalLowerPayload.oldStatus.resultReady = 1'b1;
                 finalLowerPayload.oldStatus.resultCommitted = 1'b0;
             end
+            finalLowerPayload.predicted = taken ? (slot0Taken ? 1'b0 : 1'b1) : 1'b0;
             finalLowerPayload.valid = 1'd1;
         end else if (instructionConsumed1) begin
             // Upper Payload
@@ -427,6 +497,7 @@ module DecodeIssue (
                 finalUpperPayload.oldStatus.resultCommitted = 1'b0;
             end
             finalUpperPayload.ageTag = freeTag1;
+            finalUpperPayload.predicted = taken ? (slot0Taken ? 1'b1 : 1'b0) : 1'b0;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload
             finalLowerPayload = '0;

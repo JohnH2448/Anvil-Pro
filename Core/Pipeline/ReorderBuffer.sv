@@ -13,8 +13,8 @@ module ReorderBuffer (
     input logic [31:0] redirectVector,
 
     // Redirect Metadata
-    input logic redirect1,
-    input logic redirect2,
+    input logic mispredict1,
+    input logic mispredict2,
 
     // Instruction Inputs
     input InputInstruction_ completedMemory,
@@ -69,7 +69,7 @@ module ReorderBuffer (
 
     // Redirect Next Tag
     logic [reorderBufferIndexWidth-1:0] redirectTag;
-    assign redirectTag = (redirect1 ? completedInstruction1.ageTag : 
+    assign redirectTag = (mispredict1 ? completedInstruction1.ageTag : 
         completedInstruction2.ageTag) + {{reorderBufferIndexWidth-1{1'b0}}, 1'd1};
 
     // Pointers + Source of Truth + Extra Phase Bit

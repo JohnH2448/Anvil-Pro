@@ -4,7 +4,7 @@ import Enumerations::*;
 
 module PlaceholderDMEM #(
     parameter int unsigned memoryWords = 1024,
-    parameter int unsigned ackDelay = 2
+    parameter int unsigned ackDelay = 0
 ) (
 
     // Standard
