@@ -269,7 +269,9 @@ module OperandSelect (
         exPayloadCandidate1.memoryOperation = payload1.memoryOperation;
         exPayloadCandidate1.memoryWidth = payload1.memoryWidth;
         exPayloadCandidate1.memorySigned = payload1.memorySigned;
+        exPayloadCandidate1.predicted = payload1.predicted;
         exPayloadCandidate1.ageTag = payload1.ageTag;
+        exPayloadCandidate1.programCounter = payload1.programCounter;
         if (!reset && !redirect) begin
             exPayloadCandidate1.valid = payload1.valid;
         end else begin
@@ -282,6 +284,7 @@ module OperandSelect (
         exPayloadCandidate2.destinationRegister = payload2.destinationRegister;
         exPayloadCandidate2.branchType = payload2.branchType;
         exPayloadCandidate2.ageTag = payload2.ageTag;
+        exPayloadCandidate2.predicted = payload2.predicted;
         if (!reset && !redirect) begin
             exPayloadCandidate2.valid = payload2.valid;
         end else begin

@@ -28,7 +28,7 @@ package Payloads;
 
     // For Upper Slot with Memory Support
     typedef struct packed {
-        logic [31:0] programCounter; // dumped in OS
+        logic [31:0] programCounter;
         logic [4:0] sourceRegister2;
         logic [4:0] sourceRegister1;
         logic [31:0] immediate;
@@ -43,12 +43,13 @@ package Payloads;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [1:0] staleVector;
         RegisterStatusOutput_ oldStatus;
+        logic predicted;
         logic valid;
     } UpperIssuerOperandPayload_;
 
     // For Lower Slot
     typedef struct packed {
-        logic [31:0] programCounter; // dumped in OS
+        logic [31:0] programCounter;
         logic [4:0] sourceRegister2;
         logic [4:0] sourceRegister1;
         logic [31:0] immediate;
@@ -61,11 +62,13 @@ package Payloads;
         logic [1:0] bypassEnable;
         logic [1:0] staleVector;
         RegisterStatusOutput_ oldStatus;
+        logic predicted;
         logic valid;
     } LowerIssuerOperandPayload_;
 
     // For Upper Slot with Memory Support
     typedef struct packed {
+        logic [31:0] programCounter;
         logic [31:0] operand1;
         logic [31:0] operand2;
         logic [31:0] extraField; // branch target, store data, etc
@@ -77,6 +80,7 @@ package Payloads;
         logic [1:0] memoryWidth;
         logic memorySigned;
         logic [reorderBufferIndexWidth-1:0] ageTag;
+        logic predicted;
         logic valid;
     } UpperOperandExecutePayload_;
 
@@ -91,6 +95,7 @@ package Payloads;
         BranchType_ branchType;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [1:0] bypassEnable;
+        logic predicted;
         logic valid;
     } LowerOperandExecutePayload_;
 

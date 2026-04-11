@@ -12,9 +12,9 @@ module Execute (
     output logic redirect,
     output logic [31:0] redirectVector,
 
-    // Redirect Metadata for ROB
-    output logic redirect1,
-    output logic redirect2,
+    // Mispredict Metadata for ROB
+    output logic mispredict1,
+    output logic mispredict2,
 
     // Payloads to Execute
     input UpperOperandExecutePayload_ exPayload1,
@@ -41,14 +41,22 @@ module Execute (
     logic [31:0] result2;
     logic [31:0] redirectVector1;
     logic [31:0] redirectVector2;
+    logic redirect1;
+    logic redirect2;
     logic illegal1;
     logic illegal2;
     integer debugCycle;
+    logic [31:0] PC1P4;
+    logic [31:0] PC2P4;
+    assign PC1P4 = exPayload1.programCounter + 32'd4;
+    assign PC2P4 = exPayload1.programCounter + 32'd8;
 
     // Redirect Priority Logic
-    assign redirect = (redirect1 && !illegal1) || (redirect2 && !illegal2 && !illegal1);
-    assign redirectVector = (redirect1 && !illegal1) ? redirectVector1 : 
-    ((redirect2 && !illegal2) ? redirectVector2 : 32'd0);
+    assign mispredict1 = ((redirect1 != exPayload1.predicted) && !illegal1);
+    assign mispredict2 = ((redirect2 != exPayload2.predicted) && !illegal2 && !illegal1 && !mispredict1);
+    assign redirect = mispredict1 || mispredict2;
+    assign redirectVector = mispredict1 ? (exPayload1.predicted ? PC1P4 : redirectVector1) : 
+    (mispredict2 ? (exPayload2.predicted ? PC2P4 : redirectVector2) : 32'd0);
 
     // Extra Signals
     logic [31:0] upperOperand1;
@@ -204,7 +212,7 @@ module Execute (
         // Packet 2
         resultPayload2 = '0;
         resultPayload2.ageTag = exPayload2.ageTag;
-        if (exPayload2.valid && !(redirect1 && !illegal1) && !reset) begin
+        if (exPayload2.valid && !(mispredict1) && !reset) begin
             resultPayload2.accept = 1'd1;
             resultPayload2.destinationRegister = exPayload2.destinationRegister;
             if (exPayload2.jumpType != JUMP_NONE) begin

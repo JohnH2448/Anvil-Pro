@@ -63,6 +63,13 @@ module Top (
     logic [reorderBufferIndexWidth-1:0] ageTag2;
     IssuedIntruction_ instructionPacket1;
     IssuedIntruction_ instructionPacket2;
+    logic [31:0] precalcAddress;
+    logic validAddress;
+    logic [31:0] branchProgramCounter;
+    logic outputJal;
+
+    // Branch Predictor Outputs
+    logic taken;
 
     // Operand Select Outputs
     UpperOperandExecutePayload_ exPayload1;
@@ -93,8 +100,8 @@ module Top (
     ExecuteMemoryPayload_ memPayload;
     logic redirect;
     logic [31:0] redirectVector;
-    logic redirect1;
-    logic redirect2;
+    logic mispredict1;
+    logic mispredict2;
     logic exMemory;
     logic [31:0] inputAddress;
     logic [1:0] loadWidth;
@@ -193,8 +200,8 @@ module Top (
 
         .redirect(redirect), // input
         .redirectVector(redirectVector), // input
-        .redirect1(redirect1), // input
-        .redirect2(redirect2), // input
+        .mispredict1(mispredict1), // input
+        .mispredict2(mispredict2), // input 
 
         .completedMemory(completedMemory), // input
         .completedInstruction1(resultPayload1), // input
@@ -372,8 +379,8 @@ module Top (
         .redirect(redirect), // output
         .redirectVector(redirectVector), // output
 
-        .redirect1(redirect1), // output
-        .redirect2(redirect2), // output
+        .mispredict1(mispredict1), // output
+        .mispredict2(mispredict2), // output
 
         .exMemory(exMemory), // output
 
@@ -390,6 +397,19 @@ module Top (
 
         .resultPayload1(resultPayload1), // output
         .resultPayload2(resultPayload2) // output
+    );
+
+    BranchPredictor branchPredictor (
+
+        .clock(clock), // input
+        .reset(reset), // input
+
+        .precalcAddress(precalcAddress), // input
+        .branchProgramCounter(branchProgramCounter), // input
+        .taken(taken), // output
+        .outputJal(outputJal), // input
+        .validAddress(validAddress) // input
+
     );
 
     DecodeIssue decodeIssue (
@@ -423,6 +443,12 @@ module Top (
 
         .oldUpperStatusRd(oldUpperStatusRd), // output
         .oldLowerStatusRd(oldLowerStatusRd), // output
+
+        .precalcAddress(precalcAddress), // output
+        .validAddress(validAddress), // output
+        .branchProgramCounter(branchProgramCounter), // output
+        .taken(taken), // input
+        .outputJal(outputJal), // output 
 
         .retireTag1(resolvedInstruction1.ageTag), // input
         .retireValid1(resolvedInstruction1.valid), // input
@@ -471,6 +497,8 @@ module Top (
         .instructionConsumed1(instructionConsumed1), // input
         .instructionConsumed2(instructionConsumed2), // input
         .programCounter(programCounter), // output
+        .taken(taken), // input
+        .precalcAddress(precalcAddress), // input
         .requestPC1(requestPC1), // input
         .requestPC2(requestPC2), // input
         .badData(badData) // output

@@ -34,7 +34,11 @@ module WalkingWindow (
     output logic [31:0] programCounter,
 
     // Bad Data Flag
-    output logic badData
+    output logic badData,
+
+    // Branch Prediction
+    input logic taken,
+    input logic [31:0] precalcAddress
 
 );
 
@@ -49,12 +53,12 @@ module WalkingWindow (
 
     // PC Control Block
     always_ff @(posedge clock) begin
-        if (reset || redirect) begin
+        if (reset || redirect || taken) begin
             if (reset) begin
                 debugCycle <= 0;
             end
             // PC Alteration on External Signal
-            programCounter <= reset ? resetVector : redirectVector;
+            programCounter <= reset ? resetVector : (redirect ? redirectVector : precalcAddress);
         end else begin
             debugCycle <= debugCycle + 1;
             // Logical PC Incriminting
@@ -74,6 +78,9 @@ module WalkingWindow (
         end else if (redirect) begin
             lastLowWindow <= {redirectVector[31:4], 4'b0000};
             lastHighWindow <= {redirectVector[31:4], 4'b0000} + 32'd16;
+        end else if (taken) begin
+            lastLowWindow <= {precalcAddress[31:4], 4'b0000};
+            lastHighWindow <= {precalcAddress[31:4], 4'b0000} + 32'd16;
         end else begin
             lastLowWindow <= lowFetchAddress;
             lastHighWindow <= highFetchAddress;
