@@ -8,7 +8,7 @@ The microarchitecture implements a 6-stage pipeline with in-order commit via a r
 
 The design is optimized for efficient FPGA fabric utilization, competitive performance, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom RISC-V system integration.
 
-## Architectural Roadmap
+## Architecture Highlights
 - Dual-Issue Superscalar Front-End
 - In-Order Commit ROB
 - Precise Trap / Exception Support
@@ -202,6 +202,8 @@ The ALU instruction pipeline does strong even under directed edge case tests. Re
 ### Potential Optimizations
 - Dual Lane Memory Support
 - Allow Issue on Load WAW
+- Stalls
+- Load Skip to Queue Head
 
 ### TODO List
 - CSR Ecosystem
