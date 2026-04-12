@@ -205,6 +205,8 @@ The ALU instruction pipeline does strong even under directed edge case tests. Re
 - Allow Issue on Load WAW
 - Stalls
 - Load Skip to Queue Head
+- Better Branch Predictor
+- Allow Slot 1 Issue on Slot 0 Taken
 
 ### TODO List
 - CSR Ecosystem
