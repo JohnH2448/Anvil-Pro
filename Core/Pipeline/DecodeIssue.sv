@@ -563,86 +563,88 @@ module DecodeIssue (
         payload2 <= finalLowerPayload;
     end
 
-    // Focused issue/prediction trace for branch debug.
-    always_ff @(negedge clock) begin
-        if (!reset && debugMode) begin
-            $display("[DecodeIssue] taken=%0b validAddress=%0b branchPC=%08h precalc=%08h",
-                taken, validAddress, branchProgramCounter, precalcAddress);
-            $display("  pkt0: confirm=%0b pc=%08h tag=%0d rd=x%0d valid=%0b pred=%0b br=%0d j=%0d",
-                instructionPacket1.confirm,
-                instructionPacket1.programCounter,
-                instructionPacket1.ageTag,
-                instructionPacket1.destinationRegister,
-                finalUpperPayload.valid,
-                finalUpperPayload.predicted,
-                finalUpperPayload.branchType,
-                finalUpperPayload.jumpType);
-            $display("  pkt1: confirm=%0b pc=%08h tag=%0d rd=x%0d valid=%0b pred=%0b br=%0d j=%0d",
-                instructionPacket2.confirm,
-                instructionPacket2.programCounter,
-                instructionPacket2.ageTag,
-                instructionPacket2.destinationRegister,
-                finalLowerPayload.valid,
-                finalLowerPayload.predicted,
-                finalLowerPayload.branchType,
-                finalLowerPayload.jumpType);
+    function automatic string slot0BlockReason();
+        if (!instructionsValid || redirect || (postRedirectCounter == 1'b0)) begin
+            return "Pipeline Refill";
         end
-    end
+        if (reasonIllegal1) begin
+            return "Illegal Instruction";
+        end
+        if (reasonRobFull) begin
+            return "ROB Full";
+        end
+        if (reasonUpperLoadHazard) begin
+            return "Load Hazard";
+        end
+        if ((tempPayload1.memoryOperation != MEM_NONE) && !memFreeSlot) begin
+            return "Memory Queue Full";
+        end
+        return "Unknown Stall";
+    endfunction
 
-    // Single-line issue summary trace.
+    function automatic string slot1BlockReason();
+        if (!instructionsValid || redirect || (postRedirectCounter == 1'b0)) begin
+            return "Pipeline Refill";
+        end
+        if (slot0TakenHelper) begin
+            return "Slot 0 Predicted";
+        end
+        if (reasonIllegal1) begin
+            return "Slot 0 Illegal";
+        end
+        if (reasonIllegal2) begin
+            return "Illegal Instruction";
+        end
+        if (reasonSlot1Memory) begin
+            return "Memory Must Use Slot 0";
+        end
+        if (reasonWawConflict) begin
+            return "WAW Conflict";
+        end
+        if (reasonSlotDependency) begin
+            return "Slot Dependency";
+        end
+        if (reasonDualRedirect) begin
+            return "Dual Redirect";
+        end
+        if (reasonBadFetch) begin
+            return "Bad Fetch";
+        end
+        if (reasonRobOneFree) begin
+            return "One ROB Slot Free";
+        end
+        if (reasonRobFull) begin
+            return "ROB Full";
+        end
+        if (reasonUpperLoadHazard) begin
+            return "Upper Load Hazard";
+        end
+        if (reasonLowerLoadHazard) begin
+            return "Lower Load Hazard";
+        end
+        if (reasonBackwardDependency) begin
+            return "Backward Dependency";
+        end
+        if ((tempPayload1.memoryOperation != MEM_NONE) && !memFreeSlot) begin
+            return "Memory Queue Full";
+        end
+        return "Unknown Stall";
+    endfunction
+
     /*
     always_ff @(posedge clock) begin
-        string slot0Summary;
-        string slot1Summary;
         if (!reset) begin
-            if (redirect || (postRedirectCounter == 1'b0) || !instructionsValid) begin
-                slot0Summary = $sformatf("%-17s", "BRANCH");
-                slot1Summary = $sformatf("%-17s", "BRANCH");
+            if (instructionConsumed1) begin
+                $display("Issued 0x%08h", PC1);
             end else begin
-                if (instructionConsumed1) begin
-                    slot0Summary = $sformatf("%08h %-8s", PC1, "ISSUED");
-                end else if (reasonIllegal1) begin
-                    slot0Summary = $sformatf("%08h %-8s", PC1, "ILLEGAL");
-                end else if (reasonRobFull) begin
-                    slot0Summary = $sformatf("%08h %-8s", PC1, "ROBFULL");
-                end else if (reasonUpperLoadHazard) begin
-                    slot0Summary = $sformatf("%08h %-8s", PC1, "LOADHAZ");
-                end else begin
-                    slot0Summary = $sformatf("%08h %-8s", PC1, "STALL");
-                end
-
-                if (instructionConsumed2) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "ISSUED");
-                end else if (reasonIllegal2) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "ILLEGAL");
-                end else if (reasonIllegal1) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "SLOT0ILL");
-                end else if (reasonSlot1Memory) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "SLOT1MEM");
-                end else if (reasonWawConflict) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "WAW");
-                end else if (reasonSlotDependency) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "DEP");
-                end else if (reasonDualRedirect) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "DUALREDIR");
-                end else if (reasonBadFetch) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "BADFETCH");
-                end else if (reasonRobOneFree) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "ROB1FREE");
-                end else if (reasonRobFull) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "ROBFULL");
-                end else if (reasonUpperLoadHazard) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "SLOT0LOAD");
-                end else if (reasonLowerLoadHazard) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "LOADHAZ");
-                end else if (reasonBackwardDependency) begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "BACKDEP");
-                end else begin
-                    slot1Summary = $sformatf("%08h %-8s", PC2, "STALL");
-                end
+                $display("Blocked 0x%08h: %s", PC1, slot0BlockReason());
             end
-            $display("[DecodeIssue][cycle %0d] SLOT0: %s | SLOT1: %s",
-                debugCycle, slot0Summary, slot1Summary);
+
+            if (instructionConsumed2) begin
+                $display("Issued 0x%08h", PC2);
+            end else begin
+                $display("Blocked 0x%08h: %s", PC2, slot1BlockReason());
+            end
         end
     end
     */
