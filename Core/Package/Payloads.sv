@@ -42,6 +42,7 @@ package Payloads;
         JumpType_ jumpType;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [1:0] staleVector;
+        logic [1:0] staleVector2;
         RegisterStatusOutput_ oldStatus;
         logic predicted;
         logic valid;
