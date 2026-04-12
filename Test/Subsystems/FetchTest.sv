@@ -16,6 +16,10 @@ module Top (
     // Static Redirect Vector for Testing
     logic [31:0] redirectVector;
     assign redirectVector = 32'd40;
+    logic taken;
+    logic [31:0] precalcAddress;
+    assign taken = 1'b0;
+    assign precalcAddress = 32'd0;
 
     // BRAM Driven Signals
     logic [127:0] lowFetchData;
@@ -60,6 +64,8 @@ module Top (
         .reset (reset),
         .redirect (redirect),
         .redirectVector (redirectVector),
+        .taken (taken),
+        .precalcAddress (precalcAddress),
         .readAddressA (lowFetchAddress),
         .readDataA (lowFetchData),
         .readAddressB (highFetchAddress),

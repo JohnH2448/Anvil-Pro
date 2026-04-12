@@ -285,6 +285,7 @@ module OperandSelect (
         exPayloadCandidate2.branchType = payload2.branchType;
         exPayloadCandidate2.ageTag = payload2.ageTag;
         exPayloadCandidate2.predicted = payload2.predicted;
+        exPayloadCandidate2.programCounter = payload2.programCounter;
         if (!reset && !redirect) begin
             exPayloadCandidate2.valid = payload2.valid;
         end else begin

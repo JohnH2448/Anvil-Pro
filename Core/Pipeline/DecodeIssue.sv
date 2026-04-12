@@ -334,7 +334,7 @@ module DecodeIssue (
             end
             // Block Slot 1 If Slot 0 is Prediction
             if (slot0TakenHelper) begin
-                block2 = 1'b1;
+                // Implimented At Latch Time
             end
         end else begin
             block1 = 1'b1;
@@ -426,7 +426,9 @@ module DecodeIssue (
         if (!reset && !redirect) begin
             if (!block1 && !block2) begin
                 instructionConsumed1 = 1'd1;
-                instructionConsumed2 = 1'd1;
+                if (!slot0TakenHelper) begin
+                    instructionConsumed2 = 1'd1;
+                end
             end else if (!block1) begin
                 instructionConsumed1 = 1'd1;
             end
@@ -512,6 +514,7 @@ module DecodeIssue (
     logic standardOp1;
     logic standardOp2;
     always_comb begin
+        
         instructionPacket1 = '0;
         instructionPacket2 = '0;
         standardOp1 = ((tempPayload1.memoryOperation == MEM_NONE)
@@ -520,6 +523,7 @@ module DecodeIssue (
         standardOp2 = ((tempPayload2.memoryOperation == MEM_NONE)
         && (tempPayload2.branchType == BR_NONE)
         && (tempPayload2.jumpType == JUMP_NONE));
+
         if (instructionConsumed1 && instructionConsumed2) begin
             // Instruction 1 to ROB
             instructionPacket1.programCounter = PC1;
@@ -547,6 +551,32 @@ module DecodeIssue (
     always_ff @(posedge clock) begin
         payload1 <= finalUpperPayload;
         payload2 <= finalLowerPayload;
+    end
+
+    // Focused issue/prediction trace for branch debug.
+    always_ff @(negedge clock) begin
+        if (!reset && debugMode) begin
+            $display("[DecodeIssue] taken=%0b validAddress=%0b branchPC=%08h precalc=%08h",
+                taken, validAddress, branchProgramCounter, precalcAddress);
+            $display("  pkt0: confirm=%0b pc=%08h tag=%0d rd=x%0d valid=%0b pred=%0b br=%0d j=%0d",
+                instructionPacket1.confirm,
+                instructionPacket1.programCounter,
+                instructionPacket1.ageTag,
+                instructionPacket1.destinationRegister,
+                finalUpperPayload.valid,
+                finalUpperPayload.predicted,
+                finalUpperPayload.branchType,
+                finalUpperPayload.jumpType);
+            $display("  pkt1: confirm=%0b pc=%08h tag=%0d rd=x%0d valid=%0b pred=%0b br=%0d j=%0d",
+                instructionPacket2.confirm,
+                instructionPacket2.programCounter,
+                instructionPacket2.ageTag,
+                instructionPacket2.destinationRegister,
+                finalLowerPayload.valid,
+                finalLowerPayload.predicted,
+                finalLowerPayload.branchType,
+                finalLowerPayload.jumpType);
+        end
     end
 
     // Single-line issue summary trace.

@@ -49,11 +49,11 @@ module Execute (
     logic [31:0] PC1P4;
     logic [31:0] PC2P4;
     assign PC1P4 = exPayload1.programCounter + 32'd4;
-    assign PC2P4 = exPayload1.programCounter + 32'd8;
+    assign PC2P4 = exPayload2.programCounter + 32'd4;
 
     // Redirect Priority Logic
-    assign mispredict1 = ((redirect1 != exPayload1.predicted) && !illegal1);
-    assign mispredict2 = ((redirect2 != exPayload2.predicted) && !illegal2 && !illegal1 && !mispredict1);
+    assign mispredict1 = ((redirect1 != exPayload1.predicted) && !illegal1 && exPayload1.valid);
+    assign mispredict2 = ((redirect2 != exPayload2.predicted) && !illegal2 && !illegal1 && !mispredict1 && exPayload2.valid);
     assign redirect = mispredict1 || mispredict2;
     assign redirectVector = mispredict1 ? (exPayload1.predicted ? PC1P4 : redirectVector1) : 
     (mispredict2 ? (exPayload2.predicted ? PC2P4 : redirectVector2) : 32'd0);
