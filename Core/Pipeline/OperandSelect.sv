@@ -308,5 +308,8 @@ module OperandSelect (
 
 endmodule
 
-
+// clever idea to use handofs. os on stall latches its rst reads
+// into an old rst register. During stall, oldvector uses these. update
+// as they are updated in issuer. since oldvector is only used when
+// rd == rs, it guarentees it exists
 
