@@ -9,6 +9,8 @@ module InstructionMemory (
     input logic reset,
     input logic redirect,
     input logic [31:0] redirectVector,
+    input logic taken,
+    input logic [31:0] precalcAddress,
 
     // Read Interface (Port A)
     input logic [31:0] readAddressA,
@@ -29,15 +31,15 @@ module InstructionMemory (
     // Internal Next Window
     logic [31:0] redirectAddress;
     logic [31:0] nextAddress;
-    assign redirectAddress = reset ? resetVector : redirectVector;
-    assign nextAddress = reset ? resetVector + 32'd16 : redirectVector + 32'd16;
+    assign redirectAddress = reset ? resetVector : (redirect ? redirectVector : precalcAddress);
+    assign nextAddress = redirectAddress + 32'd16;
 
     // Memory Load for Sim
     initial $readmemh("Core/Memory/Instructions.hex", memory);
 
     // BRAM Inference
     always_ff @(posedge clock) begin
-        if (reset || redirect) begin
+        if (reset || redirect || taken) begin
             readIndexA_q <= redirectAddress[11:4];
             readIndexB_q <= nextAddress[11:4];
             readDataA <= memory[redirectAddress[11:4]];

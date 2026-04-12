@@ -71,6 +71,9 @@ module Top (
     // Branch Predictor Outputs
     logic taken;
 
+    // Top-Level Pipeline Trace
+    integer pipelineDebugCycle;
+
     // Operand Select Outputs
     UpperOperandExecutePayload_ exPayload1;
     LowerOperandExecutePayload_ exPayload2;
@@ -509,11 +512,59 @@ module Top (
         .reset(reset), // input
         .redirect(redirect), // input
         .redirectVector(redirectVector), // input
+        .taken(taken), // input 
+        .precalcAddress(precalcAddress), // input
         .readAddressA(lowFetchAddress), // input
         .readDataA(lowFetchData), // output
         .readAddressB(highFetchAddress), // input
         .readDataB(highFetchData) // output
     );
+
+    // Whole-pipeline snapshot to correlate frontend, decode/issue, OS, and EX.
+    always_ff @(negedge clock) begin
+        if (reset) begin
+            pipelineDebugCycle <= 0;
+        end else begin
+            pipelineDebugCycle <= pipelineDebugCycle + 1;
+            if (debugMode) begin
+                $display("\n[Top] Pipeline Snapshot");
+                $display("  ctrl : taken=%0b branchPC=%08h precalc=%08h redirect=%0b redirectVec=%08h badData=%0b",
+                    taken, branchProgramCounter, precalcAddress, redirect, redirectVector, badData);
+                $display("  fetch: pc=%08h req0=%08h req1=%08h cons0=%0b cons1=%0b",
+                    programCounter, requestPC1, requestPC2, instructionConsumed1, instructionConsumed2);
+                $display("         lowWin=%08h highWin=%08h",
+                    lowFetchAddress, highFetchAddress);
+                $display("  lane0: FE[pc=%08h ins=%08h] -> DI[iss=%0b pc=%08h tag=%0d] -> OS[v=%0b pc=%08h pred=%0b tag=%0d] -> EX[v=%0b pc=%08h pred=%0b tag=%0d]",
+                    requestPC1,
+                    instruction1,
+                    instructionPacket1.confirm,
+                    instructionPacket1.programCounter,
+                    instructionPacket1.ageTag,
+                    payload1.valid,
+                    payload1.programCounter,
+                    payload1.predicted,
+                    payload1.ageTag,
+                    exPayload1.valid,
+                    exPayload1.programCounter,
+                    exPayload1.predicted,
+                    exPayload1.ageTag);
+                $display("  lane1: FE[pc=%08h ins=%08h] -> DI[iss=%0b pc=%08h tag=%0d] -> OS[v=%0b pc=%08h pred=%0b tag=%0d] -> EX[v=%0b pc=%08h pred=%0b tag=%0d]",
+                    requestPC2,
+                    instruction2,
+                    instructionPacket2.confirm,
+                    instructionPacket2.programCounter,
+                    instructionPacket2.ageTag,
+                    payload2.valid,
+                    payload2.programCounter,
+                    payload2.predicted,
+                    payload2.ageTag,
+                    exPayload2.valid,
+                    exPayload2.programCounter,
+                    exPayload2.predicted,
+                    exPayload2.ageTag);
+            end
+        end
+    end
 
 endmodule
 

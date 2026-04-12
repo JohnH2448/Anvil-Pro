@@ -86,6 +86,7 @@ package Payloads;
 
     // For Lower Slot 
     typedef struct packed {
+        logic [31:0] programCounter;
         logic [31:0] operand1;
         logic [31:0] operand2;
         logic [31:0] extraField; // branch target, store data, etc

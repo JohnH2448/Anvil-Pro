@@ -42,10 +42,10 @@ void VTop___024root___eval_triggers__act(VTop___024root* vlSelf) {
     // Body
     vlSelf->__VactTriggered.set(0U, ((IData)(vlSelf->Top__DOT__taken) 
                                      != (IData)(vlSelf->__Vtrigprevexpr___TOP__Top__DOT__taken__2)));
-    vlSelf->__VactTriggered.set(1U, ((IData)(vlSelf->clock) 
-                                     & (~ (IData)(vlSelf->__Vtrigprevexpr___TOP__clock__0))));
-    vlSelf->__VactTriggered.set(2U, ((~ (IData)(vlSelf->clock)) 
+    vlSelf->__VactTriggered.set(1U, ((~ (IData)(vlSelf->clock)) 
                                      & (IData)(vlSelf->__Vtrigprevexpr___TOP__clock__0)));
+    vlSelf->__VactTriggered.set(2U, ((IData)(vlSelf->clock) 
+                                     & (~ (IData)(vlSelf->__Vtrigprevexpr___TOP__clock__0))));
     vlSelf->__Vtrigprevexpr___TOP__Top__DOT__taken__2 
         = vlSelf->Top__DOT__taken;
     vlSelf->__Vtrigprevexpr___TOP__clock__0 = vlSelf->clock;

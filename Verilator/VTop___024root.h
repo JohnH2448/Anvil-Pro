@@ -18,7 +18,6 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
     struct {
         VL_IN8(clock,0,0);
         VL_IN8(reset,0,0);
-        CData/*1:0*/ Top__DOT__nextFreeSlots;
         CData/*3:0*/ Top__DOT__freeTag1;
         CData/*5:0*/ Top__DOT__upperSource1Status;
         CData/*5:0*/ Top__DOT__upperSource2Status;
@@ -34,6 +33,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__destRegLoad2;
         CData/*0:0*/ Top__DOT__instructionConsumed1;
         CData/*0:0*/ Top__DOT__instructionConsumed2;
+        CData/*0:0*/ Top__DOT__outputJal;
         CData/*0:0*/ Top__DOT__taken;
         CData/*0:0*/ Top__DOT__redirect;
         CData/*0:0*/ Top__DOT__mispredict1;
@@ -57,8 +57,6 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource2Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__lowerSource1Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__lowerSource2Status;
-        CData/*0:0*/ Top__DOT__execute__DOT__redirect1;
-        CData/*0:0*/ Top__DOT__execute__DOT__illegal1;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__illegal2;
         CData/*4:0*/ Top__DOT__decodeIssue__DOT__destinationRegister2;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__illegal1;
@@ -67,6 +65,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__postRedirectCounter;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__internalBadData;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__block1;
+        CData/*0:0*/ Top__DOT__decodeIssue__DOT__block2;
         CData/*1:0*/ Top__DOT__decodeIssue__DOT__bypassEnable;
         CData/*1:0*/ Top__DOT__decodeIssue__DOT__staleVector1;
         CData/*1:0*/ Top__DOT__decodeIssue__DOT__staleVector2;
@@ -80,9 +79,9 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ __Vtrigprevexpr___TOP__clock__0;
         CData/*0:0*/ __VactDidInit;
         CData/*0:0*/ __VactContinue;
+        SData/*11:0*/ Top__DOT__rstBus1;
     };
     struct {
-        SData/*11:0*/ Top__DOT__rstBus1;
         SData/*11:0*/ Top__DOT__rstBus2;
         SData/*11:0*/ Top__DOT__rstBus3;
         SData/*9:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex;
@@ -90,6 +89,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ Top__DOT__requestPC1;
         IData/*31:0*/ Top__DOT__requestPC2;
         IData/*31:0*/ Top__DOT__precalcAddress;
+        IData/*31:0*/ Top__DOT__branchProgramCounter;
         IData/*31:0*/ Top__DOT__redirectVector;
         IData/*31:0*/ Top__DOT__instruction1;
         IData/*31:0*/ Top__DOT__instruction2;
@@ -112,7 +112,6 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ Top__DOT__walkingWindow__DOT__lastLowWindow;
         IData/*31:0*/ Top__DOT__walkingWindow__DOT__lastHighWindow;
         IData/*31:0*/ Top__DOT__instructionMemory__DOT__redirectAddress;
-        IData/*31:0*/ Top__DOT__instructionMemory__DOT__nextAddress;
         IData/*31:0*/ __VactIterCount;
         QData/*41:0*/ Top__DOT__resolvedInstruction1;
         QData/*41:0*/ Top__DOT__resolvedInstruction2;
@@ -121,7 +120,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         QData/*42:0*/ Top__DOT__instructionPacket1;
         QData/*42:0*/ Top__DOT__instructionPacket2;
         VlWide<5>/*152:0*/ Top__DOT__exPayload1;
-        VlWide<4>/*117:0*/ Top__DOT__exPayload2;
+        VlWide<5>/*149:0*/ Top__DOT__exPayload2;
         QData/*41:0*/ Top__DOT__resultPayload1;
         QData/*41:0*/ Top__DOT__resultPayload2;
         VlWide<3>/*77:0*/ Top__DOT__memPayload;
@@ -131,7 +130,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         VlWide<3>/*68:0*/ Top__DOT__storeBuffer__DOT____Vlvbound_hf16badd7__0;
         QData/*32:0*/ Top__DOT__placeholderDMEM__DOT__memBusInRegister;
         VlWide<5>/*152:0*/ Top__DOT__operandSelect__DOT__exPayloadCandidate1;
-        VlWide<4>/*117:0*/ Top__DOT__operandSelect__DOT__exPayloadCandidate2;
+        VlWide<5>/*149:0*/ Top__DOT__operandSelect__DOT__exPayloadCandidate2;
         VlWide<4>/*108:0*/ Top__DOT__decodeIssue__DOT__tempPayload2;
         VlWide<4>/*108:0*/ Top__DOT__decodeIssue__DOT__tempPayload1;
         VlWide<4>/*108:0*/ Top__DOT__decodeIssue__DOT__finalUpperPayload;
