@@ -84,6 +84,7 @@ module DecodeIssue (
     output logic validAddress,
     output logic [31:0] precalcAddress,
     output logic [31:0] branchProgramCounter,
+    output logic predictionSlot0,
     input logic taken,
     output logic outputJal
 
@@ -342,6 +343,7 @@ module DecodeIssue (
     logic [31:0] JalIm2;
     logic [31:0] target1;
     logic [31:0] target2;
+    
     always_comb begin
         // Immediate Construction
         BrIm1 = {{19{IR1[31]}}, IR1[31], IR1[7], IR1[30:25], IR1[11:8], 1'b0};
@@ -369,17 +371,20 @@ module DecodeIssue (
         validAddress = '0;
         precalcAddress = '0;
         slot0Taken = '0;
+        predictionSlot0 = '0;
         outputJal = '0;
         branchProgramCounter = '0;
         if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType == JUMP_JAL) && !illegal1 && !block1) begin
             precalcAddress = target1;
             branchProgramCounter = PC1;
+            predictionSlot0 = 1'b1;
             outputJal = (tempPayload1.jumpType == JUMP_JAL);
             slot0Taken = taken;
             validAddress = 1'b1;
         end else if ((tempPayload2.branchType != BR_NONE || tempPayload2.jumpType == JUMP_JAL) && !illegal1 && !illegal2 && !block1 && !block2) begin
             precalcAddress = target2;
             branchProgramCounter = PC2;
+            predictionSlot0 = 1'b0;
             outputJal = (tempPayload2.jumpType == JUMP_JAL);
             validAddress = 1'b1;
         end

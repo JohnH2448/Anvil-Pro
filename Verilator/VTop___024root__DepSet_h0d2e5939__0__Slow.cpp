@@ -212,14 +212,8 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     Top__DOT__execute__DOT__redirectVector1 = 0;
     IData/*31:0*/ Top__DOT__execute__DOT__redirectVector2;
     Top__DOT__execute__DOT__redirectVector2 = 0;
-    CData/*0:0*/ Top__DOT__execute__DOT__redirect1;
-    Top__DOT__execute__DOT__redirect1 = 0;
-    CData/*0:0*/ Top__DOT__execute__DOT__redirect2;
-    Top__DOT__execute__DOT__redirect2 = 0;
     CData/*0:0*/ Top__DOT__execute__DOT__illegal1;
     Top__DOT__execute__DOT__illegal1 = 0;
-    CData/*0:0*/ Top__DOT__execute__DOT__illegal2;
-    Top__DOT__execute__DOT__illegal2 = 0;
     IData/*31:0*/ Top__DOT__execute__DOT__upperOperand1;
     Top__DOT__execute__DOT__upperOperand1 = 0;
     IData/*31:0*/ Top__DOT__execute__DOT__upperOperand2;
@@ -2647,47 +2641,46 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                         & (vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[2U] 
                                                            >> 5U))] 
                                                        >> 1U)))));
-    Top__DOT__execute__DOT__redirect1 = 0U;
+    vlSelf->Top__DOT__execute__DOT__redirect1 = 0U;
     if ((1U & vlSelf->Top__DOT__exPayload1[0U])) {
         if ((0x2000U & vlSelf->Top__DOT__exPayload1[0U])) {
             if ((0x1000U & vlSelf->Top__DOT__exPayload1[0U])) {
                 if ((1U & (~ (vlSelf->Top__DOT__exPayload1[0U] 
                               >> 0xbU)))) {
-                    Top__DOT__execute__DOT__redirect1 
+                    vlSelf->Top__DOT__execute__DOT__redirect1 
                         = (Top__DOT__execute__DOT__upperOperand1 
                            >= Top__DOT__execute__DOT__upperOperand2);
                 }
             } else {
-                Top__DOT__execute__DOT__redirect1 = 
-                    ((0x800U & vlSelf->Top__DOT__exPayload1[0U])
-                      ? (Top__DOT__execute__DOT__upperOperand1 
-                         < Top__DOT__execute__DOT__upperOperand2)
-                      : VL_GTES_III(32, Top__DOT__execute__DOT__upperOperand1, Top__DOT__execute__DOT__upperOperand2));
+                vlSelf->Top__DOT__execute__DOT__redirect1 
+                    = ((0x800U & vlSelf->Top__DOT__exPayload1[0U])
+                        ? (Top__DOT__execute__DOT__upperOperand1 
+                           < Top__DOT__execute__DOT__upperOperand2)
+                        : VL_GTES_III(32, Top__DOT__execute__DOT__upperOperand1, Top__DOT__execute__DOT__upperOperand2));
             }
         } else if ((0x1000U & vlSelf->Top__DOT__exPayload1[0U])) {
-            Top__DOT__execute__DOT__redirect1 = ((0x800U 
-                                                  & vlSelf->Top__DOT__exPayload1[0U])
-                                                  ? 
-                                                 VL_LTS_III(32, Top__DOT__execute__DOT__upperOperand1, Top__DOT__execute__DOT__upperOperand2)
-                                                  : 
-                                                 (Top__DOT__execute__DOT__upperOperand1 
-                                                  != Top__DOT__execute__DOT__upperOperand2));
+            vlSelf->Top__DOT__execute__DOT__redirect1 
+                = ((0x800U & vlSelf->Top__DOT__exPayload1[0U])
+                    ? VL_LTS_III(32, Top__DOT__execute__DOT__upperOperand1, Top__DOT__execute__DOT__upperOperand2)
+                    : (Top__DOT__execute__DOT__upperOperand1 
+                       != Top__DOT__execute__DOT__upperOperand2));
         } else if ((0x800U & vlSelf->Top__DOT__exPayload1[0U])) {
-            Top__DOT__execute__DOT__redirect1 = (Top__DOT__execute__DOT__upperOperand1 
-                                                 == Top__DOT__execute__DOT__upperOperand2);
+            vlSelf->Top__DOT__execute__DOT__redirect1 
+                = (Top__DOT__execute__DOT__upperOperand1 
+                   == Top__DOT__execute__DOT__upperOperand2);
         }
         if ((0U != (3U & (vlSelf->Top__DOT__exPayload1[0U] 
                           >> 0xeU)))) {
             if ((1U == (3U & (vlSelf->Top__DOT__exPayload1[0U] 
                               >> 0xeU)))) {
-                Top__DOT__execute__DOT__redirect1 = 1U;
+                vlSelf->Top__DOT__execute__DOT__redirect1 = 1U;
             } else if ((2U == (3U & (vlSelf->Top__DOT__exPayload1[0U] 
                                      >> 0xeU)))) {
-                Top__DOT__execute__DOT__redirect1 = 1U;
+                vlSelf->Top__DOT__execute__DOT__redirect1 = 1U;
             }
         }
     } else {
-        Top__DOT__execute__DOT__redirect1 = 0U;
+        vlSelf->Top__DOT__execute__DOT__redirect1 = 0U;
     }
     Top__DOT__storeBuffer__DOT__outputByte1 = 0U;
     Top__DOT__storeBuffer__DOT__outputByte1Valid = 0U;
@@ -3835,6 +3828,12 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                | (((IData)(Top__DOT__storeBuffer__DOT__outputByte2) 
                                                    << 8U) 
                                                   | (IData)(Top__DOT__storeBuffer__DOT__outputByte1))));
+    vlSelf->Top__DOT__bpUpdateValid1 = (vlSelf->Top__DOT__exPayload1[0U] 
+                                        & ((~ (IData)(Top__DOT__execute__DOT__illegal1)) 
+                                           & (0U != 
+                                              (7U & 
+                                               (vlSelf->Top__DOT__exPayload1[0U] 
+                                                >> 0xbU)))));
     Top__DOT__execute__DOT____VdfgTmp_hd82f4887__0 
         = (1U & ((~ (IData)(Top__DOT__execute__DOT__illegal1)) 
                  & vlSelf->Top__DOT__exPayload1[0U]));
@@ -3924,49 +3923,49 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
     if ((0U < (IData)(Top__DOT__memoryQueue__DOT__unnamedblk1__DOT__memFreeSlotsTemp))) {
         vlSelf->Top__DOT__memFreeSlot = 1U;
     }
-    vlSelf->Top__DOT__mispredict1 = (((IData)(Top__DOT__execute__DOT__redirect1) 
+    vlSelf->Top__DOT__mispredict1 = (((IData)(vlSelf->Top__DOT__execute__DOT__redirect1) 
                                       != (1U & (vlSelf->Top__DOT__exPayload1[0U] 
                                                 >> 1U))) 
                                      & (IData)(Top__DOT__execute__DOT____VdfgTmp_hd82f4887__0));
-    Top__DOT__execute__DOT__redirect2 = 0U;
+    vlSelf->Top__DOT__execute__DOT__redirect2 = 0U;
     if ((1U & vlSelf->Top__DOT__exPayload2[0U])) {
         if ((0x400U & vlSelf->Top__DOT__exPayload2[0U])) {
             if ((0x200U & vlSelf->Top__DOT__exPayload2[0U])) {
                 if ((1U & (~ (vlSelf->Top__DOT__exPayload2[0U] 
                               >> 8U)))) {
-                    Top__DOT__execute__DOT__redirect2 
+                    vlSelf->Top__DOT__execute__DOT__redirect2 
                         = (Top__DOT__execute__DOT__lowerOperand1 
                            >= Top__DOT__execute__DOT__lowerOperand2);
                 }
             } else {
-                Top__DOT__execute__DOT__redirect2 = 
-                    ((0x100U & vlSelf->Top__DOT__exPayload2[0U])
-                      ? (IData)(Top__DOT__execute__DOT____VdfgExtracted_h4cbec2d7__0)
-                      : VL_GTES_III(32, Top__DOT__execute__DOT__lowerOperand1, Top__DOT__execute__DOT__lowerOperand2));
+                vlSelf->Top__DOT__execute__DOT__redirect2 
+                    = ((0x100U & vlSelf->Top__DOT__exPayload2[0U])
+                        ? (IData)(Top__DOT__execute__DOT____VdfgExtracted_h4cbec2d7__0)
+                        : VL_GTES_III(32, Top__DOT__execute__DOT__lowerOperand1, Top__DOT__execute__DOT__lowerOperand2));
             }
         } else if ((0x200U & vlSelf->Top__DOT__exPayload2[0U])) {
-            Top__DOT__execute__DOT__redirect2 = ((0x100U 
-                                                  & vlSelf->Top__DOT__exPayload2[0U])
-                                                  ? (IData)(Top__DOT__execute__DOT____VdfgExtracted_h4da36787__0)
-                                                  : 
-                                                 (Top__DOT__execute__DOT__lowerOperand1 
-                                                  != Top__DOT__execute__DOT__lowerOperand2));
+            vlSelf->Top__DOT__execute__DOT__redirect2 
+                = ((0x100U & vlSelf->Top__DOT__exPayload2[0U])
+                    ? (IData)(Top__DOT__execute__DOT____VdfgExtracted_h4da36787__0)
+                    : (Top__DOT__execute__DOT__lowerOperand1 
+                       != Top__DOT__execute__DOT__lowerOperand2));
         } else if ((0x100U & vlSelf->Top__DOT__exPayload2[0U])) {
-            Top__DOT__execute__DOT__redirect2 = (Top__DOT__execute__DOT__lowerOperand1 
-                                                 == Top__DOT__execute__DOT__lowerOperand2);
+            vlSelf->Top__DOT__execute__DOT__redirect2 
+                = (Top__DOT__execute__DOT__lowerOperand1 
+                   == Top__DOT__execute__DOT__lowerOperand2);
         }
         if ((0U != (3U & (vlSelf->Top__DOT__exPayload2[0U] 
                           >> 0xbU)))) {
             if ((1U == (3U & (vlSelf->Top__DOT__exPayload2[0U] 
                               >> 0xbU)))) {
-                Top__DOT__execute__DOT__redirect2 = 1U;
+                vlSelf->Top__DOT__execute__DOT__redirect2 = 1U;
             } else if ((2U == (3U & (vlSelf->Top__DOT__exPayload2[0U] 
                                      >> 0xbU)))) {
-                Top__DOT__execute__DOT__redirect2 = 1U;
+                vlSelf->Top__DOT__execute__DOT__redirect2 = 1U;
             }
         }
     } else {
-        Top__DOT__execute__DOT__redirect2 = 0U;
+        vlSelf->Top__DOT__execute__DOT__redirect2 = 0U;
     }
     vlSelf->Top__DOT__execute__DOT__result2 = 0U;
     if ((0x10000U & vlSelf->Top__DOT__exPayload2[0U])) {
@@ -4214,7 +4213,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                                                                  : vlSelf->Top__DOT__execute__DOT__result2))) 
                                                << 6U));
     }
-    Top__DOT__execute__DOT__illegal2 = 0U;
+    vlSelf->Top__DOT__execute__DOT__illegal2 = 0U;
     Top__DOT__execute__DOT__redirectVector2 = ((vlSelf->Top__DOT__exPayload2[1U] 
                                                 << 0xaU) 
                                                | (vlSelf->Top__DOT__exPayload2[0U] 
@@ -4231,7 +4230,7 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                 = vlSelf->Top__DOT__execute__DOT__result2;
         }
         if ((0U != (3U & Top__DOT__execute__DOT__redirectVector2))) {
-            Top__DOT__execute__DOT__illegal2 = 1U;
+            vlSelf->Top__DOT__execute__DOT__illegal2 = 1U;
         }
     }
     if ((0U == (3U & (vlSelf->Top__DOT__memPayload[0U] 
@@ -4248,10 +4247,10 @@ VL_ATTR_COLD void VTop___024root___stl_sequent__TOP__0(VTop___024root* vlSelf) {
                              >> 0xaU)))) {
         vlSelf->Top__DOT__memoryQueue__DOT__byteSelectTransform = 0xfU;
     }
-    Top__DOT__mispredict2 = (((IData)(Top__DOT__execute__DOT__redirect2) 
+    Top__DOT__mispredict2 = (((IData)(vlSelf->Top__DOT__execute__DOT__redirect2) 
                               != (1U & (vlSelf->Top__DOT__exPayload2[0U] 
                                         >> 1U))) & 
-                             ((~ (IData)(Top__DOT__execute__DOT__illegal2)) 
+                             ((~ (IData)(vlSelf->Top__DOT__execute__DOT__illegal2)) 
                               & ((~ (IData)(Top__DOT__execute__DOT__illegal1)) 
                                  & ((~ (IData)(vlSelf->Top__DOT__mispredict1)) 
                                     & vlSelf->Top__DOT__exPayload2[0U]))));
@@ -6173,6 +6172,7 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__branchProgramCounter = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__outputJal = VL_RAND_RESET_I(1);
     vlSelf->Top__DOT__taken = VL_RAND_RESET_I(1);
+    vlSelf->Top__DOT__bpUpdateValid1 = VL_RAND_RESET_I(1);
     VL_RAND_RESET_W(153, vlSelf->Top__DOT__exPayload1);
     VL_RAND_RESET_W(150, vlSelf->Top__DOT__exPayload2);
     vlSelf->Top__DOT__resultPayload1 = VL_RAND_RESET_Q(42);
@@ -6247,6 +6247,12 @@ VL_ATTR_COLD void VTop___024root___ctor_var_reset(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__operandSelect__DOT__lowerSource2Status = VL_RAND_RESET_I(6);
     vlSelf->Top__DOT__execute__DOT__result1 = VL_RAND_RESET_I(32);
     vlSelf->Top__DOT__execute__DOT__result2 = VL_RAND_RESET_I(32);
+    vlSelf->Top__DOT__execute__DOT__redirect1 = VL_RAND_RESET_I(1);
+    vlSelf->Top__DOT__execute__DOT__redirect2 = VL_RAND_RESET_I(1);
+    vlSelf->Top__DOT__execute__DOT__illegal2 = VL_RAND_RESET_I(1);
+    for (int __Vi0 = 0; __Vi0 < 64; ++__Vi0) {
+        vlSelf->Top__DOT__branchPredictor__DOT__counterTable[__Vi0] = VL_RAND_RESET_I(2);
+    }
     vlSelf->Top__DOT__decodeIssue__DOT__illegal2 = VL_RAND_RESET_I(1);
     VL_RAND_RESET_W(111, vlSelf->Top__DOT__decodeIssue__DOT__tempPayload2);
     vlSelf->Top__DOT__decodeIssue__DOT__destinationRegister2 = VL_RAND_RESET_I(5);

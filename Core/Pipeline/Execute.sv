@@ -16,6 +16,14 @@ module Execute (
     output logic mispredict1,
     output logic mispredict2,
 
+    // Branch Predictor Update Metadata
+    output logic bpUpdateValid1,
+    output logic [31:0] bpUpdatePC1,
+    output logic bpUpdateTaken1,
+    output logic bpUpdateValid2,
+    output logic [31:0] bpUpdatePC2,
+    output logic bpUpdateTaken2,
+
     // Payloads to Execute
     input UpperOperandExecutePayload_ exPayload1,
     input LowerOperandExecutePayload_ exPayload2,
@@ -57,6 +65,14 @@ module Execute (
     assign redirect = mispredict1 || mispredict2;
     assign redirectVector = mispredict1 ? (exPayload1.predicted ? PC1P4 : redirectVector1) : 
     (mispredict2 ? (exPayload2.predicted ? PC2P4 : redirectVector2) : 32'd0);
+    assign bpUpdateValid1 = exPayload1.valid && !illegal1 &&
+        (exPayload1.branchType != BR_NONE);
+    assign bpUpdatePC1 = exPayload1.programCounter;
+    assign bpUpdateTaken1 = redirect1;
+    assign bpUpdateValid2 = exPayload2.valid && !illegal2 && !mispredict1 &&
+        (exPayload2.branchType != BR_NONE);
+    assign bpUpdatePC2 = exPayload2.programCounter;
+    assign bpUpdateTaken2 = redirect2;
 
     // Extra Signals
     logic [31:0] upperOperand1;

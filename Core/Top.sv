@@ -66,10 +66,17 @@ module Top (
     logic [31:0] precalcAddress;
     logic validAddress;
     logic [31:0] branchProgramCounter;
+    logic predictionSlot0;
     logic outputJal;
 
     // Branch Predictor Outputs
     logic taken;
+    logic bpUpdateValid1;
+    logic [31:0] bpUpdatePC1;
+    logic bpUpdateTaken1;
+    logic bpUpdateValid2;
+    logic [31:0] bpUpdatePC2;
+    logic bpUpdateTaken2;
 
     // Top-Level Pipeline Trace
     integer pipelineDebugCycle;
@@ -385,6 +392,13 @@ module Top (
         .mispredict1(mispredict1), // output
         .mispredict2(mispredict2), // output
 
+        .bpUpdateValid1(bpUpdateValid1), // output
+        .bpUpdatePC1(bpUpdatePC1), // output
+        .bpUpdateTaken1(bpUpdateTaken1), // output
+        .bpUpdateValid2(bpUpdateValid2), // output
+        .bpUpdatePC2(bpUpdatePC2), // output
+        .bpUpdateTaken2(bpUpdateTaken2), // output
+
         .exMemory(exMemory), // output
 
         .exPayload1(exPayload1), // input
@@ -409,9 +423,17 @@ module Top (
 
         .precalcAddress(precalcAddress), // input
         .branchProgramCounter(branchProgramCounter), // input
+        .predictionSlot0(predictionSlot0), // input
         .taken(taken), // output
         .outputJal(outputJal), // input
-        .validAddress(validAddress) // input
+        .validAddress(validAddress), // input
+
+        .bpUpdateValid1(bpUpdateValid1), // input
+        .bpUpdatePC1(bpUpdatePC1), // input
+        .bpUpdateTaken1(bpUpdateTaken1), // input
+        .bpUpdateValid2(bpUpdateValid2), // input
+        .bpUpdatePC2(bpUpdatePC2), // input
+        .bpUpdateTaken2(bpUpdateTaken2) // input
 
     );
 
@@ -450,6 +472,7 @@ module Top (
         .precalcAddress(precalcAddress), // output
         .validAddress(validAddress), // output
         .branchProgramCounter(branchProgramCounter), // output
+        .predictionSlot0(predictionSlot0), // output
         .taken(taken), // input
         .outputJal(outputJal), // output 
 

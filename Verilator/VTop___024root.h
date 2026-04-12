@@ -35,6 +35,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ Top__DOT__instructionConsumed2;
         CData/*0:0*/ Top__DOT__outputJal;
         CData/*0:0*/ Top__DOT__taken;
+        CData/*0:0*/ Top__DOT__bpUpdateValid1;
         CData/*0:0*/ Top__DOT__redirect;
         CData/*0:0*/ Top__DOT__mispredict1;
         CData/*0:0*/ Top__DOT__memFreeSlot;
@@ -57,6 +58,9 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*5:0*/ Top__DOT__operandSelect__DOT__upperSource2Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__lowerSource1Status;
         CData/*5:0*/ Top__DOT__operandSelect__DOT__lowerSource2Status;
+        CData/*0:0*/ Top__DOT__execute__DOT__redirect1;
+        CData/*0:0*/ Top__DOT__execute__DOT__redirect2;
+        CData/*0:0*/ Top__DOT__execute__DOT__illegal2;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__illegal2;
         CData/*4:0*/ Top__DOT__decodeIssue__DOT__destinationRegister2;
         CData/*0:0*/ Top__DOT__decodeIssue__DOT__illegal1;
@@ -76,12 +80,12 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         CData/*0:0*/ __VicoDidInit;
         CData/*0:0*/ __VicoFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__Top__DOT__taken__2;
+    };
+    struct {
         CData/*0:0*/ __Vtrigprevexpr___TOP__clock__0;
         CData/*0:0*/ __VactDidInit;
         CData/*0:0*/ __VactContinue;
         SData/*11:0*/ Top__DOT__rstBus1;
-    };
-    struct {
         SData/*11:0*/ Top__DOT__rstBus2;
         SData/*11:0*/ Top__DOT__rstBus3;
         SData/*9:0*/ Top__DOT__placeholderDMEM__DOT__unnamedblk2__DOT__wordIndex;
@@ -142,7 +146,10 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         VlUnpacked<CData/*3:0*/, 16> Top__DOT__reorderBuffer__DOT__sortGrid;
         VlUnpacked<VlUnpacked<CData/*0:0*/, 3>, 16> Top__DOT__reorderBuffer__DOT__maskGrid;
         VlUnpacked<CData/*6:0*/, 32> Top__DOT__registerStatusTable__DOT__registerStatusTable;
+    };
+    struct {
         VlUnpacked<IData/*31:0*/, 32> Top__DOT__registerFile__DOT__registerFile;
+        VlUnpacked<CData/*1:0*/, 64> Top__DOT__branchPredictor__DOT__counterTable;
         VlUnpacked<VlWide<4>/*127:0*/, 256> Top__DOT__instructionMemory__DOT__memory;
     };
     VlTriggerVec<2> __VstlTriggered;
