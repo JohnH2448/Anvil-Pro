@@ -84,8 +84,8 @@ module OperandSelect (
     RegisterStatusOutput_ lowerSource1Status;
     RegisterStatusOutput_ lowerSource2Status;
 
-    assign upperSource1Status = (payload1.staleVector[0] ? payload1.oldStatus : upperSource1StatusDummy);
-    assign upperSource2Status = (payload1.staleVector[1] ? payload1.oldStatus : upperSource2StatusDummy);
+    assign upperSource1Status = (payload1.staleVector[0] ? payload1.oldStatus : (payload1.staleVector2[0] ? payload2.oldStatus : upperSource1StatusDummy));
+    assign upperSource2Status = (payload1.staleVector[1] ? payload1.oldStatus : (payload1.staleVector2[1] ? payload2.oldStatus : upperSource2StatusDummy));
     assign lowerSource1Status = (payload2.staleVector[0] ? payload2.oldStatus : lowerSource1StatusDummy);
     assign lowerSource2Status = (payload2.staleVector[1] ? payload2.oldStatus : lowerSource2StatusDummy);
 

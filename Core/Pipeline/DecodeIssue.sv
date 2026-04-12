@@ -320,13 +320,6 @@ module DecodeIssue (
                 block2 = 1'b1;
                 reasonLowerLoadHazard = 1'b1;
             end
-            // Block Issue On Backwards Slot 0/1 Dependency to Fix RST Ownership Problems
-            // FIXABLE BY REUSING STALEVECTOR MACHINARY
-            if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0) ||
-                (tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
-                block2 = 1'b1;
-                reasonBackwardDependency = 1'b1;
-            end
             // Block Memory Ops If Memory Queue is Full
             if (tempPayload1.memoryOperation != MEM_NONE && !memFreeSlot) begin
                 block1 = 1'b1;
@@ -418,6 +411,21 @@ module DecodeIssue (
         end
     end
 
+    // Stale Vector For Backwards Rd Ownership
+    logic [1:0] staleVector3;
+    always_comb begin
+        staleVector3 = 2'b00;
+        // Block Issue On Backwards Slot 0/1 Dependency to Fix RST Ownership Problems
+        if (!block2 && !slot0TakenHelper) begin
+            if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
+                staleVector3[0] = 1'b1;
+            end
+            if ((tempPayload1.sourceRegister2 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
+                staleVector3[1] = 1'b1;
+            end
+        end
+    end
+
     // Final Payload Assignment
     always_comb begin
         // Instruction Consumption Descision
@@ -455,6 +463,7 @@ module DecodeIssue (
             end
             finalUpperPayload.predicted = taken ? (slot0Taken ? 1'b1 : 1'b0) : 1'b0;
             finalUpperPayload.staleVector = staleVector1;
+            finalUpperPayload.staleVector2 = staleVector3;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload Splice
             finalLowerPayload.programCounter = tempPayload2.programCounter;
@@ -488,6 +497,7 @@ module DecodeIssue (
             finalUpperPayload.destinationRegister = destinationRegister1;
             finalUpperPayload.staleVector = staleVector1;
             finalUpperPayload.oldStatus = oldUpperStatus;
+            finalUpperPayload.staleVector2 = staleVector3; 
             if (((oldUpperStatus.ageTag == retireTag1) && retireValid1)
                 || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;

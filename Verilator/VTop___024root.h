@@ -115,7 +115,7 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         IData/*31:0*/ __VactIterCount;
         QData/*41:0*/ Top__DOT__resolvedInstruction1;
         QData/*41:0*/ Top__DOT__resolvedInstruction2;
-        VlWide<4>/*108:0*/ Top__DOT__payload1;
+        VlWide<4>/*110:0*/ Top__DOT__payload1;
         VlWide<4>/*105:0*/ Top__DOT__payload2;
         QData/*42:0*/ Top__DOT__instructionPacket1;
         QData/*42:0*/ Top__DOT__instructionPacket2;
@@ -131,9 +131,9 @@ class alignas(VL_CACHE_LINE_BYTES) VTop___024root final : public VerilatedModule
         QData/*32:0*/ Top__DOT__placeholderDMEM__DOT__memBusInRegister;
         VlWide<5>/*152:0*/ Top__DOT__operandSelect__DOT__exPayloadCandidate1;
         VlWide<5>/*149:0*/ Top__DOT__operandSelect__DOT__exPayloadCandidate2;
-        VlWide<4>/*108:0*/ Top__DOT__decodeIssue__DOT__tempPayload2;
-        VlWide<4>/*108:0*/ Top__DOT__decodeIssue__DOT__tempPayload1;
-        VlWide<4>/*108:0*/ Top__DOT__decodeIssue__DOT__finalUpperPayload;
+        VlWide<4>/*110:0*/ Top__DOT__decodeIssue__DOT__tempPayload2;
+        VlWide<4>/*110:0*/ Top__DOT__decodeIssue__DOT__tempPayload1;
+        VlWide<4>/*110:0*/ Top__DOT__decodeIssue__DOT__finalUpperPayload;
         VlWide<4>/*105:0*/ Top__DOT__decodeIssue__DOT__finalLowerPayload;
         VlUnpacked<VlWide<3>/*81:0*/, 8> Top__DOT__memoryQueue__DOT__queueEntry;
         VlUnpacked<VlWide<3>/*68:0*/, 10> Top__DOT__storeBuffer__DOT__shiftEntries;

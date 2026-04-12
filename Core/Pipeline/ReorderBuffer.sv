@@ -440,7 +440,7 @@ module ReorderBuffer (
     end
 
     always_ff @(negedge clock) begin
-        if (!reset) begin
+        if (!reset && autoTest) begin
             case (retireCount)
                 2'b01: $display("Retired 0x%08h", reorderBuffer[headIndexer].programCounter);
                 2'b10: begin
