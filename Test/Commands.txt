@@ -18,6 +18,9 @@ make -C Verilator -f VTop.mk -j"$(nproc)"
 
 ./Verilator/VTop
 
+riscv32-unknown-elf-gcc -S -O2 -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib -fno-builtin -fno-pic -fomit-frame-pointer -fno-stack-protector -fno-asynchronous-unwind-tables -fno-unwind-tables Test/Code/Program1.c -o test.s
+
+
 ==================================================
 
 verilator -Wall -Wno-fatal \

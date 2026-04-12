@@ -508,7 +508,7 @@ module DecodeIssue (
             finalUpperPayload = '0;
             finalLowerPayload = '0;
         end
-    end
+    end 
 
     // Instruction Packet Construction
     logic standardOp1;
