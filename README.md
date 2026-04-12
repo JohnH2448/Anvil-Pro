@@ -162,40 +162,41 @@ Not globally visable at retirement.
 This core is in progress. Do not attempt to use it or understand the HDL unless you want to waste your time. Nobody but myself and god know the formal assumptions that allow it to function. This README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
 
 ## Performance
-```txt
-add.hex: PASS, IPC=1.4774
-addi.hex: PASS, IPC=1.4873
-and.hex: PASS, IPC=1.3977
-andi.hex: PASS, IPC=1.3643
-auipc.hex: PASS, IPC=1.1591
-beq.hex: PASS, IPC=1.0327
-bge.hex: PASS, IPC=0.9350
-bgeu.hex: PASS, IPC=0.9424
-blt.hex: PASS, IPC=1.0327
-bltu.hex: PASS, IPC=1.0475
-bne.hex: PASS, IPC=1.0143
-dependency.hex: PASS, IPC=0.5469
-jal.hex: PASS, IPC=1.1163
-jalr.hex: PASS, IPC=0.9000
-lui.hex: PASS, IPC=1.4500
-memstress.hex: PASS, IPC=0.4683
-or.hex: PASS, IPC=1.3588
-ori.hex: PASS, IPC=1.3469
-simple.hex: PASS, IPC=1.5455
-sll.hex: PASS, IPC=1.4551
-slli.hex: PASS, IPC=1.4717
-slt.hex: PASS, IPC=1.4868
-slti.hex: PASS, IPC=1.5033
-sltiu.hex: PASS, IPC=1.5033
-sltu.hex: PASS, IPC=1.4868
-sra.hex: PASS, IPC=1.5030
-srai.hex: PASS, IPC=1.4647
-srl.hex: PASS, IPC=1.4896
-srli.hex: PASS, IPC=1.4727
-sub.hex: PASS, IPC=1.4706
-xor.hex: PASS, IPC=1.3953
-xori.hex: PASS, IPC=1.3333
-```
+| Test | No Predictor | Static BTFNT |
+|---|---:|---:|
+| `add.hex` | 1.4774 | 1.3237 |
+| `addi.hex` | 1.4873 | 1.3584 |
+| `and.hex` | 1.3977 | 1.2579 |
+| `andi.hex` | 1.3643 | 1.2403 |
+| `auipc.hex` | 1.1591 | 1.2750 |
+| `beq.hex` | 1.0327 | 0.8987 |
+| `bge.hex` | 0.9350 | 0.8436 |
+| `bgeu.hex` | 0.9424 | 0.8628 |
+| `blt.hex` | 1.0327 | 0.8987 |
+| `bltu.hex` | 1.0475 | 0.9335 |
+| `bne.hex` | 1.0143 | 0.9221 |
+| `dependency.hex` | 0.5469 | 0.6425 |
+| `jal.hex` | 1.1163 | 1.2308 |
+| `jalr.hex` | 0.9000 | 0.8438 |
+| `lui.hex` | 1.4500 | 1.4500 |
+| `memstress.hex` | 0.4683 | 0.5977 |
+| `or.hex` | 1.3588 | 1.2270 |
+| `ori.hex` | 1.3469 | 1.2298 |
+| `simple.hex` | 1.5455 | 1.5455 |
+| `sll.hex` | 1.4551 | 1.3029 |
+| `slli.hex` | 1.4717 | 1.3605 |
+| `slt.hex` | 1.4868 | 1.3294 |
+| `slti.hex` | 1.5033 | 1.3690 |
+| `sltiu.hex` | 1.5033 | 1.3690 |
+| `sltu.hex` | 1.4868 | 1.3294 |
+| `sra.hex` | 1.5030 | 1.3575 |
+| `srai.hex` | 1.4647 | 1.3387 |
+| `srl.hex` | 1.4896 | 1.3450 |
+| `srli.hex` | 1.4727 | 1.3500 |
+| `sub.hex` | 1.4706 | 1.3158 |
+| `xor.hex` | 1.3953 | 1.2565 |
+| `xori.hex` | 1.3333 | 1.2121 |
+
 ### Status
 The ALU instruction pipeline does strong even under directed edge case tests. Redirects are also now feeling much closer to a confident standard. Stress tests combining chained RAW, branch-after-branch, rst confusion, forwarding torture, store ordering, poison-path control flow, signed and unsigned memory accesses, and even awkward cases like loads into x0 all came back positive under Verilator. While not assuredly "100%", the foundation is strong enough to move towards other goals. The memory system also appears initially strong when hit with directed tests. Notably, it does a better job than anticipated at hiding latency, as IPC hardly changes when DMEM latency is altered. At the moment, the largest killer of IPC is the lack of branch prediction. Most other performance microarchitecural solutions are now im place and functional. As to further goals, heavier verification on the base core and then the CSR subsystem are next on the roadmap. 
 
