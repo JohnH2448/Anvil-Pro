@@ -9,15 +9,19 @@ The microarchitecture implements a 6-stage pipeline with in-order commit via a r
 The design is optimized for efficient FPGA fabric utilization, competitive performance, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom RISC-V system integration.
 
 ## Architecture Highlights
-- Dual-Issue Superscalar Front-End
+- Dual-Issue Superscalar
 - In-Order Commit ROB
 - Precise Trap / Exception Support
+- Latency Reordered Execution
 - M-Mode RV32I + Zicsr
 - Harvard Split BRAM IMEM + External DMEM
+- Two-Bit Branch Prediction
 - 256-Bit "Walking Window" Prefetch
+- Issue Governed Hazard Resolution
 - Single LSU (Wishbone Classic)
-- Store / Load Buffering + Queue
+- Memory Queue + Store Buffer
 - 6-Stage Pipeline
+- Register Status Table Bookeeping
 
 ## Repository Graph
 ```bash
