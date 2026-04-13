@@ -168,42 +168,43 @@ Two-bit saturating counter now. Not taken has no cycle penalty, while taken has 
 This core is in progress. The README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
 
 ## Performance
-| Test | IPC |
-|---|---:|
-| `add.hex` | 1.2938 |
-| `addi.hex` | 1.3429 |
-| `and.hex` | 1.2383 |
-| `andi.hex` | 1.2403 |
-| `auipc.hex` | 1.2750 |
-| `beq.hex` | 0.8931 |
-| `bge.hex` | 0.8436 |
-| `bgeu.hex` | 0.8583 |
-| `blt.hex` | 0.8931 |
-| `bltu.hex` | 0.9279 |
-| `bne.hex` | 0.9161 |
-| `dependency.hex` | 0.7656 |
-| `jal.hex` | 1.2308 |
-| `jalr.hex` | 0.8438 |
-| `lui.hex` | 1.4500 |
-| `memstress.hex` | 0.7073 |
-| `optimized.hex` | 1.9478 |
-| `or.hex` | 1.2208 |
-| `ori.hex` | 1.2147 |
-| `realistic.hex` | 0.8747 |
-| `simple.hex` | 1.5455 |
-| `sll.hex` | 1.2689 |
-| `slli.hex` | 1.3295 |
-| `slt.hex` | 1.3064 |
-| `slti.hex` | 1.3529 |
-| `sltiu.hex` | 1.3529 |
-| `sltu.hex` | 1.3064 |
-| `sra.hex` | 1.3360 |
-| `srai.hex` | 1.3105 |
-| `srl.hex` | 1.3378 |
-| `srli.hex` | 1.3207 |
-| `sub.hex` | 1.3006 |
-| `xor.hex` | 1.2308 |
-| `xori.hex` | 1.1976 |
+The default parameters reflect the optimal balance between size and performance. Increasing reorder buffer entries and store buffer entries has the following affect on performance:
+| Test | SB=10 ROB=16 | SB=20 ROB=32 | Delta | % Change |
+|---|---:|---:|---:|---:|
+| `add.hex` | 1.2938 | 1.2938 | +0.0000 | +0.00% |
+| `addi.hex` | 1.3429 | 1.3429 | +0.0000 | +0.00% |
+| `and.hex` | 1.2383 | 1.2383 | +0.0000 | +0.00% |
+| `andi.hex` | 1.2403 | 1.2403 | +0.0000 | +0.00% |
+| `auipc.hex` | 1.2750 | 1.2750 | +0.0000 | +0.00% |
+| `beq.hex` | 0.8931 | 0.8931 | +0.0000 | +0.00% |
+| `bge.hex` | 0.8436 | 0.8436 | +0.0000 | +0.00% |
+| `bgeu.hex` | 0.8583 | 0.8583 | +0.0000 | +0.00% |
+| `blt.hex` | 0.8931 | 0.8931 | +0.0000 | +0.00% |
+| `bltu.hex` | 0.9279 | 0.9279 | +0.0000 | +0.00% |
+| `bne.hex` | 0.9161 | 0.9161 | +0.0000 | +0.00% |
+| `dependency.hex` | 0.7656 | 0.7675 | +0.0019 | +0.25% |
+| `jal.hex` | 1.2308 | 1.2308 | +0.0000 | +0.00% |
+| `jalr.hex` | 0.8438 | 0.8438 | +0.0000 | +0.00% |
+| `lui.hex` | 1.4500 | 1.4500 | +0.0000 | +0.00% |
+| `memstress.hex` | 0.7073 | 0.7158 | +0.0085 | +1.20% |
+| `optimized.hex` | 1.9478 | 1.9478 | +0.0000 | +0.00% |
+| `or.hex` | 1.2208 | 1.2208 | +0.0000 | +0.00% |
+| `ori.hex` | 1.2147 | 1.2147 | +0.0000 | +0.00% |
+| `realistic.hex` | 0.8747 | 0.8928 | +0.0181 | +2.07% |
+| `simple.hex` | 1.5455 | 1.5455 | +0.0000 | +0.00% |
+| `sll.hex` | 1.2689 | 1.2689 | +0.0000 | +0.00% |
+| `slli.hex` | 1.3295 | 1.3295 | +0.0000 | +0.00% |
+| `slt.hex` | 1.3064 | 1.3064 | +0.0000 | +0.00% |
+| `slti.hex` | 1.3529 | 1.3529 | +0.0000 | +0.00% |
+| `sltiu.hex` | 1.3529 | 1.3529 | +0.0000 | +0.00% |
+| `sltu.hex` | 1.3064 | 1.3064 | +0.0000 | +0.00% |
+| `sra.hex` | 1.3360 | 1.3360 | +0.0000 | +0.00% |
+| `srai.hex` | 1.3105 | 1.3105 | +0.0000 | +0.00% |
+| `srl.hex` | 1.3378 | 1.3378 | +0.0000 | +0.00% |
+| `srli.hex` | 1.3207 | 1.3207 | +0.0000 | +0.00% |
+| `sub.hex` | 1.3006 | 1.3006 | +0.0000 | +0.00% |
+| `xor.hex` | 1.2308 | 1.2308 | +0.0000 | +0.00% |
+| `xori.hex` | 1.1976 | 1.1976 | +0.0000 | +0.00% |
 
 ### Potential Optimizations
 - Dual Lane Memory Support
