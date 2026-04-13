@@ -25,6 +25,7 @@ Core/                              # Main RTL Folder
 ├─ Blocks/                         # Reusable IP Blocks
 │  └─ Decoder.sv                   # Decodes Instructions Into Enable Signals
 ├─ Control/                        # Pipeline Support Infrastructure Folder
+│  ├─ BranchPredictor.sv           # Configurable Non-BTB Branch Prediction
 │  ├─ Control.sv                   # Flushes Pipeline
 │  ├─ RegisterFile.sv              # Holds Objective Register Data
 │  ├─ RegisterStatusTable.sv       # Dictates Register Ownership and State
