@@ -149,61 +149,60 @@ This keeps self-referential instructions aligned with correct pipeline-time owne
 The old-status path is also adjusted for same-cycle ready and retire events before the payload is registered forward. This is necessary because the captured state may otherwise lag the true pipeline view by one cycle. By patching that state before operand select consumes it, Anvil-Pro avoids false dependencies and source mis-selection without introducing heavier inter-stage correction logic.
 
 ### Memory
-Not globally visable at retirement. 
+Not globally visable at retirement. All regions treated as cachable, but this is easily alterable.
 
 ## Implimentation
 ### Notice
 This core is in progress. The README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
 
 ## Performance
-| Test | No Predictor | Static BTFNT |
-|---|---:|---:|
-| `add.hex` | 1.4774 | 1.3237 |
-| `addi.hex` | 1.4873 | 1.3584 |
-| `and.hex` | 1.3977 | 1.2579 |
-| `andi.hex` | 1.3643 | 1.2403 |
-| `auipc.hex` | 1.1591 | 1.2750 |
-| `beq.hex` | 1.0327 | 0.8987 |
-| `bge.hex` | 0.9350 | 0.8436 |
-| `bgeu.hex` | 0.9424 | 0.8628 |
-| `blt.hex` | 1.0327 | 0.8987 |
-| `bltu.hex` | 1.0475 | 0.9335 |
-| `bne.hex` | 1.0143 | 0.9221 |
-| `dependency.hex` | 0.5469 | 0.6425 |
-| `jal.hex` | 1.1163 | 1.2308 |
-| `jalr.hex` | 0.9000 | 0.8438 |
-| `lui.hex` | 1.4500 | 1.4500 |
-| `memstress.hex` | 0.4683 | 0.5977 |
-| `or.hex` | 1.3588 | 1.2270 |
-| `ori.hex` | 1.3469 | 1.2298 |
-| `simple.hex` | 1.5455 | 1.5455 |
-| `sll.hex` | 1.4551 | 1.3029 |
-| `slli.hex` | 1.4717 | 1.3605 |
-| `slt.hex` | 1.4868 | 1.3294 |
-| `slti.hex` | 1.5033 | 1.3690 |
-| `sltiu.hex` | 1.5033 | 1.3690 |
-| `sltu.hex` | 1.4868 | 1.3294 |
-| `sra.hex` | 1.5030 | 1.3575 |
-| `srai.hex` | 1.4647 | 1.3387 |
-| `srl.hex` | 1.4896 | 1.3450 |
-| `srli.hex` | 1.4727 | 1.3500 |
-| `sub.hex` | 1.4706 | 1.3158 |
-| `xor.hex` | 1.3953 | 1.2565 |
-| `xori.hex` | 1.3333 | 1.2121 |
+| Test | IPC |
+|---|---:|
+| `add.hex` | 1.2938 |
+| `addi.hex` | 1.3429 |
+| `and.hex` | 1.2383 |
+| `andi.hex` | 1.2403 |
+| `auipc.hex` | 1.2750 |
+| `beq.hex` | 0.8931 |
+| `bge.hex` | 0.8436 |
+| `bgeu.hex` | 0.8583 |
+| `blt.hex` | 0.8931 |
+| `bltu.hex` | 0.9279 |
+| `bne.hex` | 0.9161 |
+| `dependency.hex` | 0.7656 |
+| `jal.hex` | 1.2308 |
+| `jalr.hex` | 0.8438 |
+| `lui.hex` | 1.4500 |
+| `memstress.hex` | 0.7073 |
+| `optimized.hex` | 1.9478 |
+| `or.hex` | 1.2208 |
+| `ori.hex` | 1.2147 |
+| `realistic.hex` | 0.8747 |
+| `simple.hex` | 1.5455 |
+| `sll.hex` | 1.2689 |
+| `slli.hex` | 1.3295 |
+| `slt.hex` | 1.3064 |
+| `slti.hex` | 1.3529 |
+| `sltiu.hex` | 1.3529 |
+| `sltu.hex` | 1.3064 |
+| `sra.hex` | 1.3360 |
+| `srai.hex` | 1.3105 |
+| `srl.hex` | 1.3378 |
+| `srli.hex` | 1.3207 |
+| `sub.hex` | 1.3006 |
+| `xor.hex` | 1.2308 |
+| `xori.hex` | 1.1976 |
 
 ### Potential Optimizations
 - Dual Lane Memory Support
-- Allow Issue on Load WAW
-- Stalls
+- Allow Issue on Load / Standard WAW
 - Load Skip to Queue Head
-- Better Branch Predictor
-- Allow Slot 1 Issue on Slot 0 Taken
+- Gshare Predictor?
 
 ### TODO List
 - CSR Ecosystem
 - System Instruction Support
 - Precise Exceptions
 - Interupt Support
-- Illegal Flag + Handling
 - RISCOF Pass
 
