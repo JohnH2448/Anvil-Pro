@@ -689,8 +689,4 @@ module DecodeIssue (
 endmodule
 
 // ============ ISSUE RULES ============
-// slot 1 can never be to an non-ready rd MAYBE?????
 // One CSR in pipe at a time
-
-
-

@@ -33,6 +33,7 @@ VM_CLASSES_SLOW += \
 	VTop___024root__Slow \
 	VTop___024root__DepSet_hc590b6dd__0__Slow \
 	VTop___024root__DepSet_h0d2e5939__0__Slow \
+	VTop___024root__DepSet_h0d2e5939__1__Slow \
 	VTop___024unit__Slow \
 	VTop___024unit__DepSet_h1b4533a7__0__Slow \
 
