@@ -114,7 +114,7 @@ Because of this structure, the issuer treats non-blocking and blocking instructi
 Additionally, if EX/EX bypass is enabled, data can be forwarded directly from the output of slot 0’s ALU to one or both input operands of slot 1’s ALU. This allows specific same-cycle inter-slot dependencies to be handled explicitly, while still preserving the broader philosophy of issue-time hazard prevention and a stall-free backend.
 
 ### Redirect Handling
-The pipeline handles redirects carefully to ensure precise architectural state is maintained and all speculative work is properly flushed. The dual execute stages generate a unified redirect signal gated by both legality and validity. When those conditions hold, the signal is asserted. All architectural side effects are then derived combinationally from that single assertion. The primary concerns are fourfold: flushing invalid reorder buffer entries, flushing invalid blocking-instruction queues, restoring correct register status table state, and invalidating the pipeline.
+The pipeline handles redirects carefully to ensure precise architectural state is maintained and all speculative work is properly flushed. The dual execute stages generate a unified redirect signal gated by both legality and validity. When those conditions hold, the signal is asserted. All architectural side effects are then derived combinationally from that single assertion. The primary concerns are fourfold: flushing invalid reorder buffer entries, handling potentially invalidated blocking-instruction in queue, restoring correct register status table state, and invalidating the pipeline.
 
 To flush the reorder buffer, the preexisting age-tag system is used to identify the exact desired state. Age tags in the pipeline serve as unique IDs as well as index variables for the reorder buffer. Despite the naming convention, they do not explicitly encode age. When a redirect is detected, the reorder buffer moves its tail pointer to the age tag of the taken branch plus one, which is already implicitly presented to the reorder buffer through the normal instruction retirement interface. Since the validity of the buffer is implicitly encoded by the range between the tail and head pointers, adjusting the tail pointer guarantees a precise flush. This mechanism is both simple and exact, avoiding the usual complexity associated with discarding speculative work.
 
@@ -142,7 +142,7 @@ There is also an orange arrow from the memory queue to the upper execute slot. T
 ### Register Status Table
 The Register Status Table is the central ownership structure for architectural registers in Anvil-Pro. It does not merely indicate that a register is busy. For each register, it tracks the current producing age tag, whether that producer is a load, whether the result has been produced, and whether it has committed. This gives the pipeline a precise view of register state from the perspective of in-flight work rather than only architected state.
 
-This information is consumed in multiple places. At issue time, the RST is consulted to determine whether source operands are blocked behind unresolved loads, and whether a destination register is currently load-owned in a way that would violate the issue contract. When an instruction is accepted, the destination register is reassigned to the newly issued age tag and marked unready and uncommitted. When a fixed-latency instruction completes, or when a load returns from the memory queue, the corresponding entry is marked ready. When the ROB retires that same age tag, the entry is finally marked committed.
+This information is consumed in multiple places. At issue time, the RST is consulted to determine whether a destination register is currently load-owned in a way that would violate the issue contract. When an instruction is accepted, the destination register is reassigned to the newly issued age tag and marked unready and uncommitted. When a non-blocking instruction completes, or when a load returns from the memory queue, the corresponding entry is marked ready. When the ROB retires that same age tag, the entry is finally marked committed.
 
 Because the same structure is used for issue gating, operand ownership, and completion bookkeeping, operand select can interpret it directly into a forwarding decision without requiring a separate rename map, a separate scoreboard, or backend repair logic. The RST therefore acts as the pipeline-time source of truth for where each operand should come from and whether a register is safe to consume or overwrite.
 
@@ -168,42 +168,43 @@ Two-bit saturating counter now. Not taken has no cycle penalty, while taken has 
 This core is in progress. The README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
 
 ## Performance
-| Test | IPC |
-|---|---:|
-| `add.hex` | 1.2938 |
-| `addi.hex` | 1.3429 |
-| `and.hex` | 1.2383 |
-| `andi.hex` | 1.2403 |
-| `auipc.hex` | 1.2750 |
-| `beq.hex` | 0.8931 |
-| `bge.hex` | 0.8436 |
-| `bgeu.hex` | 0.8583 |
-| `blt.hex` | 0.8931 |
-| `bltu.hex` | 0.9279 |
-| `bne.hex` | 0.9161 |
-| `dependency.hex` | 0.7656 |
-| `jal.hex` | 1.2308 |
-| `jalr.hex` | 0.8438 |
-| `lui.hex` | 1.4500 |
-| `memstress.hex` | 0.7073 |
-| `optimized.hex` | 1.9478 |
-| `or.hex` | 1.2208 |
-| `ori.hex` | 1.2147 |
-| `realistic.hex` | 0.8747 |
-| `simple.hex` | 1.5455 |
-| `sll.hex` | 1.2689 |
-| `slli.hex` | 1.3295 |
-| `slt.hex` | 1.3064 |
-| `slti.hex` | 1.3529 |
-| `sltiu.hex` | 1.3529 |
-| `sltu.hex` | 1.3064 |
-| `sra.hex` | 1.3360 |
-| `srai.hex` | 1.3105 |
-| `srl.hex` | 1.3378 |
-| `srli.hex` | 1.3207 |
-| `sub.hex` | 1.3006 |
-| `xor.hex` | 1.2308 |
-| `xori.hex` | 1.1976 |
+The default parameters reflect the optimal balance between size and performance. Increasing reorder buffer entries and store buffer entries has the following affect on performance:
+| Test | SB=10 ROB=16 | SB=20 ROB=32 | Delta | % Change |
+|---|---:|---:|---:|---:|
+| `add.hex` | 1.2938 | 1.2938 | +0.0000 | +0.00% |
+| `addi.hex` | 1.3429 | 1.3429 | +0.0000 | +0.00% |
+| `and.hex` | 1.2383 | 1.2383 | +0.0000 | +0.00% |
+| `andi.hex` | 1.2403 | 1.2403 | +0.0000 | +0.00% |
+| `auipc.hex` | 1.2750 | 1.2750 | +0.0000 | +0.00% |
+| `beq.hex` | 0.8931 | 0.8931 | +0.0000 | +0.00% |
+| `bge.hex` | 0.8436 | 0.8436 | +0.0000 | +0.00% |
+| `bgeu.hex` | 0.8583 | 0.8583 | +0.0000 | +0.00% |
+| `blt.hex` | 0.8931 | 0.8931 | +0.0000 | +0.00% |
+| `bltu.hex` | 0.9279 | 0.9279 | +0.0000 | +0.00% |
+| `bne.hex` | 0.9161 | 0.9161 | +0.0000 | +0.00% |
+| `dependency.hex` | 0.7656 | 0.7675 | +0.0019 | +0.25% |
+| `jal.hex` | 1.2308 | 1.2308 | +0.0000 | +0.00% |
+| `jalr.hex` | 0.8438 | 0.8438 | +0.0000 | +0.00% |
+| `lui.hex` | 1.4500 | 1.4500 | +0.0000 | +0.00% |
+| `memstress.hex` | 0.7073 | 0.7158 | +0.0085 | +1.20% |
+| `optimized.hex` | 1.9478 | 1.9478 | +0.0000 | +0.00% |
+| `or.hex` | 1.2208 | 1.2208 | +0.0000 | +0.00% |
+| `ori.hex` | 1.2147 | 1.2147 | +0.0000 | +0.00% |
+| `realistic.hex` | 0.8747 | 0.8928 | +0.0181 | +2.07% |
+| `simple.hex` | 1.5455 | 1.5455 | +0.0000 | +0.00% |
+| `sll.hex` | 1.2689 | 1.2689 | +0.0000 | +0.00% |
+| `slli.hex` | 1.3295 | 1.3295 | +0.0000 | +0.00% |
+| `slt.hex` | 1.3064 | 1.3064 | +0.0000 | +0.00% |
+| `slti.hex` | 1.3529 | 1.3529 | +0.0000 | +0.00% |
+| `sltiu.hex` | 1.3529 | 1.3529 | +0.0000 | +0.00% |
+| `sltu.hex` | 1.3064 | 1.3064 | +0.0000 | +0.00% |
+| `sra.hex` | 1.3360 | 1.3360 | +0.0000 | +0.00% |
+| `srai.hex` | 1.3105 | 1.3105 | +0.0000 | +0.00% |
+| `srl.hex` | 1.3378 | 1.3378 | +0.0000 | +0.00% |
+| `srli.hex` | 1.3207 | 1.3207 | +0.0000 | +0.00% |
+| `sub.hex` | 1.3006 | 1.3006 | +0.0000 | +0.00% |
+| `xor.hex` | 1.2308 | 1.2308 | +0.0000 | +0.00% |
+| `xori.hex` | 1.1976 | 1.1976 | +0.0000 | +0.00% |
 
 ### Potential Optimizations
 - Dual Lane Memory Support
