@@ -71,6 +71,9 @@ Anvil-Pro takes a more constrained approach. Most hazards are resolved at issue 
 
 Some localized stalls are still employed where they provide a clear IPC benefit, but these are narrow and deliberate rather than part of a general replay-driven backend. The pipeline is therefore not built around broad freeze-and-repair behavior. Instead, it remains primarily issue-governed, with small targeted hold points used only where they materially improve throughput. This preserves timing and verification advantages of an issue-centric design while avoiding unnecessary conservatism in performance-critical cases.
 
+### Prediction
+Two-bit saturating counter now. Not taken has no cycle penalty, while taken has two cycle penalty. More on this later.
+
 ### Issuer Contract
 The issuer guarantees that any dispatched work satisfies the following invariants for common instruction types:
 ```txt
@@ -159,9 +162,6 @@ The old-status path is also adjusted for same-cycle ready and retire events befo
 
 ### Memory
 Not globally visable at retirement. All regions treated as cachable, but this is easily alterable.
-
-## Prediction
-Two-bit saturating counter now. Not taken has no cycle penalty, while taken has two cycle penalty.
 
 ## Implimentation
 ### Notice
