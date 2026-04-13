@@ -151,6 +151,9 @@ The old-status path is also adjusted for same-cycle ready and retire events befo
 ### Memory
 Not globally visable at retirement. All regions treated as cachable, but this is easily alterable.
 
+## Prediction
+Two-bit saturating counter now. Not taken has no cycle penalty, while taken has two cycle penalty.
+
 ## Implimentation
 ### Notice
 This core is in progress. The README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
