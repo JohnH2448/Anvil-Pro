@@ -35,18 +35,10 @@ module DecodeIssue (
     input logic memFreeSlot,
 
     // Read From RST
-    output logic [4:0] upperIssuerRegister1,
-    output logic [4:0] upperIssuerRegister2,
-    output logic [4:0] lowerIssuerRegister1,
-    output logic [4:0] lowerIssuerRegister2,
     output logic [4:0] oldUpperStatusRd,
     output logic [4:0] oldLowerStatusRd,
 
     // From RST
-    input logic upperInFlightLoad1,
-    input logic upperInFlightLoad2,
-    input logic lowerInFlightLoad1,
-    input logic lowerInFlightLoad2,
     input logic destRegLoad1,
     input logic destRegLoad2,
     input RegisterStatusOutput_ oldUpperStatus,
@@ -79,6 +71,8 @@ module DecodeIssue (
     input logic acceptValid1,
     input logic [reorderBufferIndexWidth-1:0] acceptTag2,
     input logic acceptValid2,
+    input logic memReady,
+    input logic [reorderBufferIndexWidth-1:0] memAgeTag,
 
     // Branch Predictor Metadata
     output logic validAddress,
@@ -86,7 +80,10 @@ module DecodeIssue (
     output logic [31:0] branchProgramCounter,
     output logic predictionSlot0,
     input logic taken,
-    output logic outputJal
+    output logic outputJal,
+
+    // Stall Bit
+    input logic stall
 
 );
 
@@ -102,8 +99,6 @@ module DecodeIssue (
 
     // To RST
     // Upper Issue Slot Source Registers + rd
-    assign upperIssuerRegister1 = tempPayload1.sourceRegister1;
-    assign upperIssuerRegister2 = tempPayload1.sourceRegister2;
     assign rstDestinationRegister1 = destinationRegister1;
 
     // Stale Vector Registers
@@ -111,8 +106,6 @@ module DecodeIssue (
     assign oldLowerStatusRd = destinationRegister2;
 
     // Lower Issue Slot Source Registers + rd
-    assign lowerIssuerRegister1 = tempPayload2.sourceRegister1;
-    assign lowerIssuerRegister2 = tempPayload2.sourceRegister2;
     assign rstDestinationRegister2 = destinationRegister2;
 
     // Extra Issuer Data to RST
@@ -164,7 +157,7 @@ module DecodeIssue (
                 internalBadData <= badData;
             end else begin
                 // Incriment Post Redirect Counter
-                postRedirectCounter <= postRedirectCounter + 1'b1;
+                postRedirectCounter <= 1'b1;
             end
         end
     end
@@ -312,12 +305,12 @@ module DecodeIssue (
             end
             // Block Issue On Unready Load rs's or rd's. Calculated in RST
             // VITAL and used in subtle RST/ROB Assumptions
-            if (upperInFlightLoad1 || upperInFlightLoad2 || destRegLoad1) begin
+            if (destRegLoad1) begin
                 block1 = 1'b1;
                 block2 = 1'b1;
                 reasonUpperLoadHazard = 1'b1;
             end
-            if (lowerInFlightLoad1 || lowerInFlightLoad2 || destRegLoad2) begin
+            if (destRegLoad2) begin
                 block2 = 1'b1;
                 reasonLowerLoadHazard = 1'b1;
             end
@@ -329,6 +322,11 @@ module DecodeIssue (
             // Block Slot 1 If Slot 0 is Prediction
             if (slot0TakenHelper) begin
                 // Implimented At Latch Time
+            end
+            // No Issue on Stall
+            if (stall) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
             end
         end else begin
             block1 = 1'b1;
@@ -343,7 +341,7 @@ module DecodeIssue (
     logic [31:0] JalIm2;
     logic [31:0] target1;
     logic [31:0] target2;
-    
+
     always_comb begin
         // Immediate Construction
         BrIm1 = {{19{IR1[31]}}, IR1[31], IR1[7], IR1[30:25], IR1[11:8], 1'b0};
@@ -364,7 +362,7 @@ module DecodeIssue (
             target2 = PC2 + JalIm2;
         end // JALR needs a register
     end
-
+ 
     // Redirect Validity
     logic slot0Taken;
     always_comb begin
@@ -380,13 +378,13 @@ module DecodeIssue (
             predictionSlot0 = 1'b1;
             outputJal = (tempPayload1.jumpType == JUMP_JAL);
             slot0Taken = taken;
-            validAddress = 1'b1;
+            validAddress = !stall;
         end else if ((tempPayload2.branchType != BR_NONE || tempPayload2.jumpType == JUMP_JAL) && !illegal1 && !illegal2 && !block1 && !block2) begin
             precalcAddress = target2;
             branchProgramCounter = PC2;
             predictionSlot0 = 1'b0;
             outputJal = (tempPayload2.jumpType == JUMP_JAL);
-            validAddress = 1'b1;
+            validAddress = !stall;
         end
         if (precalcAddress[1:0] != 2'b00) begin 
             validAddress = 1'b0;
@@ -453,15 +451,14 @@ module DecodeIssue (
             finalUpperPayload.destinationRegister = destinationRegister1;
             finalUpperPayload.ageTag = freeTag1;
             finalUpperPayload.oldStatus = oldUpperStatus;
-            // Ensures Stale RST Doesn't Otherwise Change Next Cycle
-            // PROB AN ISSUE WITH MEM READY HERE
-            // Redirect Isn't a concern. This will flush
+            // MUST ALSO GATE ON MEM READY
             if (((oldUpperStatus.ageTag == retireTag1) && retireValid1)
                 || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b1;
             end else if ((((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) &&
+                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)
+                || ((oldUpperStatus.ageTag == memAgeTag) && memReady)) &&
                 !oldUpperStatus.resultCommitted) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b0;
@@ -489,7 +486,8 @@ module DecodeIssue (
                 finalLowerPayload.oldStatus.resultReady = 1'b1;
                 finalLowerPayload.oldStatus.resultCommitted = 1'b1;
             end else if ((((oldLowerStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((oldLowerStatus.ageTag == acceptTag2) && acceptValid2)) &&
+                || ((oldLowerStatus.ageTag == acceptTag2) && acceptValid2)
+                || ((oldLowerStatus.ageTag == memAgeTag) && memReady)) &&
                 !oldLowerStatus.resultCommitted) begin
                 finalLowerPayload.oldStatus.resultReady = 1'b1;
                 finalLowerPayload.oldStatus.resultCommitted = 1'b0;
@@ -508,7 +506,8 @@ module DecodeIssue (
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b1;
             end else if ((((oldUpperStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)) &&
+                || ((oldUpperStatus.ageTag == acceptTag2) && acceptValid2)
+                || ((oldUpperStatus.ageTag == memAgeTag) && memReady)) &&
                 !oldUpperStatus.resultCommitted) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
                 finalUpperPayload.oldStatus.resultCommitted = 1'b0;
@@ -524,6 +523,34 @@ module DecodeIssue (
             finalLowerPayload = '0;
         end
     end 
+
+    // Old Status Update on Stall
+    always_ff @(posedge clock) begin
+        if (stall) begin
+            if (((payload1.oldStatus.ageTag == retireTag1) && retireValid1)
+                || ((payload1.oldStatus.ageTag == retireTag2) && retireValid2)) begin
+                payload1.oldStatus.resultReady <= 1'b1;
+                payload1.oldStatus.resultCommitted <= 1'b1;
+            end else if ((((payload1.oldStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((payload1.oldStatus.ageTag == acceptTag2) && acceptValid2)
+                || ((payload1.oldStatus.ageTag == memAgeTag) && memReady)) &&
+                !payload1.oldStatus.resultCommitted) begin
+                payload1.oldStatus.resultReady <= 1'b1;
+                payload1.oldStatus.resultCommitted <= 1'b0;
+            end
+            if (((payload2.oldStatus.ageTag == retireTag1) && retireValid1)
+                || ((payload2.oldStatus.ageTag == retireTag2) && retireValid2)) begin
+                payload2.oldStatus.resultReady <= 1'b1;
+                payload2.oldStatus.resultCommitted <= 1'b1;
+            end else if ((((payload2.oldStatus.ageTag == acceptTag1) && acceptValid1)
+                || ((payload2.oldStatus.ageTag == acceptTag2) && acceptValid2)
+                || ((payload2.oldStatus.ageTag == memAgeTag) && memReady)) &&
+                !payload2.oldStatus.resultCommitted) begin
+                payload2.oldStatus.resultReady <= 1'b1;
+                payload2.oldStatus.resultCommitted <= 1'b0;
+            end
+        end
+    end
 
     // Instruction Packet Construction
     logic standardOp1;
@@ -564,8 +591,10 @@ module DecodeIssue (
 
     // Instruction Payload Assignment
     always_ff @(posedge clock) begin
-        payload1 <= finalUpperPayload;
-        payload2 <= finalLowerPayload;
+        if (!stall) begin
+            payload1 <= finalUpperPayload;
+            payload2 <= finalLowerPayload;
+        end
     end
 
     function automatic string slot0BlockReason();

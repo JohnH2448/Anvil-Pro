@@ -58,9 +58,29 @@ module OperandSelect (
     input logic [reorderBufferIndexWidth-1:0] lowerExTag,
     input logic lowerExValid,
 
+    // Completion Metadata For oldStatus Repair
+    input logic [reorderBufferIndexWidth-1:0] retireTag1,
+    input logic retireValid1,
+    input logic [reorderBufferIndexWidth-1:0] retireTag2,
+    input logic retireValid2,
+    input logic [reorderBufferIndexWidth-1:0] acceptTag1,
+    input logic acceptValid1,
+    input logic [reorderBufferIndexWidth-1:0] acceptTag2,
+    input logic acceptValid2,
+    input logic memReady,
+    input logic [reorderBufferIndexWidth-1:0] memAgeTag,
+
+    // Load Bypass Data
+    input logic [31:0] loadData,
+    input logic [reorderBufferIndexWidth-1:0] loadTag,
+    input logic acknowledge,
+
     // Payloads From Issuer
     input UpperIssuerOperandPayload_ payload1,
     input LowerIssuerOperandPayload_ payload2,
+
+    // Backpropagating Stall Bit
+    output logic stall,
 
     // Payloads to Execute
     output UpperOperandExecutePayload_ exPayload1,
@@ -127,6 +147,7 @@ module OperandSelect (
         upperOperand2 = '0;
         lowerOperand1 = '0;
         lowerOperand2 = '0;
+        stall = '0;
 
         // Upper Source Register 1
         if (payload1.sourceRegister1 == 5'd0) begin
@@ -138,13 +159,20 @@ module OperandSelect (
         end else if (upperSource1Status.resultReady) begin
             // Use ROB Forward Data
             upperOperand1 = upperROBData1;
-        end else if (lowerExTag == upperSource1Status.ageTag && lowerExValid) begin
-            // Use Slot 1 Execute Bypass Data
-            upperOperand1 = lowerExData;
-        end else if (upperExTag == upperSource1Status.ageTag) begin
-            // Use Slot 0 Execute Bypass Data
-            upperOperand1 = upperExData;
+        end else if (!upperSource1Status.isLoad) begin
+            if (lowerExTag == upperSource1Status.ageTag && lowerExValid) begin
+                // Use Slot 1 Execute Bypass Data
+                upperOperand1 = lowerExData;
+            end else if (upperExTag == upperSource1Status.ageTag) begin
+                // Use Slot 0 Execute Bypass Data
+                upperOperand1 = upperExData;
+            end
+        end else if (acknowledge && (loadTag == upperSource1Status.ageTag)) begin
+            upperOperand1 = loadData;
+        end else begin
+            stall = 1;
         end
+
 
         // Upper Source Register 2
         if (payload1.sourceRegister2 == 5'd0) begin
@@ -156,12 +184,18 @@ module OperandSelect (
         end else if (upperSource2Status.resultReady) begin
             // Use ROB Forward Data
             upperOperand2 = upperROBData2;
-        end else if (lowerExTag == upperSource2Status.ageTag && lowerExValid) begin
-            // Use Slot 1 Execute Bypass Data
-            upperOperand2 = lowerExData;
-        end else if (upperExTag == upperSource2Status.ageTag) begin
-            // Use Slot 0 Execute Bypass Data
-            upperOperand2 = upperExData;
+        end else if (!upperSource2Status.isLoad) begin
+            if (lowerExTag == upperSource2Status.ageTag && lowerExValid) begin
+                // Use Slot 1 Execute Bypass Data
+                upperOperand2 = lowerExData;
+            end else if (upperExTag == upperSource2Status.ageTag) begin
+                // Use Slot 0 Execute Bypass Data
+                upperOperand2 = upperExData;
+            end
+        end else if (acknowledge && (loadTag == upperSource2Status.ageTag)) begin
+            upperOperand2 = loadData;
+        end else begin
+            stall = 1;
         end
 
         // Lower Source Register 1
@@ -174,12 +208,18 @@ module OperandSelect (
         end else if (lowerSource1Status.resultReady) begin
             // Use ROB Forward Data
             lowerOperand1 = lowerROBData1;
-        end else if (lowerExTag == lowerSource1Status.ageTag && lowerExValid) begin
-            // Use Slot 1 Execute Bypass Data
-            lowerOperand1 = lowerExData;
-        end else if (upperExTag == lowerSource1Status.ageTag) begin
-            // Use Slot 0 Execute Bypass Data
-            lowerOperand1 = upperExData;
+        end else if (!lowerSource1Status.isLoad) begin
+            if (lowerExTag == lowerSource1Status.ageTag && lowerExValid) begin
+                // Use Slot 1 Execute Bypass Data
+                lowerOperand1 = lowerExData;
+            end else if (upperExTag == lowerSource1Status.ageTag) begin
+                // Use Slot 0 Execute Bypass Data
+                lowerOperand1 = upperExData;
+            end
+        end else if (acknowledge && (loadTag == lowerSource1Status.ageTag)) begin
+            lowerOperand1 = loadData;
+        end else begin
+            stall = 1;
         end
 
         // Lower Source Register 2
@@ -192,12 +232,18 @@ module OperandSelect (
         end else if (lowerSource2Status.resultReady) begin
             // Use ROB Forward Data
             lowerOperand2 = lowerROBData2;
-        end else if (lowerExTag == lowerSource2Status.ageTag && lowerExValid) begin
-            // Use Slot 1 Execute Bypass Data
-            lowerOperand2 = lowerExData;
-        end else if (upperExTag == lowerSource2Status.ageTag) begin
-            // Use Slot 0 Execute Bypass Data
-            lowerOperand2 = upperExData;
+        end else if (!lowerSource2Status.isLoad) begin
+            if (lowerExTag == lowerSource2Status.ageTag && lowerExValid) begin
+                // Use Slot 1 Execute Bypass Data
+                lowerOperand2 = lowerExData;
+            end else if (upperExTag == lowerSource2Status.ageTag) begin
+                // Use Slot 0 Execute Bypass Data
+                lowerOperand2 = upperExData;
+            end
+        end else if (acknowledge && (loadTag == lowerSource2Status.ageTag)) begin
+            lowerOperand2 = loadData;
+        end else begin
+            stall = 1;
         end
 
         // Instruction 1 Case Operand Assignment
@@ -302,8 +348,13 @@ module OperandSelect (
         end else begin
             debugCycle <= debugCycle + 1;
         end
-        exPayload1 <= exPayloadCandidate1;
-        exPayload2 <= exPayloadCandidate2;
+        if (stall) begin
+            exPayload1 <= '0;
+            exPayload2 <= '0;
+        end else begin
+            exPayload1 <= exPayloadCandidate1;
+            exPayload2 <= exPayloadCandidate2;
+        end
     end
 
 endmodule
@@ -313,3 +364,4 @@ endmodule
 // as they are updated in issuer. since oldvector is only used when
 // rd == rs, it guarentees it exists
 
+// Must somehow refresh old status when stall is active

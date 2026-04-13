@@ -17,6 +17,7 @@ module MemoryQueue (
 
     // Data to ROB
     output InputInstruction_ completedMemory,
+    output logic [reorderBufferIndexWidth-1:0] loadTag,
 
     // Free Slots to Issuer
     output logic memFreeSlot,
@@ -96,6 +97,7 @@ module MemoryQueue (
     // Entry Processed Completion Bit
     logic completed;
     assign completed = memBusIn.acknowledge;
+    assign loadTag = queueEntry[0].ageTag;
 
     // Free Slot Calculation
     always_comb begin
