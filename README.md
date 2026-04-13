@@ -159,7 +159,7 @@ Not globally visable at retirement.
 
 ## Implimentation
 ### Notice
-This core is in progress. Do not attempt to use it or understand the HDL unless you want to waste your time. Nobody but myself and god know the formal assumptions that allow it to function. This README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
+This core is in progress. The README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
 
 ## Performance
 | Test | No Predictor | Static BTFNT |
@@ -196,9 +196,6 @@ This core is in progress. Do not attempt to use it or understand the HDL unless 
 | `sub.hex` | 1.4706 | 1.3158 |
 | `xor.hex` | 1.3953 | 1.2565 |
 | `xori.hex` | 1.3333 | 1.2121 |
-
-### Status
-The ALU instruction pipeline does strong even under directed edge case tests. Redirects are also now feeling much closer to a confident standard. Stress tests combining chained RAW, branch-after-branch, rst confusion, forwarding torture, store ordering, poison-path control flow, signed and unsigned memory accesses, and even awkward cases like loads into x0 all came back positive under Verilator. While not assuredly "100%", the foundation is strong enough to move towards other goals. The memory system also appears initially strong when hit with directed tests. Notably, it does a better job than anticipated at hiding latency, as IPC hardly changes when DMEM latency is altered. At the moment, the largest killer of IPC is the lack of branch prediction. Most other performance microarchitecural solutions are now im place and functional. As to further goals, heavier verification on the base core and then the CSR subsystem are next on the roadmap. 
 
 ### Potential Optimizations
 - Dual Lane Memory Support
