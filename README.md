@@ -15,7 +15,6 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - Latency Reordered Execution
 - M-Mode RV32I + Zicsr
 - Harvard Split BRAM IMEM + External DMEM
-- Legal Pair Swap Capability
 - Two-Bit Branch Prediction
 - 256-Bit "Walking Window" Prefetch
 - Issue Governed Hazard Resolution
