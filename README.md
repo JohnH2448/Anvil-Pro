@@ -211,6 +211,7 @@ The default parameters reflect the optimal balance between size and performance.
 - Allow Issue on Load / Standard WAW
 - Load Skip to Queue Head
 - Gshare Predictor?
+- Small L1$ to Locally Control Bandwidth
 
 ### TODO List
 - CSR Ecosystem
