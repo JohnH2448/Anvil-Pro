@@ -65,47 +65,51 @@ Redirects are wired directly into the registered BRAM address path, so a control
 Taken together, the design sustains ~2 IPC to the backend on branchless workloads. Following a misprediction, fetch incurs no cycle penalty and the correct instruction stream is already available as if in linear program-order. The approach also avoids LUTRAM-heavy structures such as caches or prefetch queues, substantially reducing FPGA resource usage.
 
 ### Issuer Architecture
-Many dual-issue pipelines rely on backend stall propagation, replay behavior, and broad inter-stage backpressure to repair hazards after dispatch. While flexible, that style of control increases combinational depth, complicates verification, and works directly against timing closure.
+Many dual-issue pipelines rely on backend stall propagation, replay behavior, and broad inter-stage backpressure to repair hazards after dispatch. While flexible, that style of control increases combinational depth and dramatically complicates verification.
 
 Anvil-Pro takes a more constrained approach. Most hazards are resolved at issue time through refusal rather than repaired later in the backend. Structural conflicts, pairing restrictions, and capacity limits are handled before dispatch, which keeps the pipeline simpler and reduces the amount of dynamic control required once instructions are in flight.
 
-Some localized stalls are still employed where they provide a clear IPC benefit, but these are narrow and deliberate rather than part of a general replay-driven backend. The pipeline is therefore not built around broad freeze-and-repair behavior. Instead, it remains primarily issue-governed, with small targeted hold points used only where they materially improve throughput. This preserves most of the timing and verification advantages of an issue-centric design while avoiding unnecessary conservatism in performance-critical cases.
+Some localized stalls are still employed where they provide a clear IPC benefit, but these are narrow and deliberate rather than part of a general replay-driven backend. The pipeline is therefore not built around broad freeze-and-repair behavior. Instead, it remains primarily issue-governed, with small targeted hold points used only where they materially improve throughput. This preserves timing and verification advantages of an issue-centric design while avoiding unnecessary conservatism in performance-critical cases.
 
 ### Issuer Contract
 The issuer guarantees that any dispatched work satisfies the following invariants for common instruction types:
 ```txt
 # Single Slot Access to LSU
 - Lower Slot May Not Issue Memory Operations
-# Solves RST Ownership Conflicts
-- Lower Slot Must Not Issue When Writing to an Upper Slot Source Register
 # Solves RST Ownership + Forwarding Conflicts
 - Upper and Lower Slot Must Not Write the Same Register
+# Slot 0/1 Dependency Rule
+- Lower Slot Must Not Issue When Reading an Upper Slot Destination Register Unless Cross-Lane EX/EX Bypass Handles It
+- Lower Slot Must Not Issue on a Same-Cycle Dependency When the Upper Slot Producer Is a Load
 # Handles Edge Case Window Alignment Failure
 - Lower Slot Must Not Issue on Bad Fetch
-# Solves RST Ownership Conflicts
-- Neither Slot May Issue When It's Destination Register is Being Loaded
 # Prevents Ghost Instructions
-- Neither Slot May Issue When Reorder Buffer is Full
+- If the ROB Has One Free Entry, Lower Slot Must Not Issue
+- If the ROB Is Full, Neither Slot May Issue
 # Ensures Pipeline is Flushed Correctly
 - Neither Slot May Issue During a Redirect
-# Prevents Stalls for Arbitrary Load Latency
-- Neither Slot May Issue When It's Source Register is Being Loaded
+# Solves RST Ownership Conflicts
+- Neither Slot May Issue When Its Destination Register Is Being Loaded
 # Prevents Ghost Memory Operations
 - Neither Slot May Issue Memory Operations When Memory Queue is Full
+# Ensures Correct Taken-Path Prediction Semantics
+- Lower Slot Must Not Issue When Upper Slot Is a Taken Predicted Branch
+# Preserves Backend Hold Semantics
+- Neither Slot May Issue During an Operand-Select Stall
 ```
 ## Backend
 ### Philosophy
 Anvil-Pro contains a relatively simple backend compared to many other superscalar implementations. It features two pipelines, each composed of an operand-selection stage followed by an execute stage. After execution, instructions either return directly to the reorder buffer or are handed off to a unified memory queue, depending on the operation type.
 
-The backend is built around a strict issue contract. Once an instruction is dispatched, it is expected to continue flowing forward without encountering a backend stall, and slot 0 is always older than slot 1. This allows the design to avoid replay behavior, bubble injection, and inter-stage freeze logic. Rather than repairing hazards dynamically after dispatch, Anvil-Pro prevents them at issue time.
+The backend is built around a strict issue contract. Once an instruction is dispatched, it typically flows forward without encountering a backend stall, and slot 0 is always older than slot 1. This allows the design to avoid replay behavior, bubble injection, and heavy inter-stage freeze logic. Rather than repairing hazards dynamically after dispatch, Anvil-Pro attempts to prevent them at issue time.
 
-These assumptions lead naturally to a useful distinction between two classes of backend work: non-blocking instructions and blocking instructions. Non-blocking instructions are fixed-latency operations that remain entirely within the core backend pipeline. They pass through operand select and execute, then present their results in-order to the reorder buffer after exactly three cycles. Because their timing is predictable, they form the basis of the backend’s permissive issue model and are intended to flow continuously.
+These assumptions lead naturally to a useful distinction between two classes of backend work: non-blocking instructions and blocking instructions. Non-blocking instructions are limited-latency operations that remain entirely within the core backend pipeline. They pass through operand select and execute, then present their results in-order to the reorder buffer after ~3 cycles. Because their behavior is predictable, they form the basis of the backend’s permissive issue model for non blocking instructions, and are intended to flow continuously.
 
-Blocking instructions follow a different path. Rather than completing at a fixed latency inside the main execution fabric, they are handed off to a separate buffered execution structure. In Anvil-Pro, these are primarily memory operations. Once issued, they may remain in flight for an arbitrary amount of time while younger fixed-latency instructions continue to execute. When they eventually finish, they write their results back to the reorder buffer out of issue order.
+Blocking instructions follow a different path. Rather than completing at a limited latency inside the main execution fabric, they are handed off to a separate buffered execution structure. In Anvil-Pro, these are primarily memory operations. Once issued, they may remain in flight for an arbitrary amount of time while younger fixed-latency instructions continue to execute. When they eventually finish, they write their results back to the reorder buffer out of issue order.
 
-This is where the reorder buffer becomes central to the backend organization. Although the machine remains architecturally in-order, the reorder buffer allows completion and retirement to be separated. Fixed-latency instructions and buffered operations may finish at different times, but the reorder buffer preserves correctness by holding results, providing forwarded data for completed but uncommitted instructions, and guaranteeing in-order commit. In this sense, the backend supports a constrained and purpose-built form of out-of-order completion without requiring a fully out-of-order scheduler.
+This is where the reorder buffer becomes central to the backend organization. Although the machine remains architecturally in-order, the reorder buffer allows completion and retirement to be separated. Limited-latency instructions and buffered operations may finish at different times, but the reorder buffer preserves correctness by holding results, providing forwarded data for completed but uncommitted instructions, and guaranteeing in-order commit. In this sense, the backend supports a constrained and purpose-built form of out-of-order completion without requiring a fully out-of-order scheduler.
 
-Because of this structure, the issuer treats non-blocking and blocking instructions differently. Non-blocking instructions benefit from the backend’s fixed-latency assumptions and can be issued permissively. Blocking instructions require a more conservative issue policy, since unresolved memory operations can create dependencies that cannot be repaired later by backend stall logic. The design therefore attempts to hide the latency of blocking instructions through buffering, but when true dependencies arise, progress is regulated at issue time rather than by freezing the backend.
+Because of this structure, the issuer treats non-blocking and blocking instructions differently. Non-blocking instructions benefit from the backend’s limited-latency assumptions and can be issued permissively. Blocking instructions require a more conservative issue policy, since unresolved memory operations can create dependencies that cannot be repaired later by backend stall logic. The design therefore attempts to hide the latency of blocking instructions through buffering, but when true dependencies arise, progress is frozen.
 
 Additionally, if EX/EX bypass is enabled, data can be forwarded directly from the output of slot 0’s ALU to one or both input operands of slot 1’s ALU. This allows specific same-cycle inter-slot dependencies to be handled explicitly, while still preserving the broader philosophy of issue-time hazard prevention and a stall-free backend.
 
@@ -121,9 +125,9 @@ Restoring correct RST state is subtle, yet absolutely critical to a proper redir
 Pipeline invalidation is simple and arguably unnecessary, but it is still performed to eliminate ambiguity around valid and invalid work. On redirect, all younger instructions in the pipeline are invalidated. This prevents any edge-case architectural state change and ensures that no speculative work can take effect.
 
 ### Forwarding Network
-Anvil-Pro dedicates an entire pipeline stage to the multiplexing and selection of operands, and since slot 0 is always older than slot 1, the operand-select stage only needs to consider a small, age-ordered set of candidate data sources. Each source operand can come from one of four places: the register file, the reorder buffer entry identified by the relevant age tag, slot 1 execute, or slot 0 execute.
+Anvil-Pro dedicates an entire pipeline stage to the multiplexing and selection of operands, and since slot 0 is always older than slot 1, the operand-select stage only needs to consider a small, age-ordered set of candidate data sources. Each source operand can come from one of five places: the register file, the reorder buffer entry identified by the relevant age tag, load bypass, slot 1 execute, or slot 0 execute.
 
-Selecting the correct producer in the presence of multiple in-flight candidates is the responsibility of the Register Status Table. The RST is deliberately engineered to reflect, from the perspective of operand-select pipeline time, where each architectural register should source from at that exact moment. It tracks the current age-wise owner of each register result, along with whether that result is still in flight, already produced, or fully committed. Operand select interprets this state to arrive at a final source decision. By construction, and under the guarantees established by the issuer contract, one of these candidate sources is always valid. As a result, operand resolution never depends on replay behavior, backend freeze logic, or dynamic stall repair.
+Selecting the correct producer in the presence of multiple in-flight candidates is the responsibility of the Register Status Table. The RST is deliberately engineered to reflect, from the perspective of operand-select pipeline time, where each architectural register should source from at that exact moment. It tracks the current age-wise owner of each register result, along with whether that result is still in flight, already produced, or fully committed. Operand select interprets this state to arrive at a final source decision. By construction, and under the guarantees established by the issuer contract, one of these candidate sources is always valid for non load dependent instructions. 
 
 The candidate data sources are visualized in the following diagram.
 
