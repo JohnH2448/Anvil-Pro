@@ -16,6 +16,7 @@ package Payloads;
         logic resultReady;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic resultCommitted;
+        logic isLoad;
     } RegisterStatusOutput_;
 
     // Ring Buffer for Prefetch Queue

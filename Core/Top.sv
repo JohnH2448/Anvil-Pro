@@ -97,6 +97,7 @@ module Top (
     logic [reorderBufferIndexWidth-1:0] lowerTagIndex1;
     logic [reorderBufferIndexWidth-1:0] lowerTagIndex2;
     logic osMemory;
+    logic stall;
 
     // Register File Outputs
     logic [31:0] upperSourceData1;
@@ -127,6 +128,7 @@ module Top (
 
     // Memory Queue Outputs
     InputInstruction_ completedMemory;
+    logic [reorderBufferIndexWidth-1:0] loadTag;
     WishboneMaster_ memBusOut;
     logic memFreeSlot;
     StoreBus_ storeBus1;
@@ -160,6 +162,7 @@ module Top (
         .memBusOut(memBusOut), // output
         .memBusIn(memBusIn), // input
         .completedMemory(completedMemory), // output
+        .loadTag(loadTag), // output
         .memFreeSlot(memFreeSlot), // output
 
         .storeBus1(storeBus1), // output
@@ -265,11 +268,6 @@ module Top (
         .oldUpperStatus(oldUpperStatus), // output
         .oldLowerStatus(oldLowerStatus), // output
 
-        .upperIssuerRegister1(upperIssuerRegister1), // input
-        .upperIssuerRegister2(upperIssuerRegister2), // input
-        .lowerIssuerRegister1(lowerIssuerRegister1), // input
-        .lowerIssuerRegister2(lowerIssuerRegister2), // input
-
         .oldUpperStatusRd(oldUpperStatusRd), // input
         .oldLowerStatusRd(oldLowerStatusRd), // input
 
@@ -357,6 +355,7 @@ module Top (
         .lowerData2(lowerSourceData2), // input
 
         .osMemory(osMemory), // output
+        .stall(stall), // output
 
         .upperTagIndex1(upperTagIndex1), // output
         .upperTagIndex2(upperTagIndex2), // output
@@ -373,6 +372,20 @@ module Top (
         .upperExTag(resultPayload1.ageTag), // input
         .lowerExTag(resultPayload2.ageTag), // input
         .lowerExValid(exPayload2.valid), // input
+
+        .retireTag1(resolvedInstruction1.ageTag), // input
+        .retireValid1(resolvedInstruction1.valid), // input
+        .retireTag2(resolvedInstruction2.ageTag), // input
+        .retireValid2(resolvedInstruction2.valid), // input
+        .acceptTag1(resultPayload1.ageTag), // input
+        .acceptValid1(resultPayload1.accept), // input
+        .acceptTag2(resultPayload2.ageTag), // input
+        .acceptValid2(resultPayload2.accept), // input
+        .memReady(completedMemory.accept), // input
+        .memAgeTag(completedMemory.ageTag), // input
+        .loadData(completedMemory.instructionResult), // input
+        .loadTag(completedMemory.ageTag), // input
+        .acknowledge(completedMemory.accept), // input
 
         .payload1(payload1), // input
         .payload2(payload2), // input
@@ -475,6 +488,7 @@ module Top (
         .predictionSlot0(predictionSlot0), // output
         .taken(taken), // input
         .outputJal(outputJal), // output 
+        .stall(stall), // input 
 
         .retireTag1(resolvedInstruction1.ageTag), // input
         .retireValid1(resolvedInstruction1.valid), // input
@@ -485,16 +499,9 @@ module Top (
         .acceptValid1(resultPayload1.accept), // input
         .acceptTag2(resultPayload2.ageTag), // input
         .acceptValid2(resultPayload2.accept), // input
+        .memReady(completedMemory.accept), // input 
+        .memAgeTag(completedMemory.ageTag), // input
 
-        .upperIssuerRegister1(upperIssuerRegister1), // output
-        .upperIssuerRegister2(upperIssuerRegister2), // output
-        .lowerIssuerRegister1(lowerIssuerRegister1), // output
-        .lowerIssuerRegister2(lowerIssuerRegister2), // output
-
-        .upperInFlightLoad1(upperInFlightLoad1), // input
-        .upperInFlightLoad2(upperInFlightLoad2), // input
-        .lowerInFlightLoad1(lowerInFlightLoad1), // input
-        .lowerInFlightLoad2(lowerInFlightLoad2), // input
         .destRegLoad1(destRegLoad1), // input
         .destRegLoad2(destRegLoad2), // input
 
