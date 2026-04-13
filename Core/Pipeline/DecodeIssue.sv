@@ -303,8 +303,7 @@ module DecodeIssue (
                 block1 = 1'b1;
                 block2 = 1'b1;
             end
-            // Block Issue On Unready Load rs's or rd's. Calculated in RST
-            // VITAL and used in subtle RST/ROB Assumptions
+            // This is probably fixable
             if (destRegLoad1) begin
                 block1 = 1'b1;
                 block2 = 1'b1;
@@ -601,6 +600,9 @@ module DecodeIssue (
         if (!instructionsValid || redirect || (postRedirectCounter == 1'b0)) begin
             return "Pipeline Refill";
         end
+        if (stall) begin
+            return "Operand Select Stall";
+        end
         if (reasonIllegal1) begin
             return "Illegal Instruction";
         end
@@ -608,7 +610,7 @@ module DecodeIssue (
             return "ROB Full";
         end
         if (reasonUpperLoadHazard) begin
-            return "Load Hazard";
+            return "Load-Owned rd";
         end
         if ((tempPayload1.memoryOperation != MEM_NONE) && !memFreeSlot) begin
             return "Memory Queue Full";
@@ -619,6 +621,9 @@ module DecodeIssue (
     function automatic string slot1BlockReason();
         if (!instructionsValid || redirect || (postRedirectCounter == 1'b0)) begin
             return "Pipeline Refill";
+        end
+        if (stall) begin
+            return "Operand Select Stall";
         end
         if (slot0TakenHelper) begin
             return "Slot 0 Predicted";
@@ -651,10 +656,10 @@ module DecodeIssue (
             return "ROB Full";
         end
         if (reasonUpperLoadHazard) begin
-            return "Upper Load Hazard";
+            return "Slot 0 Load-Owned rd";
         end
         if (reasonLowerLoadHazard) begin
-            return "Lower Load Hazard";
+            return "Load-Owned rd";
         end
         if (reasonBackwardDependency) begin
             return "Backward Dependency";
@@ -665,7 +670,6 @@ module DecodeIssue (
         return "Unknown Stall";
     endfunction
 
-    /*
     always_ff @(posedge clock) begin
         if (!reset) begin
             if (instructionConsumed1) begin
@@ -681,7 +685,6 @@ module DecodeIssue (
             end
         end
     end
-    */
 
 endmodule
 
