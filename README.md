@@ -168,7 +168,7 @@ Not globally visable at retirement. All regions treated as cachable, but this is
 This core is in progress. The README is currently a technical reference notepad and architectural source of truth, and much is subject to change. Do not take it as a perfect reference, but rather a formalization of design ideas to hold myself accountable to.
 
 ## Performance
-The default parameters reflect the optimal balance between size and performance. Increasing reorder buffer entries and store buffer entries has the following affect on performance:
+The default parameters reflect the optimal balance between size and performance. Increasing reorder buffer entries and store buffer entries has the following affect on performance (data is outdated but indicative):
 | Test | SB=10 ROB=16 | SB=20 ROB=32 | Delta | % Change |
 |---|---:|---:|---:|---:|
 | `add.hex` | 1.2938 | 1.2938 | +0.0000 | +0.00% |
@@ -205,6 +205,52 @@ The default parameters reflect the optimal balance between size and performance.
 | `sub.hex` | 1.3006 | 1.3006 | +0.0000 | +0.00% |
 | `xor.hex` | 1.2308 | 1.2308 | +0.0000 | +0.00% |
 | `xori.hex` | 1.1976 | 1.1976 | +0.0000 | +0.00% |
+
+Here is odd data regarding predictor benificiality. These "strange" results arise because taken predictions are expensive and non disposable, and thus accuracy under a certain threshold is always harmful.
+
+| Test | No Predict | Static BTFNT | 2-bit NT-unless-sat | 2-bit Sat | Best |
+|---|---:|---:|---:|---:|---|
+| `add.hex` | 1.5066 | 1.3471 | 1.5066 | 1.3161 | No Predict / NT-unless-sat |
+| `addi.hex` | 1.5359 | 1.3988 | 1.5359 | 1.3824 | No Predict / NT-unless-sat |
+| `and.hex` | 1.5127 | 1.3503 | 1.5127 | 1.3278 | No Predict / NT-unless-sat |
+| `andi.hex` | 1.4470 | 1.3082 | 1.4470 | 1.3082 | No Predict / NT-unless-sat |
+| `auipc.hex` | 1.2750 | 1.2750 | 1.2750 | 1.2750 | Tie |
+| `beq.hex` | 1.0597 | 0.9132 | 1.0107 | 0.9073 | No Predict |
+| `bge.hex` | 0.9557 | 0.8555 | 0.8935 | 0.8555 | No Predict |
+| `bgeu.hex` | 1.0000 | 0.9008 | 0.9343 | 0.8959 | No Predict |
+| `blt.hex` | 1.0597 | 0.9132 | 1.0107 | 0.9073 | No Predict |
+| `bltu.hex` | 1.1075 | 0.9626 | 1.0582 | 0.9567 | No Predict |
+| `bne.hex` | 1.0403 | 0.9251 | 1.0071 | 0.9191 | No Predict |
+| `dependency.hex` | 0.7444 | 0.7856 | 0.7898 | 0.7940 | 2-bit Sat |
+| `jal.hex` | 1.2973 | 1.2973 | 1.2973 | 1.2973 | Tie |
+| `jalr.hex` | 0.9310 | 0.8780 | 0.9310 | 0.8780 | No Predict / NT-unless-sat |
+| `long.hex` | 0.6941 | 0.7558 | 0.7851 | 0.7854 | 2-bit Sat |
+| `lui.hex` | 1.5263 | 1.5263 | 1.5263 | 1.5263 | Tie |
+| `memstress.hex` | 0.6658 | 0.7178 | 0.7138 | 0.7178 | Static BTFNT / 2-bit Sat |
+| `optimized.hex` | 1.9563 | 1.9563 | 1.9563 | 1.9563 | Tie |
+| `or.hex` | 1.5222 | 1.3626 | 1.5222 | 1.3549 | No Predict / NT-unless-sat |
+| `ori.hex` | 1.4776 | 1.3378 | 1.4776 | 1.3200 | No Predict / NT-unless-sat |
+| `realistic1.hex` | 0.8307 | 0.9059 | 0.8993 | 0.9049 | Static BTFNT |
+| `realistic2.hex` | 0.8022 | 0.8493 | 0.8577 | 0.8595 | 2-bit Sat |
+| `simple.hex` | 1.5455 | 1.5455 | 1.5455 | 1.5455 | Tie |
+| `sll.hex` | 1.5140 | 1.3500 | 1.5140 | 1.3135 | No Predict / NT-unless-sat |
+| `slli.hex` | 1.5294 | 1.4012 | 1.5294 | 1.3684 | No Predict / NT-unless-sat |
+| `slt.hex` | 1.5017 | 1.3412 | 1.5017 | 1.3178 | No Predict / NT-unless-sat |
+| `slti.hex` | 1.5333 | 1.3939 | 1.5333 | 1.3772 | No Predict / NT-unless-sat |
+| `sltiu.hex` | 1.5333 | 1.3939 | 1.5333 | 1.3772 | No Predict / NT-unless-sat |
+| `sltu.hex` | 1.5017 | 1.3412 | 1.5017 | 1.3178 | No Predict / NT-unless-sat |
+| `sra.hex` | 1.5443 | 1.3912 | 1.5443 | 1.3686 | No Predict / NT-unless-sat |
+| `srai.hex` | 1.5466 | 1.4068 | 1.5466 | 1.3757 | No Predict / NT-unless-sat |
+| `srl.hex` | 1.5401 | 1.3861 | 1.5401 | 1.3785 | No Predict / NT-unless-sat |
+| `srli.hex` | 1.5380 | 1.4046 | 1.5380 | 1.3729 | No Predict / NT-unless-sat |
+| `sub.hex` | 1.5000 | 1.3393 | 1.5000 | 1.3235 | No Predict / NT-unless-sat |
+| `waw.hex` | 1.3654 | 1.3654 | 1.3654 | 1.3654 | Tie |
+| `xor.hex` | 1.5142 | 1.3521 | 1.5142 | 1.3223 | No Predict / NT-unless-sat |
+| `xori.hex` | 1.4815 | 1.3333 | 1.4815 | 1.3158 | No Predict / NT-unless-sat |
+
+The performance model for branch prediction in Anvil-Pro is TP > 2*FP, where TP is the number of correct taken predictions and FP is the number of incorrect taken predictions. Equivalently: whenever a taken prediction is asserted, it must be correct more than two-thirds of the time to be non-detrimental.
+
+This means prediction in Anvil-Pro must be analyzed asymmetrically. Not taken is the neutral baseline, while taken is a speculative performance bet with nontrivial downside. The model is not one where taken and not taken are equally cheap alternatives and prediction simply biases toward the statistically more likely outcome. Instead, asserting taken is only beneficial when confidence is sufficiently high, making certainty a first-order design concern rather than a secondary detail.
 
 ### Potential Optimizations
 - Dual Lane Memory Support
