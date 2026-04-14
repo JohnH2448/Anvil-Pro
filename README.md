@@ -79,15 +79,15 @@ The issuer guarantees that any dispatched work satisfies the following invariant
 ```txt
 # Single Slot Access to LSU
 - Lower Slot May Not Issue Memory Operations
-# Solves RST Ownership + Forwarding Conflicts
-- Upper and Lower Slot Must Not Write the Same Register
 # Slot 0/1 Dependency Rule
 - Lower Slot Must Not Issue When Reading an Upper Slot Destination Register Unless Cross-Lane EX/EX Bypass Handles It
+# Slot 0/1 Dependency Rule
 - Lower Slot Must Not Issue on a Same-Cycle Dependency When the Upper Slot Producer Is a Load
 # Handles Edge Case Window Alignment Failure
 - Lower Slot Must Not Issue on Bad Fetch
 # Prevents Ghost Instructions
 - If the ROB Has One Free Entry, Lower Slot Must Not Issue
+# Prevents Ghost Instructions
 - If the ROB Is Full, Neither Slot May Issue
 # Ensures Pipeline is Flushed Correctly
 - Neither Slot May Issue During a Redirect
