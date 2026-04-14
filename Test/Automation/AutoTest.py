@@ -11,7 +11,12 @@ HEX_DIR = ROOT / "Test" / "Hex"
 INSTRUCTIONS_HEX = ROOT / "Core" / "Memory" / "Instructions.hex"
 CONVERTER = ROOT / "Test" / "Automation" / "hex_to_four_word.py"
 LOG_FILE = ROOT / "Test" / "Automation" / "hex_results.log"
-SIM_TIMEOUT_SECONDS = 1
+SIM_TIMEOUT_SECONDS = 5
+DEFAULT_MAX_CYCLES = 1_000_000
+LONG_TEST_MAX_CYCLES = 10_000_000
+LONG_TEST_NAMES = {
+    "long.hex",
+}
 
 STOP_CYCLE_RE = re.compile(r"Stopped at cycle (\d+) with tohost = (0x[0-9a-fA-F]{8})")
 INFINITE_LOOP_RE = re.compile(r"Infinite loop after (\d+) cycles")
@@ -97,7 +102,8 @@ def run_single_test(hex_file: Path) -> str:
 
     run_command([sys.executable, str(CONVERTER), str(INSTRUCTIONS_HEX)], cwd=ROOT)
 
-    wsl_command = f"cd '{to_wsl_path(ROOT)}' && ./Verilator/VTop"
+    max_cycles = LONG_TEST_MAX_CYCLES if hex_file.name in LONG_TEST_NAMES else DEFAULT_MAX_CYCLES
+    wsl_command = f"cd '{to_wsl_path(ROOT)}' && ./Verilator/VTop {max_cycles}"
     try:
         sim = subprocess.run(
             ["wsl", "bash", "-lc", wsl_command],

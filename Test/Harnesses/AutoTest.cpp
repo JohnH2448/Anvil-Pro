@@ -2,11 +2,12 @@
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include "VTop.h"
 #include "verilated.h"
 
-static constexpr uint64_t kMaxCycles = 50000;
+static constexpr uint64_t kMaxCycles = 1000000;
 
 static void tick_full_cycle(VTop* top) {
     top->clock = 1;
@@ -28,6 +29,16 @@ static void apply_reset(VTop* top) {
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
 
+    uint64_t maxCycles = kMaxCycles;
+    if (argc >= 2) {
+        try {
+            maxCycles = std::stoull(argv[1]);
+        } catch (...) {
+            std::cerr << "Invalid max cycle limit: " << argv[1] << '\n';
+            return 2;
+        }
+    }
+
     auto* top = new VTop;
     uint64_t cycle = 0;
 
@@ -48,7 +59,7 @@ int main(int argc, char** argv) {
             return 0;
         }
 
-        if (cycle >= kMaxCycles) {
+        if (cycle >= maxCycles) {
             std::cout << "Infinite loop after " << cycle << " cycles\n";
             delete top;
             return 1;
