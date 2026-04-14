@@ -254,12 +254,6 @@ module DecodeIssue (
                 block2 = 1'b1;
                 reasonSlot1Memory = 1'b1;
             end
-            // Block WAW To Simplify Forwarding/RST Logic
-            // FIXABLE BY REUSING STALEVECTOR MACHINARY MAYBE
-            if (destinationRegister1 == destinationRegister2) begin
-                block2 = 1'b1; 
-                reasonWawConflict = 1'b1;
-            end
             // Slot 0/1 Dependency Param Gated Generator
             if (!crossLaneExBypass) begin : BYPASS_PARAM
                 // Block Slot 0 + Slot 1 Dependencies
@@ -303,7 +297,7 @@ module DecodeIssue (
                 block1 = 1'b1;
                 block2 = 1'b1;
             end
-            // This is probably fixable
+            // This is fixable
             if (destRegLoad1) begin
                 block1 = 1'b1;
                 block2 = 1'b1;
@@ -417,7 +411,7 @@ module DecodeIssue (
     logic [1:0] staleVector3;
     always_comb begin
         staleVector3 = 2'b00;
-        // Block Issue On Backwards Slot 0/1 Dependency to Fix RST Ownership Problems
+        // Allow Issue On Backwards Slot 0/1 Dependency to Fix RST Ownership Problems
         if (!block2 && !slot0TakenHelper) begin
             if ((tempPayload1.sourceRegister1 == destinationRegister2 && destinationRegister2 != 5'd0)) begin
                 staleVector3[0] = 1'b1;
