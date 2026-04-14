@@ -94,12 +94,12 @@ module BranchPredictor (
                 taken = 1'b1;
             end else begin
                 case (counterTable[predictIndex])
-                    2'b00: taken = 1'b0;
                     2'b11: taken = 1'b1;
-                    default: taken = staticTaken;
+                    default: taken = 1'b0;
                 endcase
             end
         end
     end
+
 
 endmodule
