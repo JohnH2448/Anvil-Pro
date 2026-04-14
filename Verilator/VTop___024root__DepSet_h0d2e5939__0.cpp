@@ -2019,15 +2019,9 @@ VL_INLINE_OPT void VTop___024root___ico_comb__TOP__0(VTop___024root* vlSelf) {
     vlSelf->Top__DOT__taken = 0U;
     if (Top__DOT__validAddress) {
         vlSelf->Top__DOT__taken = ((IData)(vlSelf->Top__DOT__outputJal) 
-                                   || ((0U != vlSelf->Top__DOT__branchPredictor__DOT__counterTable
-                                        [(0x3fU & (vlSelf->Top__DOT__branchProgramCounter 
-                                                   >> 2U))]) 
-                                       && ((3U == vlSelf->Top__DOT__branchPredictor__DOT__counterTable
-                                            [(0x3fU 
-                                              & (vlSelf->Top__DOT__branchProgramCounter 
-                                                 >> 2U))]) 
-                                           || (vlSelf->Top__DOT__precalcAddress 
-                                               < vlSelf->Top__DOT__branchProgramCounter))));
+                                   || (3U == vlSelf->Top__DOT__branchPredictor__DOT__counterTable
+                                       [(0x3fU & (vlSelf->Top__DOT__branchProgramCounter 
+                                                  >> 2U))]));
     }
     vlSelf->Top__DOT__decodeIssue__DOT__slot0TakenHelper 
         = ((IData)(((0U != (0x3800000U & vlSelf->Top__DOT__decodeIssue__DOT__tempPayload1[0U])) 
