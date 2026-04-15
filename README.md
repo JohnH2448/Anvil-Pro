@@ -256,6 +256,7 @@ This means prediction in Anvil-Pro must be analyzed asymmetrically. Not taken is
 - Dual Lane Memory Support
 - Allow Issue on Load / Standard WAW
 - Load Skip to Queue Head
+- Relocate BTC to Fetch
 - Gshare Predictor?
 - Small L1$ to Locally Control Bandwidth
 
