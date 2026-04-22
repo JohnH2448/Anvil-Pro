@@ -267,7 +267,6 @@ This means prediction in Anvil-Pro must be analyzed asymmetrically. Not taken is
 ### TODO List
 - MCYCLEH/MINSTRETH
 - CSR Hardware Side Effects
-- MRET
 - Trap Causing Instruction Support
 - Precise Exceptions
 - Interupt Support
