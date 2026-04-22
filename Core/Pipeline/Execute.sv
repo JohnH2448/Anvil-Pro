@@ -47,6 +47,7 @@ module Execute (
 
     logic [31:0] result1;
     logic [31:0] result2;
+    logic [31:0] writebackResult1;
     logic [31:0] redirectVector1;
     logic [31:0] redirectVector2;
     logic redirect1;
@@ -81,8 +82,10 @@ module Execute (
     logic [31:0] lowerOperand2;
 
     // Ex/Ex Bypass Gen Logic
-    assign lowerOperand1 = !crossLaneExBypass ? exPayload2.operand1 : exPayload2.bypassEnable[0] ? result1 : exPayload2.operand1;
-    assign lowerOperand2 = !crossLaneExBypass ? exPayload2.operand2 : exPayload2.bypassEnable[1] ? result1 : exPayload2.operand2;
+    assign writebackResult1 = (exPayload1.jumpType != JUMP_NONE || exPayload1.system.CSROp != CSR_NONE)
+        ? exPayload1.extraField : result1;
+    assign lowerOperand1 = !crossLaneExBypass ? exPayload2.operand1 : (exPayload2.bypassEnable[0] && exPayload2.system.CSROp == CSR_NONE) ? writebackResult1 : exPayload2.operand1;
+    assign lowerOperand2 = !crossLaneExBypass ? exPayload2.operand2 : exPayload2.bypassEnable[1] ? writebackResult1 : exPayload2.operand2;
 
     // Memory Operation Signal for Capacity
     assign exMemory = (exPayload1.memoryOperation != MEM_NONE) && exPayload1.valid && !illegal1;
@@ -208,11 +211,12 @@ module Execute (
         // Packet 1
         resultPayload1 = '0;
         resultPayload1.ageTag = exPayload1.ageTag;
+        resultPayload1.csrResult = result1;
         if (!(outputValid && exPayload1.memoryOperation == MEM_LOAD)) begin
             if (exPayload1.valid && !reset && (exPayload1.memoryOperation == MEM_NONE)) begin
                 resultPayload1.accept = 1'd1;
                 resultPayload1.destinationRegister = exPayload1.destinationRegister;
-                if (exPayload1.jumpType != JUMP_NONE) begin
+                if (exPayload1.jumpType != JUMP_NONE || exPayload1.system.CSROp != CSR_NONE) begin
                     resultPayload1.instructionResult = exPayload1.extraField;
                 end else begin
                     resultPayload1.instructionResult = result1;
@@ -228,10 +232,11 @@ module Execute (
         // Packet 2
         resultPayload2 = '0;
         resultPayload2.ageTag = exPayload2.ageTag;
+        resultPayload2.csrResult = result2;
         if (exPayload2.valid && !(mispredict1) && !reset) begin
             resultPayload2.accept = 1'd1;
             resultPayload2.destinationRegister = exPayload2.destinationRegister;
-            if (exPayload2.jumpType != JUMP_NONE) begin
+            if (exPayload2.jumpType != JUMP_NONE || exPayload2.system.CSROp != CSR_NONE) begin
                 resultPayload2.instructionResult = exPayload2.extraField;
             end else begin
                 resultPayload2.instructionResult = result2;

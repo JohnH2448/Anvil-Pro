@@ -27,6 +27,12 @@ module Top (
     RestoreStateBus_ rstBus1;
     RestoreStateBus_ rstBus2;
     RestoreStateBus_ rstBus3;
+    CSRFilePayload_ csrOut1;
+    CSRFilePayload_ csrOut2;
+    logic [1:0] retireCount;
+    CSRRestore_ csrBus1;
+    CSRRestore_ csrBus2;
+    CSRRestore_ csrBus3;
 
     // Register Status Table Outputs
     RegisterStatusOutput_ upperSource1Status;
@@ -98,6 +104,8 @@ module Top (
     logic [reorderBufferIndexWidth-1:0] lowerTagIndex2;
     logic osMemory;
     logic stall;
+    DestinationCSR_ readCSR1;
+    DestinationCSR_ readCSR2;
 
     // Register File Outputs
     logic [31:0] upperSourceData1;
@@ -150,6 +158,10 @@ module Top (
     // Instruction Memory Outputs
     logic [127:0] lowFetchData;
     logic [127:0] highFetchData;
+
+    // CSR File Outputs
+    logic [31:0] CSRData1;
+    logic [31:0] CSRData2;
 
     MemoryQueue memoryQueue (
         .clock(clock), // input
@@ -206,6 +218,19 @@ module Top (
         .memBusIn(memBusIn) // output
     );
 
+    CSRFile csrFile (
+        .clock(clock), // input
+        .reset(reset), // input
+        .readCSR1(readCSR1), // input
+        .CSRData1(CSRData1), // output
+        .readCSR2(readCSR2), // input
+        .CSRData2(CSRData2), // output
+        .csrOut1(csrOut1), // input
+        .csrOut2(csrOut2), // input
+        .retire1Valid(retireCount[0] || retireCount[1]), // input
+        .retire2Valid(retireCount[1]) // input
+    );
+
     ReorderBuffer reorderBuffer (
 
         .clock(clock), // input
@@ -236,10 +261,18 @@ module Top (
         .rstBus2(rstBus2), // output
         .rstBus3(rstBus3), // output
 
+        .csrOut1(csrOut1), // output
+        .csrOut2(csrOut2), // output
+        .retireCount(retireCount), // output
+
         .upperTagIndex1(upperTagIndex1), // input
         .upperTagIndex2(upperTagIndex2), // input
         .lowerTagIndex1(lowerTagIndex1), // input
         .lowerTagIndex2(lowerTagIndex2), // input
+
+        .csrBus1(csrBus1), // output
+        .csrBus2(csrBus2), // output
+        .csrBus3(csrBus3), // output
 
         .upperForward1(upperROBData1), // output
         .upperForward2(upperROBData2), // output
@@ -356,6 +389,11 @@ module Top (
 
         .osMemory(osMemory), // output
         .stall(stall), // output
+
+        .readCSR1(readCSR1), // output
+        .CSRData1(CSRData1), // input
+        .readCSR2(readCSR2), // output
+        .CSRData2(CSRData2), // input
 
         .upperTagIndex1(upperTagIndex1), // output
         .upperTagIndex2(upperTagIndex2), // output
@@ -511,6 +549,15 @@ module Top (
         .isLoad2(isLoad2), // output
         .ageTag1(ageTag1), // output
         .ageTag2(ageTag2), // output
+
+        .csrBus1(csrBus1), // input
+        .csrBus2(csrBus2), // input
+        .csrBus3(csrBus3), // input 
+
+        .CSRRd1(csrOut1.destinationCSR), // input
+        .CSRRd2(csrOut2.destinationCSR), // input
+        .CSRWriteIntent1(csrOut1.CSRWriteIntent), // input
+        .CSRWriteIntent2(csrOut2.CSRWriteIntent), // input
 
         .instructionPacket1(instructionPacket1), // output
         .instructionPacket2(instructionPacket2) // output

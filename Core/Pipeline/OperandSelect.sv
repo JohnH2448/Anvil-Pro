@@ -84,13 +84,24 @@ module OperandSelect (
 
     // Payloads to Execute
     output UpperOperandExecutePayload_ exPayload1,
-    output LowerOperandExecutePayload_ exPayload2
+    output LowerOperandExecutePayload_ exPayload2,
+
+    // CSR Interface
+    output DestinationCSR_ readCSR1,
+    input logic [31:0] CSRData1,
+    output DestinationCSR_ readCSR2,
+    input logic [31:0] CSRData2
 
 );
+
     // Dummy Candidate Payloads
     UpperOperandExecutePayload_ exPayloadCandidate1;
     LowerOperandExecutePayload_ exPayloadCandidate2;
     integer debugCycle;
+
+    // CSR Register Addresses
+    assign readCSR1 = payload1.system.destinationCSR;
+    assign readCSR2 = payload2.system.destinationCSR;
 
     // Register Values
     logic [31:0] upperOperand1;
@@ -150,7 +161,14 @@ module OperandSelect (
         stall = '0;
 
         // Upper Source Register 1
-        if (payload1.sourceRegister1 == 5'd0) begin
+        if (payload1.system.CSROp != CSR_NONE) begin
+            // CSR Read
+            if (payload1.system.CSROp == CSR_RW) begin
+                upperOperand1 = 32'd0;
+            end else begin
+                upperOperand1 = CSRData1;
+            end
+        end else if (payload1.sourceRegister1 == 5'd0) begin
             // Hardwire x0 to Zero
             upperOperand1 = 32'd0;
         end else if (upperSource1Status.resultCommitted) begin
@@ -172,7 +190,6 @@ module OperandSelect (
         end else begin
             stall = 1;
         end
-
 
         // Upper Source Register 2
         if (payload1.sourceRegister2 == 5'd0) begin
@@ -199,7 +216,14 @@ module OperandSelect (
         end
 
         // Lower Source Register 1
-        if (payload2.sourceRegister1 == 5'd0) begin
+        if (payload2.system.CSROp != CSR_NONE) begin
+            // CSR Read
+            if (payload2.system.CSROp == CSR_RW) begin
+                lowerOperand1 = 32'd0;
+            end else begin
+                lowerOperand1 = CSRData2;
+            end
+        end else if (payload2.sourceRegister1 == 5'd0) begin
             // Hardwire x0 to Zero
             lowerOperand1 = 32'd0;
         end else if (lowerSource1Status.resultCommitted) begin
@@ -276,6 +300,9 @@ module OperandSelect (
         end else if (payload1.memoryOperation == MEM_STORE) begin
             // Store Data
             exPayloadCandidate1.extraField = upperOperand2;
+        end else if (payload1.system.CSROp != CSR_NONE) begin
+            // CSR Read Data
+            exPayloadCandidate1.extraField = CSRData1;
         end
 
         // Instruction 2 Case Operand Assignment
@@ -298,6 +325,16 @@ module OperandSelect (
             end
         endcase
 
+        // CSR Inversion Override
+        if (payload1.system.CSROp == CSR_RC) begin
+            // Inverts Operand 1 for CSR Clear Operations
+            exPayloadCandidate1.operand2 = ~exPayloadCandidate1.operand2;
+        end
+         if (payload2.system.CSROp == CSR_RC) begin
+            // Inverts Operand 2 for CSR Clear Operations
+            exPayloadCandidate2.operand2 = ~exPayloadCandidate2.operand2;
+        end
+
         // Instruction 2 Extra Source Assignment
         if (payload2.jumpType != JUMP_NONE) begin
             // PC + 4 For Writeback
@@ -305,6 +342,9 @@ module OperandSelect (
         end else if (payload2.branchType != BR_NONE) begin
             // Branch Target Address Pre-Evaluation
             exPayloadCandidate2.extraField = branchTarget2;
+        end else if (payload2.system.CSROp != CSR_NONE) begin
+            // CSR Read Data
+            exPayloadCandidate2.extraField = CSRData2;
         end
 
         // Instruction 1 Passthrough Assignments
@@ -312,6 +352,7 @@ module OperandSelect (
         exPayloadCandidate1.jumpType = payload1.jumpType;
         exPayloadCandidate1.destinationRegister = payload1.destinationRegister;
         exPayloadCandidate1.branchType = payload1.branchType;
+        exPayloadCandidate1.system = payload1.system; 
         exPayloadCandidate1.memoryOperation = payload1.memoryOperation;
         exPayloadCandidate1.memoryWidth = payload1.memoryWidth;
         exPayloadCandidate1.memorySigned = payload1.memorySigned;
@@ -329,6 +370,7 @@ module OperandSelect (
         exPayloadCandidate2.jumpType = payload2.jumpType;
         exPayloadCandidate2.destinationRegister = payload2.destinationRegister;
         exPayloadCandidate2.branchType = payload2.branchType;
+        exPayloadCandidate2.system = payload2.system;
         exPayloadCandidate2.ageTag = payload2.ageTag;
         exPayloadCandidate2.predicted = payload2.predicted;
         exPayloadCandidate2.programCounter = payload2.programCounter;

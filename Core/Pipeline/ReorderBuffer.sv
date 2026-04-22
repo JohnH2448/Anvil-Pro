@@ -48,10 +48,20 @@ module ReorderBuffer (
     output logic [31:0] lowerForward1,
     output logic [31:0] lowerForward2,
 
+    // Retired Instructions Per Cycle
+    output logic [1:0] retireCount,
+    output CSRFilePayload_ csrOut1,
+    output CSRFilePayload_ csrOut2,
+
     // Restore State Buses to RST
     output RestoreStateBus_ rstBus1,
     output RestoreStateBus_ rstBus2,
-    output RestoreStateBus_ rstBus3
+    output RestoreStateBus_ rstBus3,
+
+    // Restore State Buses to CSR
+    output CSRRestore_ csrBus1,
+    output CSRRestore_ csrBus2,
+    output CSRRestore_ csrBus3
     
 );
 
@@ -63,8 +73,6 @@ module ReorderBuffer (
     end
 
 
-    // Retired Instructions Per Cycle
-    logic [1:0] retireCount;
     int debugCycle;
 
     // Redirect Next Tag
@@ -170,6 +178,8 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail].destinationRegister <= issuedInstruction1.destinationRegister;
                 reorderBuffer[redirectAdjustedTail].ageTag <= redirectAdjustedTail;
                 reorderBuffer[redirectAdjustedTail].standardOp <= issuedInstruction1.standardOp;
+                reorderBuffer[redirectAdjustedTail].CSRWriteIntent <= issuedInstruction1.CSRWriteIntent;
+                reorderBuffer[redirectAdjustedTail].destinationCSR <= issuedInstruction1.destinationCSR;
                 reorderBuffer[redirectAdjustedTail].completed <= 1'b0;
             end
             if (issuedInstruction2.confirm) begin
@@ -177,6 +187,8 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail + 'd1].destinationRegister <= issuedInstruction2.destinationRegister;
                 reorderBuffer[redirectAdjustedTail + 'd1].ageTag <= redirectAdjustedTail + 'd1;
                 reorderBuffer[redirectAdjustedTail + 'd1].standardOp <= issuedInstruction2.standardOp;
+                reorderBuffer[redirectAdjustedTail + 'd1].CSRWriteIntent <= issuedInstruction2.CSRWriteIntent;
+                reorderBuffer[redirectAdjustedTail + 'd1].destinationCSR <= issuedInstruction2.destinationCSR;
                 reorderBuffer[redirectAdjustedTail + 'd1].completed <= 1'b0;
             end
         end
@@ -189,6 +201,8 @@ module ReorderBuffer (
         resolvedInstruction1 = '0;
         resolvedInstruction2 = '0;
         retireCount = 2'b00;
+        csrOut1 = '0;
+        csrOut2 = '0;
         if ((entries > 'd1)
         && (reorderBuffer[headIndexer].completed || ((reorderBuffer[headIndexer].destinationRegister == 5'd0) && reorderBuffer[headIndexer].standardOp))
         && (reorderBuffer[headIndexer+'d1].completed || ((reorderBuffer[headIndexer+'d1].destinationRegister == 5'd0) && reorderBuffer[headIndexer+'d1].standardOp))) begin
@@ -208,12 +222,24 @@ module ReorderBuffer (
                     resolvedInstruction1.destinationRegister = reorderBuffer[headIndexer].destinationRegister;
                     resolvedInstruction1.valid = 1'd1; 
                 end
+                // Slot 0 CSR Packet
+                if (reorderBuffer[headIndexer].CSRWriteIntent) begin
+                    csrOut1.destinationCSR = reorderBuffer[headIndexer].destinationCSR;
+                    csrOut1.csrResult = reorderBuffer[headIndexer].csrResult;
+                    csrOut1.CSRWriteIntent = reorderBuffer[headIndexer].CSRWriteIntent;
+                end
                 // Slot 1 Packet
                 if (reorderBuffer[headIndexer+'d1].destinationRegister != 5'd0) begin
                     resolvedInstruction2.ageTag = reorderBuffer[headIndexer+'d1].ageTag;
                     resolvedInstruction2.instructionResult = reorderBuffer[headIndexer+'d1].instructionResult;
                     resolvedInstruction2.destinationRegister = reorderBuffer[headIndexer+'d1].destinationRegister;
                     resolvedInstruction2.valid = 1'd1; 
+                end
+                // Slot 1 CSR Packet
+                if (reorderBuffer[headIndexer+'d1].CSRWriteIntent) begin
+                    csrOut2.destinationCSR = reorderBuffer[headIndexer+'d1].destinationCSR;
+                    csrOut2.csrResult = reorderBuffer[headIndexer+'d1].csrResult;
+                    csrOut2.CSRWriteIntent = reorderBuffer[headIndexer+'d1].CSRWriteIntent;
                 end
             end
         end else if ((entries > 'd0)
@@ -226,6 +252,12 @@ module ReorderBuffer (
                 resolvedInstruction1.instructionResult = reorderBuffer[headIndexer].instructionResult;
                 resolvedInstruction1.destinationRegister = reorderBuffer[headIndexer].destinationRegister;
                 resolvedInstruction1.valid = 1'd1; 
+            end
+            // Slot 0 CSR Packet
+            if (reorderBuffer[headIndexer].CSRWriteIntent) begin
+                csrOut1.destinationCSR = reorderBuffer[headIndexer].destinationCSR;
+                csrOut1.csrResult = reorderBuffer[headIndexer].csrResult;
+                csrOut1.CSRWriteIntent = reorderBuffer[headIndexer].CSRWriteIntent;
             end
         end
     end
@@ -244,10 +276,12 @@ module ReorderBuffer (
             // These Should Never Conflict
             if (completedInstruction1.accept) begin
                 reorderBuffer[completedInstruction1.ageTag].instructionResult <= completedInstruction1.instructionResult;
+                reorderBuffer[completedInstruction1.ageTag].csrResult <= completedInstruction1.csrResult;
                 reorderBuffer[completedInstruction1.ageTag].completed <= 1'b1;
             end
             if (completedInstruction2.accept) begin
                 reorderBuffer[completedInstruction2.ageTag].instructionResult <= completedInstruction2.instructionResult;
+                reorderBuffer[completedInstruction2.ageTag].csrResult <= completedInstruction2.csrResult;
                 reorderBuffer[completedInstruction2.ageTag].completed <= 1'b1;
             end
             if (completedMemory.accept) begin
@@ -269,6 +303,27 @@ module ReorderBuffer (
     // Truncate Redirect Pointer for Indexing
     logic [reorderBufferIndexWidth-1:0] redirectIndexer;
     assign redirectIndexer = redirectPointer[reorderBufferIndexWidth-1:0];
+
+    // CSR Restore
+    always_comb begin
+        csrBus1 = '0;
+        csrBus2 = '0;
+        csrBus3 = '0;
+        if (redirect) begin
+            if (flushCount > 2'd0) begin
+                csrBus1.destinationCSR = reorderBuffer[redirectIndexer].destinationCSR;
+                csrBus1.restore = reorderBuffer[redirectIndexer].CSRWriteIntent;
+            end
+            if (flushCount > 2'd1) begin
+                csrBus2.destinationCSR = reorderBuffer[redirectIndexer + 'd1].destinationCSR;
+                csrBus2.restore = reorderBuffer[redirectIndexer + 'd1].CSRWriteIntent;
+            end
+            if (flushCount > 2'd2) begin
+                csrBus3.destinationCSR = reorderBuffer[redirectIndexer + 'd2].destinationCSR;
+                csrBus3.restore = reorderBuffer[redirectIndexer + 'd2].CSRWriteIntent;
+            end
+        end
+    end
 
     // Calculate Flushed Rd Indexes
     logic [4:0] flushDest1;

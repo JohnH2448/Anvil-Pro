@@ -168,6 +168,42 @@ package Enumerations;
         MHPMEVENT29    = 12'h33D,
         MHPMEVENT30    = 12'h33E,
         MHPMEVENT31    = 12'h33F
-    } CSRs_;
+    } CSR_;
+
+    typedef enum logic [3:0] {
+        rMSTATUS = 4'b0000, 
+        rMTVEC = 4'b0001, 
+        rMIP = 4'b0010, 
+        rMIE = 4'b0011, 
+        rMCYCLE = 4'b0100,
+        rMCYCLEH = 4'b0101, 
+        rMINSTRET = 4'b0110,
+        rMINSTRETH = 4'b0111, 
+        rMSCRATCH = 4'b1000, 
+        rMEPC = 4'b1001, 
+        rMCAUSE = 4'b1010,
+        rMISA = 4'b1011,
+        rROZ = 4'b1100
+    } DestinationCSR_;
+
+    typedef enum logic [1:0] {
+        CSR_NONE = 2'b00,
+        CSR_RW = 2'b01,
+        CSR_RS = 2'b10,
+        CSR_RC = 2'b11
+    } CSROp_;
+
+    typedef enum logic [3:0] {
+        NONE = 4'b0000,
+        ILLEGAL = 4'b0001,
+        MIS_STORE = 4'b0010,
+        MIS_LOAD = 4'b0011,
+        MIS_INST = 4'b0100,
+        ECALL = 4'b0101,
+        EBREAK = 4'b0110,
+        ACCESS_STORE = 4'b0111,
+        ACCESS_LOAD = 4'b1000,
+        ACCESS_INST = 4'b1001
+    } TrapType_; 
 
 endpackage

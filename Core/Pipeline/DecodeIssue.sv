@@ -83,7 +83,18 @@ module DecodeIssue (
     output logic outputJal,
 
     // Stall Bit
-    input logic stall
+    input logic stall,
+
+    // CSR Retirement Data
+    input DestinationCSR_ CSRRd1,
+    input DestinationCSR_ CSRRd2,
+    input logic CSRWriteIntent1,
+    input logic CSRWriteIntent2,
+
+    // CSR Table Restore From ROB
+    input CSRRestore_ csrBus1,
+    input CSRRestore_ csrBus2,
+    input CSRRestore_ csrBus3
 
 );
 
@@ -196,6 +207,46 @@ module DecodeIssue (
         .destinationRegister(destinationRegister2),
         .illegal(illegal2)
     );
+
+    // In Flight CSR FSM
+    logic CSRStatus [0:rMCAUSE];
+    always_ff @(posedge clock) begin
+        if (reset) begin
+            for (int i = 0; i <= 10; i++) begin
+                CSRStatus[i] <= 1'b0;
+            end
+        end else begin
+            // Clear CSR Status on Commit
+            if (CSRWriteIntent1 && (CSRRd1 <= rMCAUSE)) begin
+                CSRStatus[CSRRd1] <= 1'b0;
+            end
+            if (CSRWriteIntent2 && (CSRRd2 <= rMCAUSE)) begin
+                CSRStatus[CSRRd2] <= 1'b0;
+            end
+            // Set CSR Status on Issue
+            if (instructionConsumed1 && tempPayload1.system.CSRWriteIntent
+            && (tempPayload1.system.destinationCSR <= rMCAUSE)) begin
+                CSRStatus[tempPayload1.system.destinationCSR] <= 1'b1;
+            end
+            if (instructionConsumed2 && tempPayload2.system.CSRWriteIntent
+            && (tempPayload2.system.destinationCSR <= rMCAUSE)) begin
+                CSRStatus[tempPayload2.system.destinationCSR] <= 1'b1;
+            end
+
+            // Clear CSR Status on ROB Restore
+            // (instructionComsumed is gated by redirect)
+            if (csrBus1.restore && (csrBus1.destinationCSR < rMISA)) begin
+                CSRStatus[csrBus1.destinationCSR] <= 1'b0;
+            end
+            if (csrBus2.restore && (csrBus2.destinationCSR < rMISA)) begin
+                CSRStatus[csrBus2.destinationCSR] <= 1'b0;
+            end
+            if (csrBus3.restore && (csrBus3.destinationCSR < rMISA)) begin
+                CSRStatus[csrBus3.destinationCSR] <= 1'b0;
+            end
+
+        end
+    end
 
     // Slot 0 Taken Signal
     logic slot0TakenHelper;
@@ -321,6 +372,22 @@ module DecodeIssue (
                 block1 = 1'b1;
                 block2 = 1'b1;
             end
+            // No Issue on CSR WAW
+            if (tempPayload1.system.CSROp != CSR_NONE && tempPayload2.system.CSROp != CSR_NONE && tempPayload1.system.destinationCSR == tempPayload2.system.destinationCSR) begin
+                block2 = 1'b1;
+            end
+            // Prevent all CSR Forwarding Cases
+            if ((tempPayload1.system.CSROp != CSR_NONE)
+            && (tempPayload1.system.destinationCSR <= rMCAUSE)
+            && CSRStatus[tempPayload1.system.destinationCSR]) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
+            end else if ((tempPayload2.system.CSROp != CSR_NONE)
+            && (tempPayload2.system.destinationCSR <= rMCAUSE)
+            && CSRStatus[tempPayload2.system.destinationCSR]) begin
+                block2 = 1'b1;
+            end
+            // Still a problem on flush
         end else begin
             block1 = 1'b1;
             block2 = 1'b1;
@@ -444,7 +511,6 @@ module DecodeIssue (
             finalUpperPayload.destinationRegister = destinationRegister1;
             finalUpperPayload.ageTag = freeTag1;
             finalUpperPayload.oldStatus = oldUpperStatus;
-            // MUST ALSO GATE ON MEM READY
             if (((oldUpperStatus.ageTag == retireTag1) && retireValid1)
                 || ((oldUpperStatus.ageTag == retireTag2) && retireValid2)) begin
                 finalUpperPayload.oldStatus.resultReady = 1'b1;
@@ -471,6 +537,7 @@ module DecodeIssue (
             finalLowerPayload.aluOperation = tempPayload2.aluOperation;
             finalLowerPayload.jumpType = tempPayload2.jumpType;
             finalLowerPayload.ageTag = freeTag2;
+            finalLowerPayload.system = tempPayload2.system;
             finalLowerPayload.bypassEnable = bypassEnable;
             finalLowerPayload.staleVector = staleVector2;
             finalLowerPayload.oldStatus = oldLowerStatus;
@@ -544,7 +611,7 @@ module DecodeIssue (
             end
         end
     end
-
+    
     // Instruction Packet Construction
     logic standardOp1;
     logic standardOp2;
@@ -552,12 +619,18 @@ module DecodeIssue (
         
         instructionPacket1 = '0;
         instructionPacket2 = '0;
+
+        // Dictates Quick Retire Eligibility
         standardOp1 = ((tempPayload1.memoryOperation == MEM_NONE)
         && (tempPayload1.branchType == BR_NONE)
-        && (tempPayload1.jumpType == JUMP_NONE));
+        && (tempPayload1.jumpType == JUMP_NONE)
+        && (tempPayload1.system.CSROp == CSR_NONE)
+        && (!tempPayload1.system.mret));
         standardOp2 = ((tempPayload2.memoryOperation == MEM_NONE)
         && (tempPayload2.branchType == BR_NONE)
-        && (tempPayload2.jumpType == JUMP_NONE));
+        && (tempPayload2.jumpType == JUMP_NONE)
+        && (tempPayload2.system.CSROp == CSR_NONE)
+        && (!tempPayload2.system.mret));
 
         if (instructionConsumed1 && instructionConsumed2) begin
             // Instruction 1 to ROB
@@ -565,12 +638,16 @@ module DecodeIssue (
             instructionPacket1.destinationRegister = destinationRegister1;
             instructionPacket1.ageTag = freeTag1;
             instructionPacket1.standardOp = standardOp1;
+            instructionPacket1.CSRWriteIntent = tempPayload1.system.CSRWriteIntent;
+            instructionPacket1.destinationCSR = tempPayload1.system.destinationCSR;
             instructionPacket1.confirm = 1'd1;
             // Instruction 2 to ROB
             instructionPacket2.programCounter = PC2;
             instructionPacket2.destinationRegister = destinationRegister2;
             instructionPacket2.ageTag = freeTag2;
             instructionPacket2.standardOp = standardOp2;
+            instructionPacket2.CSRWriteIntent = tempPayload2.system.CSRWriteIntent;
+            instructionPacket2.destinationCSR = tempPayload2.system.destinationCSR;
             instructionPacket2.confirm = 1'd1;
         end else if (instructionConsumed1) begin
             // Instruction 1 to ROB
@@ -578,6 +655,8 @@ module DecodeIssue (
             instructionPacket1.destinationRegister = destinationRegister1;
             instructionPacket1.ageTag = freeTag1;
             instructionPacket1.standardOp = standardOp1;
+            instructionPacket1.CSRWriteIntent = tempPayload1.system.CSRWriteIntent;
+            instructionPacket1.destinationCSR = tempPayload1.system.destinationCSR;
             instructionPacket1.confirm = 1'd1;
         end
     end
@@ -591,8 +670,11 @@ module DecodeIssue (
     end
 
     function automatic string slot0BlockReason();
-        if (!instructionsValid || redirect || (postRedirectCounter == 1'b0)) begin
+        if (!instructionsValid || (postRedirectCounter == 1'b0)) begin
             return "Pipeline Refill";
+        end
+        if (redirect) begin
+            return "Redirect Flush";
         end
         if (stall) begin
             return "Operand Select Stall";
@@ -606,6 +688,11 @@ module DecodeIssue (
         if (reasonUpperLoadHazard) begin
             return "Load-Owned rd";
         end
+        if ((tempPayload1.system.CSROp != CSR_NONE)
+        && (tempPayload1.system.destinationCSR <= rMCAUSE)
+        && CSRStatus[tempPayload1.system.destinationCSR]) begin
+            return "CSR Busy";
+        end
         if ((tempPayload1.memoryOperation != MEM_NONE) && !memFreeSlot) begin
             return "Memory Queue Full";
         end
@@ -613,8 +700,11 @@ module DecodeIssue (
     endfunction
 
     function automatic string slot1BlockReason();
-        if (!instructionsValid || redirect || (postRedirectCounter == 1'b0)) begin
+        if (!instructionsValid || (postRedirectCounter == 1'b0)) begin
             return "Pipeline Refill";
+        end
+        if (redirect) begin
+            return "Redirect Flush";
         end
         if (stall) begin
             return "Operand Select Stall";
@@ -655,8 +745,27 @@ module DecodeIssue (
         if (reasonLowerLoadHazard) begin
             return "Load-Owned rd";
         end
+        if (crossLaneExBypass && (tempPayload1.memoryOperation == MEM_LOAD)
+        && ((destinationRegister1 == tempPayload2.sourceRegister1)
+        || (destinationRegister1 == tempPayload2.sourceRegister2))) begin
+            return "Slot 0 Load Dependency";
+        end
         if (reasonBackwardDependency) begin
             return "Backward Dependency";
+        end
+        if (tempPayload1.system.CSROp != CSR_NONE && tempPayload2.system.CSROp != CSR_NONE
+        && tempPayload1.system.destinationCSR == tempPayload2.system.destinationCSR) begin
+            return "CSR WAW Conflict";
+        end
+        if ((tempPayload1.system.CSROp != CSR_NONE)
+        && (tempPayload1.system.destinationCSR <= rMCAUSE)
+        && CSRStatus[tempPayload1.system.destinationCSR]) begin
+            return "Slot 0 CSR Busy";
+        end
+        if ((tempPayload2.system.CSROp != CSR_NONE)
+        && (tempPayload2.system.destinationCSR <= rMCAUSE)
+        && CSRStatus[tempPayload2.system.destinationCSR]) begin
+            return "CSR Busy";
         end
         if ((tempPayload1.memoryOperation != MEM_NONE) && !memFreeSlot) begin
             return "Memory Queue Full";
@@ -683,4 +792,6 @@ module DecodeIssue (
 endmodule
 
 // ============ ISSUE RULES ============
-// One CSR in pipe at a time
+// Issuer Must Enforce No Forwarding on CSR Ops to Avoid Logic Size in CSR Bypass Logic
+// Never create a case when forwarding csr data would happen from pipe, rob, ex/ex bypass etc. 
+// Best solution is 1 csr per csr rd 

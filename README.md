@@ -33,6 +33,7 @@ Core/                              # Main RTL Folder
 │  ├─ Control.sv                   # Flushes Pipeline
 │  ├─ RegisterFile.sv              # Holds Objective Register Data
 │  ├─ RegisterStatusTable.sv       # Dictates Register Ownership and State
+│  ├─ CSRFile.sv                   # Holds and Updates Objective CSR Data
 │  └─ StoreBuffer.sv               # Bypasses Load Issue Restrictions
 ├─ Memory/                         # Memory Interface Folder
 │  ├─ InstructionMemory.sv         # BRAM Instruction Memory
@@ -260,8 +261,9 @@ This means prediction in Anvil-Pro must be analyzed asymmetrically. Not taken is
 - Small L1$ to Locally Control Bandwidth
 
 ### TODO List
-- CSR Ecosystem
-- System Instruction Support
+- CSR Hardware Side Effects
+- MRET
+- Trap Causing Instruction Support
 - Precise Exceptions
 - Interupt Support
 - RISCOF Pass

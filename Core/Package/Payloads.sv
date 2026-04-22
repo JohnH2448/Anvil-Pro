@@ -11,6 +11,23 @@ package Payloads;
         logic resultCommitted;
     } RegisterStatusEntry_;
 
+    typedef struct packed {
+        TrapType_ trapType;
+        logic [31:0] faultingAddress; 
+    } TrapPayload_;
+
+    typedef struct packed {
+        CSROp_ CSROp;
+        DestinationCSR_ destinationCSR; 
+        logic CSRWriteIntent;
+        logic mret;
+    } SystemPayload_;
+
+    typedef struct packed {
+        DestinationCSR_ destinationCSR; 
+        logic restore;
+    } CSRRestore_;
+
     // Scoreboard Output
     typedef struct packed {
         logic resultReady;
@@ -46,6 +63,7 @@ package Payloads;
         logic [1:0] staleVector2;
         RegisterStatusOutput_ oldStatus;
         logic predicted;
+        SystemPayload_ system;
         logic valid;
     } UpperIssuerOperandPayload_;
 
@@ -64,6 +82,7 @@ package Payloads;
         logic [1:0] bypassEnable;
         logic [1:0] staleVector;
         RegisterStatusOutput_ oldStatus;
+        SystemPayload_ system;
         logic predicted;
         logic valid;
     } LowerIssuerOperandPayload_;
@@ -82,6 +101,7 @@ package Payloads;
         logic [1:0] memoryWidth;
         logic memorySigned;
         logic [reorderBufferIndexWidth-1:0] ageTag;
+        SystemPayload_ system;
         logic predicted;
         logic valid;
     } UpperOperandExecutePayload_;
@@ -98,6 +118,7 @@ package Payloads;
         BranchType_ branchType;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [1:0] bypassEnable;
+        SystemPayload_ system;
         logic predicted;
         logic valid;
     } LowerOperandExecutePayload_;
@@ -118,6 +139,7 @@ package Payloads;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic [31:0] instructionResult;
         logic [4:0] destinationRegister;
+        logic [31:0] csrResult;
         logic accept;
     } InputInstruction_;
 
@@ -127,6 +149,8 @@ package Payloads;
         logic [4:0] destinationRegister;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic standardOp;
+        DestinationCSR_ destinationCSR; 
+        logic CSRWriteIntent;
         logic confirm;
     } IssuedIntruction_;
 
@@ -137,6 +161,9 @@ package Payloads;
         logic [4:0] destinationRegister;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic standardOp;
+        logic [31:0] csrResult;
+        DestinationCSR_ destinationCSR; 
+        logic CSRWriteIntent;
         logic completed;
     } QueueEntry_;
 
@@ -147,6 +174,13 @@ package Payloads;
         logic [reorderBufferIndexWidth-1:0] ageTag;
         logic valid;
     } RetiredInstruction_;
+
+    // CSR Payload to CSR File
+    typedef struct packed {
+        logic [31:0] csrResult;
+        DestinationCSR_ destinationCSR; 
+        logic CSRWriteIntent;
+    } CSRFilePayload_;
 
     typedef struct packed {
         logic [4:0] destinationRegister;

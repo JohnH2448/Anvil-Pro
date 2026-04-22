@@ -21,6 +21,7 @@ module Decoder (
         payload.programCounter = programCounter;
         illegal = 1'b0;
         destinationRegister = '0;
+        payload.system.destinationCSR = rROZ;
 
         case (opcode)
 
@@ -187,8 +188,193 @@ module Decoder (
             end
 
             OPCODE_SYSTEM: begin
-                illegal = 1'b1;
-            end
+                logic ro;
+                CSR_ rd;
+                logic [11:0] csrAddress;
+                csrAddress = instruction[31:20];
+                rd = CSR_'(csrAddress);
+                payload.sourceRegister2 = instruction[19:15];
+                destinationRegister = instruction[11:7];
+                if (instruction[14:12] != 3'b000) begin
+                    case (rd)
+                        MSTATUS: payload.system.destinationCSR = rMSTATUS;
+                        MTVEC: payload.system.destinationCSR = rMTVEC;
+                        MIP: payload.system.destinationCSR = rMIP;
+                        MIE: payload.system.destinationCSR = rMIE;
+                        MCYCLE: payload.system.destinationCSR = rMCYCLE;
+                        MCYCLEH: payload.system.destinationCSR = rMCYCLEH;
+                        MINSTRET: payload.system.destinationCSR = rMINSTRET;
+                        MINSTRETH: payload.system.destinationCSR = rMINSTRETH;
+                        MSCRATCH: payload.system.destinationCSR = rMSCRATCH;
+                        MEPC: payload.system.destinationCSR = rMEPC;
+                        MCAUSE: payload.system.destinationCSR = rMCAUSE;
+                        MISA: payload.system.destinationCSR = rMISA;
+                        MVENDORID,
+                        MARCHID,
+                        MIMPID,
+                        MHARTID,
+                        MCONFIGPTR,
+                        MEDELEG,
+                        MIDELEG,
+                        MCOUNTEREN,
+                        MSTATUSH,
+                        MTVAL, // maybe do this?? 
+                        MHPMCOUNTER3,
+                        MHPMCOUNTER4,
+                        MHPMCOUNTER5,
+                        MHPMCOUNTER6,
+                        MHPMCOUNTER7,
+                        MHPMCOUNTER8,
+                        MHPMCOUNTER9,
+                        MHPMCOUNTER10,
+                        MHPMCOUNTER11,
+                        MHPMCOUNTER12,
+                        MHPMCOUNTER13,
+                        MHPMCOUNTER14,
+                        MHPMCOUNTER15,
+                        MHPMCOUNTER16,
+                        MHPMCOUNTER17,
+                        MHPMCOUNTER18,
+                        MHPMCOUNTER19,
+                        MHPMCOUNTER20,
+                        MHPMCOUNTER21,
+                        MHPMCOUNTER22,
+                        MHPMCOUNTER23,
+                        MHPMCOUNTER24,
+                        MHPMCOUNTER25,
+                        MHPMCOUNTER26,
+                        MHPMCOUNTER27,
+                        MHPMCOUNTER28,
+                        MHPMCOUNTER29,
+                        MHPMCOUNTER30,
+                        MHPMCOUNTER31,
+                        MHPMCOUNTER3H,
+                        MHPMCOUNTER4H,
+                        MHPMCOUNTER5H,
+                        MHPMCOUNTER6H,
+                        MHPMCOUNTER7H,
+                        MHPMCOUNTER8H,
+                        MHPMCOUNTER9H,
+                        MHPMCOUNTER10H,
+                        MHPMCOUNTER11H,
+                        MHPMCOUNTER12H,
+                        MHPMCOUNTER13H,
+                        MHPMCOUNTER14H,
+                        MHPMCOUNTER15H,
+                        MHPMCOUNTER16H,
+                        MHPMCOUNTER17H,
+                        MHPMCOUNTER18H,
+                        MHPMCOUNTER19H,
+                        MHPMCOUNTER20H,
+                        MHPMCOUNTER21H,
+                        MHPMCOUNTER22H,
+                        MHPMCOUNTER23H,
+                        MHPMCOUNTER24H,
+                        MHPMCOUNTER25H,
+                        MHPMCOUNTER26H,
+                        MHPMCOUNTER27H,
+                        MHPMCOUNTER28H,
+                        MHPMCOUNTER29H,
+                        MHPMCOUNTER30H,
+                        MHPMCOUNTER31H,
+                        MHPMEVENT3,
+                        MHPMEVENT4,
+                        MHPMEVENT5,
+                        MHPMEVENT6,
+                        MHPMEVENT7,
+                        MHPMEVENT8,
+                        MHPMEVENT9,
+                        MHPMEVENT10,
+                        MHPMEVENT11,
+                        MHPMEVENT12,
+                        MHPMEVENT13,
+                        MHPMEVENT14,
+                        MHPMEVENT15,
+                        MHPMEVENT16,
+                        MHPMEVENT17,
+                        MHPMEVENT18,
+                        MHPMEVENT19,
+                        MHPMEVENT20,
+                        MHPMEVENT21,
+                        MHPMEVENT22,
+                        MHPMEVENT23,
+                        MHPMEVENT24,
+                        MHPMEVENT25,
+                        MHPMEVENT26,
+                        MHPMEVENT27,
+                        MHPMEVENT28,
+                        MHPMEVENT29,
+                        MHPMEVENT30,
+                        MHPMEVENT31: payload.system.destinationCSR = rROZ;
+                        default: illegal = 1'b1;
+                    endcase
+                    case (instruction[14:12]) // funct3
+                        default: illegal = 1'b1;
+                        3'b001: begin
+                            payload.system.CSROp = CSR_RW;
+                            payload.system.CSRWriteIntent = 1'b1;
+                            payload.aluSource = ALU_RS1_RS2;
+                        end // csrrw
+                        3'b010: begin 
+                            payload.system.CSROp = CSR_RS;
+                            if (payload.sourceRegister2 != 5'd0) begin
+                                payload.system.CSRWriteIntent = 1'b1;
+                            end
+                            payload.aluSource = ALU_RS1_RS2;
+                            payload.aluOperation = ALU_OR;
+                        end // csrrs
+                        3'b011: begin
+                            payload.system.CSROp = CSR_RC;
+                            if (payload.sourceRegister2 != 5'd0) begin
+                                payload.system.CSRWriteIntent = 1'b1;
+                            end
+                            payload.aluSource = ALU_RS1_RS2;
+                            payload.aluOperation = ALU_AND;
+                        end // csrrc
+                        3'b101: begin
+                            payload.system.CSROp = CSR_RW;
+                            payload.immediate = {{27{1'b0}}, instruction[19:15]};
+                            payload.system.CSRWriteIntent = 1'b1;
+                            payload.aluSource = ALU_RS1_IMM;
+                            payload.aluOperation = ALU_OR;
+                        end // csrrwi
+                        3'b110: begin
+                            payload.system.CSROp = CSR_RS; 
+                            payload.immediate = {{27{1'b0}}, instruction[19:15]};
+                            if (payload.sourceRegister2 != 5'd0) begin
+                                payload.system.CSRWriteIntent = 1'b1;
+                            end
+                            payload.aluSource = ALU_RS1_IMM;
+                            payload.aluOperation = ALU_OR;
+                        end // csrrsi
+                        3'b111: begin
+                            payload.system.CSROp = CSR_RC;
+                            payload.immediate = {{27{1'b0}}, instruction[19:15]};
+                            if (payload.sourceRegister2 != 5'd0) begin
+                                payload.system.CSRWriteIntent = 1'b1;
+                            end
+                            payload.aluSource = ALU_RS1_IMM;
+                            payload.aluOperation = ALU_AND;
+                        end // csrrci
+                    endcase
+                    if (payload.system.CSRWriteIntent && (payload.system.destinationCSR == rROZ)) begin // REWRITE
+                        illegal = 1'b1;
+                    end
+                end else begin
+                    case (instruction)
+                        /*
+                        32'h00000073: payload.trapPayload.trapType = ECALL;
+                        32'h00100073: payload.trapPayload.trapType = EBREAK;
+                        */
+                        32'h30200073: begin
+                            payload.system.mret = 1'd1;
+                            payload.system.destinationCSR = rMEPC;
+                        end
+                        32'h10500073: ; // NOP
+                        default: illegal = 1'b1;
+                    endcase
+                end
+            end // I-type   (CSR / ECALL / EBREAK / MRET / WFI (NOP))
 
             default: begin
                 illegal = 1'b1;
