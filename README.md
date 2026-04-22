@@ -160,6 +160,9 @@ This keeps self-referential instructions aligned with correct pipeline-time owne
 
 The old-status path is also adjusted for same-cycle ready and retire events before the payload is registered forward. This is necessary because the captured state may otherwise lag the true pipeline view by one cycle. By patching that state before operand select consumes it, Anvil-Pro avoids false dependencies and source mis-selection without introducing heavier inter-stage correction logic.
 
+### CSRs
+Anvil-Pro aggressively serializes CSR instructions. This descision comes with both positives and negatives, depending on the POV of the user. The aggressive serialization serves the primary purpose of removing the forwarding network used for traditional register operations. A large portion of Anvil-Pro is dedicated to ensuring data is correctly forwarded age wise throughout the pipeline, which simultaniously allows performance and requires significant interconnect. Given that CSR instructions are infrequent, it was descided that a full forwarding network was not worth the resource cost. This necessitates that CSR instructions never encounter a case in which forwarding would be necissary. This behavior is enforced in the issuer contract. While poor in performance, CSR instructions barely hit overall CPU performance due to their infrequent usage. 
+
 ### Memory
 Not globally visable at retirement. All regions treated as cachable, but this is easily alterable.
 
