@@ -265,6 +265,7 @@ This means prediction in Anvil-Pro must be analyzed asymmetrically. Not taken is
 - Small L1$ to Locally Control Bandwidth
 
 ### TODO List
+- MCYCLEH/MINSTRETH
 - CSR Hardware Side Effects
 - MRET
 - Trap Causing Instruction Support
