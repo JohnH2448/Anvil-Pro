@@ -28,6 +28,7 @@ Core/                              # Main RTL Folder
 │  ├─ Control.sv                   # Flushes Pipeline
 │  ├─ RegisterFile.sv              # Holds Objective Register Data
 │  ├─ RegisterStatusTable.sv       # Dictates Register Ownership and State
+│  ├─ BusArbitrator.sv             # Multiplexes Slave Bus From Address Range
 │  ├─ CSRFile.sv                   # Holds and Updates Objective CSR Data
 │  ├─ InterruptController.sv       # MMIO Configurable Interrupt Timer
 │  └─ StoreBuffer.sv               # Bypasses Load Issue Restrictions
@@ -51,3 +52,6 @@ Core/                              # Main RTL Folder
 
 ## Reference
 See `ARCHITECTURE.md` for technical reference, design philosophy, and performance microarchitecture rationale. For writing software, stay tuned. A full software-perspective interface guide will be provided with the first published release. 
+
+## Notice
+This is not done. I do not reccomend you use it unless you masochistically enjoy debugging CPUs.
