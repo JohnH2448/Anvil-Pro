@@ -28,6 +28,7 @@ Core/                              # Main RTL Folder
 │  ├─ Control.sv                   # Flushes Pipeline
 │  ├─ RegisterFile.sv              # Holds Objective Register Data
 │  ├─ RegisterStatusTable.sv       # Dictates Register Ownership and State
+│  ├─ BusArbitrator.sv             # Multiplexes Slave Bus From Address Range
 │  ├─ CSRFile.sv                   # Holds and Updates Objective CSR Data
 │  ├─ InterruptController.sv       # MMIO Configurable Interrupt Timer
 │  └─ StoreBuffer.sv               # Bypasses Load Issue Restrictions
