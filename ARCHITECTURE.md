@@ -238,7 +238,6 @@ mtimeh: `0x8000_000C`
 
 ### TODO List
 - MCYCLEH/MINSTRETH
-- Better Trap/System Verification
-- CLINT MMIO
-- Interupt Support
+- FreeRTOS Build
+- Better Verification
 - RISCOF Pass
