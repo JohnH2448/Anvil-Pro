@@ -6,7 +6,7 @@ Anvil-Pro is a dual-issue RISC-V RV32I + Zicsr softcore targeting FPGA platforms
 
 The microarchitecture implements a 6-stage pipeline with in-order commit via a reorder buffer, a LSU with buffered memory queueing, and a 256-bit “Walking Window” fetch system. Instruction memory is implemented using inferred synchronous BRAM, while data memory is accessed through an external Wishbone interface.
 
-The design is optimized for efficient FPGA fabric utilization, competitive performance, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom RISC-V system integration.
+The design is optimized for efficient FPGA fabric utilization, competitive performance, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom SoC system integration.
 
 ## Architecture Highlights
 - Dual-Issue Superscalar
@@ -21,16 +21,7 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - Single LSU (Wishbone Classic)
 - Memory Queue + Store Buffer
 - 6-Stage Pipeline
-- Register Status Table Bookeeping
-
-## Memory Map
-Main Memory (RAM): `0x0000_0000` - `0x7FFF_FFFF`     
-Device Memory (MMIO): `0x8000_0000` - `0xFFFF_FFFF`
-
-mtimecmp: `0x8000_0000`     
-mtimecmph: `0x8000_0004`     
-mtime: `0x8000_0008`    
-mtimeh: `0x8000_000C`     
+- Register Status Table Bookeeping 
 
 ## Repository Graph
 ```bash
@@ -43,6 +34,7 @@ Core/                              # Main RTL Folder
 │  ├─ RegisterFile.sv              # Holds Objective Register Data
 │  ├─ RegisterStatusTable.sv       # Dictates Register Ownership and State
 │  ├─ CSRFile.sv                   # Holds and Updates Objective CSR Data
+│  ├─ InterruptController.sv       # MMIO Configurable Interrupt Timer
 │  └─ StoreBuffer.sv               # Bypasses Load Issue Restrictions
 ├─ Memory/                         # Memory Interface Folder
 │  ├─ InstructionMemory.sv         # BRAM Instruction Memory
@@ -64,52 +56,72 @@ Core/                              # Main RTL Folder
 
 ## Frontend
 ### Fetch Methodology
-Anvil-Pro’s front end is designed to sustain a 2-wide issue demand while minimizing redirect penalty and keeping FPGA fabric cost low. Sharing an external instruction interface with the DMEM subsystem was evaluated and rejected: bus arbitration and protocol state add latency, introduce additional control complexity, and reduce deterministic control of fetch timing. Instead, Anvil-Pro uses a strict Harvard organization. IMEM is implemented as inferred synchronous BRAM, allowing instruction fetch to run independently of LSU traffic.
+Anvil-Pro’s front end is designed to sustain a 2-wide issue demand while minimizing redirect penalty and keeping FPGA fabric cost low. Sharing an external instruction interface with the DMEM subsystem was evaluated and rejected: bus arbitration and protocol state add latency, introduce additional control complexity, and bottleneck memory traffic. Instead, Anvil-Pro uses a strict Harvard organization. IMEM is implemented as inferred synchronous BRAM, allowing instruction fetch to run independently of LSU traffic.
 
 With BRAM-backed IMEM, the remaining optimization is microarchitectural. Canonical queue-driven fetch buffering was initially deployed, but the additional state (FIFO depth, fill/drain behavior, tagging, and boundary handling) increased area and amplified redirect recovery cost. The final design uses a custom 256-bit “Walking Window” prefetch mechanism that exploits wide BRAM reads and dual read ports. Two adjacent 128-bit aligned windows track the canonical PC and are incremented alongside it. Decode requests are satisfied by slicing 32-bit instructions directly from these windows, allowing the BRAM -> IF/ID path to remain direct with no additional stateful staging.
 
 ![Pipeline](Docs/WalkingWindow.png)
 
-Redirects are wired directly into the registered BRAM address path, so a control transfer immediately updates the fetch address without draining or refilling an intermediate queue. Because no FIFO sits between BRAM and IF/ID, redirect recovery does not pay a queue drain/refill penalty; the next-path instruction becomes visible as soon as the redirected BRAM read returns. This keeps the front end small, deterministic, and tightly aligned with FPGA memory behavior while still providing enough lookahead to sustain a 2-issue demand under sequential flow.
+Redirects are wired directly into the registered BRAM address path, so a control transfer immediately updates the fetch address without draining or refilling an intermediate queue. Because no FIFO sits between BRAM and IF/ID, redirect recovery does not pay a queue drain/refill penalty; the next-path instruction becomes visible as soon as the redirected BRAM read returns. This keeps the front end small, easy to reason about, and tightly aligned with FPGA memory behavior while still providing strong lookahead to sustain a 2-issue demand under sequential flow.
 
-Taken together, the design sustains ~2 IPC to the backend on branchless workloads. Following a misprediction, fetch incurs no cycle penalty and the correct instruction stream is already available as if in linear program-order. The approach also avoids LUTRAM-heavy structures such as caches or prefetch queues, substantially reducing FPGA resource usage.
+Taken together, the design sustains ~2 IPC to the backend on branchless workloads. Following a misprediction, the frontend incurs minimal redirect penalty and the correct instruction stream is immediately available to the issuer as if in linear program-order. The approach also avoids LUTRAM-heavy structures such as caches or prefetch queues, substantially reducing FPGA resource usage.
 
 ### Issuer Architecture
 Many dual-issue pipelines rely on backend stall propagation, replay behavior, and broad inter-stage backpressure to repair hazards after dispatch. While flexible, that style of control increases combinational depth and dramatically complicates verification.
 
 Anvil-Pro takes a more constrained approach. Most hazards are resolved at issue time through refusal rather than repaired later in the backend. Structural conflicts, pairing restrictions, and capacity limits are handled before dispatch, which keeps the pipeline simpler and reduces the amount of dynamic control required once instructions are in flight.
 
-Some localized stalls are still employed where they provide a clear IPC benefit, but these are narrow and deliberate rather than part of a general replay-driven backend. The pipeline is therefore not built around broad freeze-and-repair behavior. Instead, it remains primarily issue-governed, with small targeted hold points used only where they materially improve throughput. This preserves timing and verification advantages of an issue-centric design while avoiding unnecessary conservatism in performance-critical cases.
-
-### Prediction
-Two-bit saturating counter now. Not taken has no cycle penalty, while taken has two cycle penalty. More on this later.
+Some localized stalls are still employed where they provide a clear IPC benefit, but these are narrow and deliberate rather than part of a general replay-driven backend. The pipeline is therefore not built around broad freeze-and-repair behavior. Instead, it remains primarily issue-governed, with small targeted hold points used only where they materially improve throughput. This preserves the advantages of an issue-centric design while avoiding unnecessary conservatism in performance-critical cases.
 
 ### Issuer Contract
 The issuer guarantees that any dispatched work satisfies the following invariants for common instruction types:
 ```txt
 # Single Slot Access to LSU
 - Lower Slot May Not Issue Memory Operations
+
 # Slot 0/1 Dependency Rule
-- Lower Slot Must Not Issue When Reading an Upper Slot Destination Register Unless Cross-Lane EX/EX Bypass Handles It
-# Slot 0/1 Dependency Rule
+- Lower Slot Must Not Issue When Reading an Upper Slot Destination Register Unless Cross-Lane EX/EX Bypass Is Enabled
+
+# Load Dependency Rule
 - Lower Slot Must Not Issue on a Same-Cycle Dependency When the Upper Slot Producer Is a Load
+
 # Handles Edge Case Window Alignment Failure
 - Lower Slot Must Not Issue on Bad Fetch
+
 # Prevents Ghost Instructions
 - If the ROB Has One Free Entry, Lower Slot Must Not Issue
+
 # Prevents Ghost Instructions
 - If the ROB Is Full, Neither Slot May Issue
+
 # Ensures Pipeline is Flushed Correctly
 - Neither Slot May Issue During a Redirect
+
 # Solves RST Ownership Conflicts
 - Neither Slot May Issue When Its Destination Register Is Being Loaded
+
 # Prevents Ghost Memory Operations
 - Neither Slot May Issue Memory Operations When Memory Queue is Full
+
 # Ensures Correct Taken-Path Prediction Semantics
 - Lower Slot Must Not Issue When Upper Slot Is a Taken Predicted Branch
+
 # Preserves Backend Hold Semantics
 - Neither Slot May Issue During an Operand-Select Stall
+
+# CSR Write Conflict Rule
+- Lower Slot Must Not Issue When Both Slots Write the Same CSR
+
+# CSR Availability Rule
+- Neither Slot May Issue to a Busy CSR
+
+# MRET Dependency Rule
+- Neither Slot May Issue MRET When MEPC is Busy
+
+# Exception Safety Rule
+- Neither Slot May Issue When an Exception Is Pending
 ```
+
 ## Backend
 ### Philosophy
 Anvil-Pro contains a relatively simple backend compared to many other superscalar implementations. It features two pipelines, each composed of an operand-selection stage followed by an execute stage. After execution, instructions either return directly to the reorder buffer or are handed off to a unified memory queue, depending on the operation type.
@@ -264,6 +276,15 @@ Here is odd data regarding predictor benificiality. These "strange" results aris
 The performance model for branch prediction in Anvil-Pro is TP > 2*FP, where TP is the number of correct taken predictions and FP is the number of incorrect taken predictions. Equivalently: whenever a taken prediction is asserted, it must be correct more than two-thirds of the time to be non-detrimental.
 
 This means prediction in Anvil-Pro must be analyzed asymmetrically. Not taken is the neutral baseline, while taken is a speculative performance bet with nontrivial downside. The model is not one where taken and not taken are equally cheap alternatives and prediction simply biases toward the statistically more likely outcome. Instead, asserting taken is only beneficial when confidence is sufficiently high, making certainty a first-order design concern rather than a secondary detail.
+
+## Memory Map
+Main Memory (RAM): `0x0000_0000` - `0x7FFF_FFFF`     
+Device Memory (MMIO): `0x8000_0000` - `0xFFFF_FFFF`
+
+mtimecmp: `0x8000_0000`     
+mtimecmph: `0x8000_0004`     
+mtime: `0x8000_0008`    
+mtimeh: `0x8000_000C`    
 
 ### Potential Optimizations
 - Dual Lane Memory Support
