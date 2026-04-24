@@ -159,6 +159,7 @@ module Top (
     logic outputValid;
 
     // Data Memory Outputs
+    WishboneSlave_ dmemBus;
     WishboneSlave_ memBusIn;
 
     // Instruction Memory Outputs
@@ -170,9 +171,13 @@ module Top (
     logic [31:0] CSRData2;
     logic [31:0] mepc;
     logic [31:0] mtvec;
+    logic mstatusMIE;
+    logic mieMTIE;
 
     // Interrupt Controller Outputs
     logic interrupt;
+    logic timerFull;
+    WishboneSlave_ clintBus;
 
     MemoryQueue memoryQueue (
         .clock(clock), // input
@@ -226,13 +231,20 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
         .memBusOut(memBusOut), // input
+        .dmemBus(dmemBus) // output
+    );
+
+    BusArbitrator busArbitrator (
+        .memBusOut(memBusOut), // input
+        .dmemBus(dmemBus), // input
+        .clintBus(clintBus), // input
         .memBusIn(memBusIn) // output
     );
 
     CSRFile csrFile (
         .clock(clock), // input
         .reset(reset), // input
-        .readCSR1(readCSR1), // input
+        .readCSR1(readCSR1), // input 
         .CSRData1(CSRData1), // output
         .readCSR2(readCSR2), // input
         .CSRData2(CSRData2), // output
@@ -240,6 +252,9 @@ module Top (
         .csrOut2(csrOut2), // input
         .mepc(mepc), // output
         .mtvec(mtvec), // output
+        .mstatusMIE(mstatusMIE), // output
+        .timerFull(timerFull), // input
+        .mieMTIE(mieMTIE), // output
         .exceptionTaken(exceptionTaken), // input
         .exceptionPC(exceptionPC), // input 
         .exceptionType(exceptionType), // input
@@ -515,8 +530,12 @@ module Top (
     InterruptController interruptController (
         .clock(clock), // input
         .reset(reset), // input
-        .interruptTaken(interruptTaken), // input
-        .interrupt(interrupt) // output
+        .timerFull(timerFull), // output
+        .mstatusMIE(mstatusMIE), // input
+        .mieMTIE(mieMTIE), // input
+        .interrupt(interrupt), // output
+        .memBusOut(memBusOut), // input
+        .clintBus(clintBus) // output
     );
 
     DecodeIssue decodeIssue (
@@ -562,7 +581,6 @@ module Top (
         .stall(stall), // input 
 
         .exceptionForFrontend(exceptionForFrontend), // input
-        .interruptTaken(interruptTaken), // output
         .interrupt(interrupt), // input
 
         .retireTag1(resolvedInstruction1.ageTag), // input

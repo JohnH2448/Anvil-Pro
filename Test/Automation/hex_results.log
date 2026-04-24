@@ -11,6 +11,7 @@ bltu.hex: PASS, IPC=1.0582
 bne.hex: PASS, IPC=1.0071
 dependency.hex: PASS, IPC=0.7898
 heavytrap.hex: PASS, IPC=0.6502
+interrupts.hex: PASS, IPC=0.5625
 jal.hex: PASS, IPC=1.2973
 jalr.hex: PASS, IPC=0.9310
 long.hex: PASS, IPC=0.7851

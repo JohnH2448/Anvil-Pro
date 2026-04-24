@@ -101,8 +101,7 @@ module DecodeIssue (
     input logic exceptionTaken,
 
     // Interrupt Interaction
-    input logic interrupt,
-    output logic interruptTaken
+    input logic interrupt
 
 );
 
@@ -213,7 +212,6 @@ module DecodeIssue (
     );
 
     // Small Exception Stall FSM
-    // NOT DONE
     logic exceptionPending;
     always_ff @(posedge clock) begin
         if (reset) begin
@@ -712,14 +710,6 @@ module DecodeIssue (
         if (!stall) begin
             payload1 <= finalUpperPayload;
             payload2 <= finalLowerPayload;
-        end
-    end
-
-    // Interrupt Acknowledge
-    always_comb begin
-        interruptTaken = 1'b0;
-        if (interrupt && instructionConsumed1) begin
-            interruptTaken = 1'd1;
         end
     end
 

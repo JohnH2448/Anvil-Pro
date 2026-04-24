@@ -13,7 +13,7 @@ module PlaceholderDMEM #(
 
     // Wishbone Bus
     input WishboneMaster_ memBusOut,
-    output WishboneSlave_ memBusIn
+    output WishboneSlave_ dmemBus
 
 );
 
@@ -24,7 +24,7 @@ module PlaceholderDMEM #(
     integer debugCycle;
 
     WishboneSlave_ memBusInRegister;
-    assign memBusIn = memBusInRegister;
+    assign dmemBus = memBusInRegister;
 
     logic requestPending;
     logic [31:0] latchedAddress;

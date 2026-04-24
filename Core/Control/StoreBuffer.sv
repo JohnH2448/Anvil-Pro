@@ -280,6 +280,6 @@ module StoreBuffer (
                 endcase
             end
         end
-    end
+    end 
     
 endmodule 

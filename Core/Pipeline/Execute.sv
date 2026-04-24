@@ -80,9 +80,9 @@ module Execute (
         endcase
 
         accessFault = 1'b0;
-        if (result1 < dLowerBound) begin
+        if (!result1[31] && result1 < dLowerBound) begin
             accessFault = 1'b1;
-        end else if ((result1 + {29'd0, accessBytes}) > dUpperBound) begin
+        end else if (!result1[31] && ((result1 + {29'd0, accessBytes}) > dUpperBound)) begin
             accessFault = 1'b1;
         end
 

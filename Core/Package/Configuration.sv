@@ -2,7 +2,7 @@ package Configuration;
 
     // Definables
     parameter logic [31:0] resetVector = 32'd0;
-    parameter logic debugMode = 1'd0;
+    parameter logic debugMode = 1'd1;
     parameter logic autoTest = 1'd1;
     parameter logic crossLaneExBypass = 1'd1;
     parameter int unsigned reorderBufferEntries = 16;

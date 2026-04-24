@@ -186,6 +186,8 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail].CSRWriteIntent <= issuedInstruction1.CSRWriteIntent;
                 reorderBuffer[redirectAdjustedTail].destinationCSR <= issuedInstruction1.destinationCSR;
                 reorderBuffer[redirectAdjustedTail].mret <= issuedInstruction1.mret;
+                reorderBuffer[redirectAdjustedTail].trapType <= NONE;
+
                 reorderBuffer[redirectAdjustedTail].completed <= 1'b0;
             end
             if (issuedInstruction2.confirm) begin
@@ -197,6 +199,7 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail + 'd1].destinationCSR <= issuedInstruction2.destinationCSR;
                 reorderBuffer[redirectAdjustedTail + 'd1].mret <= issuedInstruction2.mret;
                 reorderBuffer[redirectAdjustedTail + 'd1].completed <= 1'b0;
+                reorderBuffer[redirectAdjustedTail + 'd1].trapType <= NONE;
             end
         end
     end
@@ -501,14 +504,15 @@ module ReorderBuffer (
                     logic [reorderBufferIndexWidth-1:0] queueIndex;
                     if (offset < entries) begin
                         queueIndex = headIndexer + reorderBufferIndexWidth'(offset);
-                        $display("[%0d] pc=%08h rd=x%0d tag=%0d ready=%0b stdOp=%0b data=%08h",
+                        $display("[%0d] pc=%08h rd=x%0d tag=%0d ready=%0b stdOp=%0b data=%08h trap=%0d",
                             queueIndex,
                             reorderBuffer[queueIndex].programCounter,
                             reorderBuffer[queueIndex].destinationRegister,
                             reorderBuffer[queueIndex].ageTag,
                             reorderBuffer[queueIndex].completed,
                             reorderBuffer[queueIndex].standardOp,
-                            reorderBuffer[queueIndex].instructionResult);
+                            reorderBuffer[queueIndex].instructionResult,
+                            reorderBuffer[queueIndex].trapType);
                     end
                 end
             end

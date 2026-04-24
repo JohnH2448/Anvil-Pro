@@ -25,13 +25,18 @@ module CSRFile (
     // Window Communication
     output logic [31:0] mepc,
     output logic [31:0] mtvec,
+    output logic mstatusMIE,
+    output logic mieMTIE,
 
     // Exception Metadata
     input logic exceptionTaken,
     input logic [31:0] exceptionPC,
-    input TrapType_ exceptionType
+    input TrapType_ exceptionType,
 
-);
+    // CLINT Coms
+    input logic timerFull
+
+); // MIP is a CSR but the register is essentially ignored
 
     // CSR File
     logic [31:0] CSRFile [0:rMCAUSE];
@@ -39,6 +44,12 @@ module CSRFile (
     // CSR Outputs
     assign mepc = CSRFile[rMEPC];
     assign mtvec = CSRFile[rMTVEC];
+    assign mstatusMIE = CSRFile[rMSTATUS][3];
+    assign mieMTIE = CSRFile[rMIE][7];
+
+    // Pending Interrupt
+    logic mip;
+    assign mip = timerFull;
 
     // MCAUSE Enumeration Mapping
     logic [3:0] causeCode;
@@ -83,7 +94,6 @@ module CSRFile (
             rMEPC: correctedWriteData1 = {csrOut1.csrResult[31:2], 2'b00};
             rMTVEC: correctedWriteData1 = {csrOut1.csrResult[31:2], 2'b00};
             rMIE: correctedWriteData1 = {20'b0, csrOut1.csrResult[11], 3'b0, csrOut1.csrResult[7], 3'b0, csrOut1.csrResult[3], 3'b0};
-            rMIP: correctedWriteData1 = CSRFile[rMIP];
             default: correctedWriteData1 = csrOut1.csrResult;
         endcase
 
@@ -92,7 +102,6 @@ module CSRFile (
             rMEPC: correctedWriteData2 = {csrOut2.csrResult[31:2], 2'b00};
             rMTVEC: correctedWriteData2 = {csrOut2.csrResult[31:2], 2'b00};
             rMIE: correctedWriteData2 = {20'b0, csrOut2.csrResult[11], 3'b0, csrOut2.csrResult[7], 3'b0, csrOut2.csrResult[3], 3'b0};
-            rMIP: correctedWriteData2 = CSRFile[rMIP];
             default: correctedWriteData2 = csrOut2.csrResult;
         endcase
 
@@ -108,6 +117,8 @@ module CSRFile (
             CSRData1 = 32'h40000100;
         end else if (readCSR1 >= rROZ) begin
             CSRData1 = 32'h00000000;
+        end else if (readCSR1 == rMIP) begin
+            CSRData1 = {24'b0, mip, 7'b0};
         end else begin
             CSRData1 = CSRFile[readCSR1];
         end
@@ -115,6 +126,8 @@ module CSRFile (
             CSRData2 = 32'h40000100;
         end else if (readCSR2 >= rROZ) begin
             CSRData2 = 32'h00000000;
+        end else if (readCSR2 == rMIP) begin
+            CSRData2 = {24'b0, mip, 7'b0};
         end else begin
             CSRData2 = CSRFile[readCSR2];
         end
@@ -183,7 +196,7 @@ module CSRFile (
         if (!reset && debugMode) begin
             $display("\nCSR File");
             $display("mstatus=%08h mtvec=%08h mip=%08h mie=%08h",
-                CSRFile[rMSTATUS], CSRFile[rMTVEC], CSRFile[rMIP], CSRFile[rMIE]);
+                CSRFile[rMSTATUS], CSRFile[rMTVEC], {24'b0, mip, 7'b0}, CSRFile[rMIE]);
             $display("mcycle=%08h mcycleh=%08h minstret=%08h minstreth=%08h",
                 CSRFile[rMCYCLE], CSRFile[rMCYCLEH], CSRFile[rMINSTRET], CSRFile[rMINSTRETH]);
             $display("mscratch=%08h mepc=%08h mcause=%08h misa=%08h",
