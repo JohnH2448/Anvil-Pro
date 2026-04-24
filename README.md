@@ -14,6 +14,7 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - Harvard Split BRAM IMEM + External DMEM
 - Branch Prediction
 - 256-Bit "Walking Window" Prefetch
+- FreeRTOS Compatable
 - MMIO Interfaceable CLINT
 - Single LSU (Wishbone Classic)
 - 6-Stage Pipeline
