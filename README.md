@@ -23,6 +23,15 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - 6-Stage Pipeline
 - Register Status Table Bookeeping
 
+## Memory Map
+Main Memory (RAM): `0x0000_0000` - `0x7FFF_FFFF`     
+Device Memory (MMIO): `0x8000_0000` - `0xFFFF_FFFF`
+
+mtimecmp: `0x8000_0000`     
+mtimecmph: `0x8000_0004`     
+mtime: `0x8000_0008`    
+mtimeh: `0x8000_000C`     
+
 ## Repository Graph
 ```bash
 Core/                              # Main RTL Folder
