@@ -30,16 +30,7 @@ module StoreBuffer (
     output logic [31:0] finalOutputData,
     output logic outputValid
 
-); // THIS NEEDS TO REASON PER BYTE, NOT PER WORD
-// DOABLE BUT NEEDS A STRUCTURE THAT STATES IF A WORD IS BUILDABLE
-// FROM BUFFER OR IF IT NEEDS DMEM. REFUSE AND PUT IN QUEUE IF DMEM
-// QUITE COMPLEX LITTLE PROJECT. NEED STATE AWARENESS TRACKING PER
-// BYTE AND CAN'T ASSUME BLANK SLATE MEMORY EITHER. ALSO INTRODUCES
-// EXECUTION ENVIORNMENT DEFINITIONS AND REDUCES SOC/SMC USAGE.
-// FINE IF GUARENTEED SCRATCHPAD RAM BUT BREAKS ON SELF MODIFYING.
-// PERHAPS DEFINE A SCRATCHPAD REGION AND UNSAFE REGION, AND BUFFER
-// REFUSE IF NOT IN SCRATCHPAD. MAY BE SOME DEFINITION HERE WITH FENCE
-// MAY NEED PARAMETERIZABLE DEFINABLE MEMORY REGIONS
+); 
 
     // Store Buffer Shift Register Entries
     StoreBus_ shiftEntries [0:storeBufferEntries-1];
@@ -52,7 +43,7 @@ module StoreBuffer (
             end
         end else begin
             for (int unsigned i = 0; i < storeBufferEntries; i++) begin
-                if (acknowledge && storeBus1.valid) begin
+                if (acknowledge && storeBus1.valid && !storeBus1.address[31]) begin
                     if (i != (storeBufferEntries - 1)) begin
                         shiftEntries[i] <= shiftEntries[i + 1];
                     end else begin
@@ -247,45 +238,47 @@ module StoreBuffer (
         shiftedLoadData = byteBlob >> (8 * inputAddress[1:0]);
         loadByte = shiftedLoadData[7:0];
         loadHalf = shiftedLoadData[15:0];
-        unique case (loadWidth)
-            2'b00: begin
-                unique case (inputAddress[1:0])
-                    2'b00: outputValid = outputByte1Valid;
-                    2'b01: outputValid = outputByte2Valid;
-                    2'b10: outputValid = outputByte3Valid;
-                    2'b11: outputValid = outputByte4Valid;
-                endcase
-            end
-            2'b01: begin
-                unique case (inputAddress[1:0])
-                    2'b00: outputValid = outputByte1Valid && outputByte2Valid;
-                    2'b01: outputValid = outputByte2Valid && outputByte3Valid;
-                    2'b10: outputValid = outputByte3Valid && outputByte4Valid;
-                    2'b11: outputValid = 1'b0;
-                endcase
-            end
-            2'b11: outputValid = (inputAddress[1:0] == 2'b00)
-                && outputByte4Valid && outputByte3Valid && outputByte2Valid && outputByte1Valid;
-        endcase
-        if (outputValid) begin
-            outputValid = 1'd1;
+        if (!inputAddress[31]) begin
             unique case (loadWidth)
                 2'b00: begin
-                    if (loadSigned) begin
-                        finalOutputData = {{24{loadByte[7]}}, loadByte};
-                    end else begin
-                        finalOutputData = {24'b0, loadByte};
-                    end
+                    unique case (inputAddress[1:0])
+                        2'b00: outputValid = outputByte1Valid;
+                        2'b01: outputValid = outputByte2Valid;
+                        2'b10: outputValid = outputByte3Valid;
+                        2'b11: outputValid = outputByte4Valid;
+                    endcase
                 end
                 2'b01: begin
-                    if (loadSigned) begin
-                        finalOutputData = {{16{loadHalf[15]}}, loadHalf};
-                    end else begin
-                        finalOutputData = {16'b0, loadHalf};
-                    end
+                    unique case (inputAddress[1:0])
+                        2'b00: outputValid = outputByte1Valid && outputByte2Valid;
+                        2'b01: outputValid = outputByte2Valid && outputByte3Valid;
+                        2'b10: outputValid = outputByte3Valid && outputByte4Valid;
+                        2'b11: outputValid = 1'b0;
+                    endcase
                 end
-                2'b11: finalOutputData = byteBlob;
+                2'b11: outputValid = (inputAddress[1:0] == 2'b00)
+                    && outputByte4Valid && outputByte3Valid && outputByte2Valid && outputByte1Valid;
             endcase
+            if (outputValid) begin
+                outputValid = 1'd1;
+                unique case (loadWidth)
+                    2'b00: begin
+                        if (loadSigned) begin
+                            finalOutputData = {{24{loadByte[7]}}, loadByte};
+                        end else begin
+                            finalOutputData = {24'b0, loadByte};
+                        end
+                    end
+                    2'b01: begin
+                        if (loadSigned) begin
+                            finalOutputData = {{16{loadHalf[15]}}, loadHalf};
+                        end else begin
+                            finalOutputData = {16'b0, loadHalf};
+                        end
+                    end
+                    2'b11: finalOutputData = byteBlob;
+                endcase
+            end
         end
     end
     
