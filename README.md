@@ -51,3 +51,6 @@ Core/                              # Main RTL Folder
 
 ## Reference
 See `ARCHITECTURE.md` for technical reference, design philosophy, and performance microarchitecture rationale. For writing software, stay tuned. A full software-perspective interface guide will be provided with the first published release. 
+
+## Notice
+This is not done. I do not reccomend you use it unless you masochistically enjoy debugging CPUs.
