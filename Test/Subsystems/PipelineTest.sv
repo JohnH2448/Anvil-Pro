@@ -33,6 +33,9 @@ module Top (
     CSRRestore_ csrBus1;
     CSRRestore_ csrBus2;
     CSRRestore_ csrBus3;
+    logic exceptionTaken;
+    logic [31:0] exceptionPC;
+    TrapType_ exceptionType;
 
     // Register Status Table Outputs
     RegisterStatusOutput_ upperSource1Status;
@@ -74,6 +77,7 @@ module Top (
     logic [31:0] branchProgramCounter;
     logic predictionSlot0;
     logic outputJal;
+    logic interruptTaken;
 
     // Branch Predictor Outputs
     logic taken;
@@ -125,6 +129,8 @@ module Top (
     logic [31:0] inputAddress;
     logic [1:0] loadWidth;
     logic loadSigned;
+    logic isMRET;
+    logic exceptionForFrontend;
 
     // Walking Window Outputs
     logic [31:0] lowFetchAddress;
@@ -162,6 +168,11 @@ module Top (
     // CSR File Outputs
     logic [31:0] CSRData1;
     logic [31:0] CSRData2;
+    logic [31:0] mepc;
+    logic [31:0] mtvec;
+
+    // Interrupt Controller Outputs
+    logic interrupt;
 
     MemoryQueue memoryQueue (
         .clock(clock), // input
@@ -227,6 +238,11 @@ module Top (
         .CSRData2(CSRData2), // output
         .csrOut1(csrOut1), // input
         .csrOut2(csrOut2), // input
+        .mepc(mepc), // output
+        .mtvec(mtvec), // output
+        .exceptionTaken(exceptionTaken), // input
+        .exceptionPC(exceptionPC), // input 
+        .exceptionType(exceptionType), // input
         .retire1Valid(retireCount[0] || retireCount[1]), // input
         .retire2Valid(retireCount[1]) // input
     );
@@ -273,6 +289,10 @@ module Top (
         .csrBus1(csrBus1), // output
         .csrBus2(csrBus2), // output
         .csrBus3(csrBus3), // output
+
+        .exceptionTaken(exceptionTaken), // input
+        .exceptionPC(exceptionPC), // input 
+        .exceptionType(exceptionType), // input
 
         .upperForward1(upperROBData1), // output
         .upperForward2(upperROBData2), // output
@@ -437,7 +457,7 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
 
-        .redirect(redirect), // output
+        .redirect(redirect), // output 
         .redirectVector(redirectVector), // output
 
         .mispredict1(mispredict1), // output
@@ -452,6 +472,8 @@ module Top (
 
         .exMemory(exMemory), // output
 
+        .isMRET(isMRET), // output
+
         .exPayload1(exPayload1), // input
         .exPayload2(exPayload2), // input
 
@@ -462,6 +484,8 @@ module Top (
         .loadSigned(loadSigned), // output
         .loadWidth(loadWidth), // output
         .inputAddress(inputAddress), // output
+
+        .exceptionForFrontend(exceptionForFrontend), // output
 
         .resultPayload1(resultPayload1), // output
         .resultPayload2(resultPayload2) // output
@@ -486,6 +510,13 @@ module Top (
         .bpUpdatePC2(bpUpdatePC2), // input
         .bpUpdateTaken2(bpUpdateTaken2) // input
 
+    );
+
+    InterruptController interruptController (
+        .clock(clock), // input
+        .reset(reset), // input
+        .interruptTaken(interruptTaken), // input
+        .interrupt(interrupt) // output
     );
 
     DecodeIssue decodeIssue (
@@ -515,6 +546,8 @@ module Top (
         .freeTag1(freeTag1), // input
         .freeTag2(freeTag2), // input
 
+        .exceptionTaken(exceptionTaken), // input
+
         .memFreeSlot(memFreeSlot), // input
 
         .oldUpperStatusRd(oldUpperStatusRd), // output
@@ -527,6 +560,10 @@ module Top (
         .taken(taken), // input
         .outputJal(outputJal), // output 
         .stall(stall), // input 
+
+        .exceptionForFrontend(exceptionForFrontend), // input
+        .interruptTaken(interruptTaken), // output
+        .interrupt(interrupt), // input
 
         .retireTag1(resolvedInstruction1.ageTag), // input
         .retireValid1(resolvedInstruction1.valid), // input
@@ -577,10 +614,14 @@ module Top (
         .instructionConsumed1(instructionConsumed1), // input
         .instructionConsumed2(instructionConsumed2), // input
         .programCounter(programCounter), // output
-        .taken(taken), // input
+        .taken(taken), // input 
+        .mepc(mepc), // output
         .precalcAddress(precalcAddress), // input
+        .isMRET(isMRET), // input
         .requestPC1(requestPC1), // input
         .requestPC2(requestPC2), // input
+        .exceptionTaken(exceptionTaken), // input
+        .mtvec(mtvec), // input 
         .badData(badData) // output
     );
 
@@ -589,11 +630,15 @@ module Top (
         .reset(reset), // input
         .redirect(redirect), // input
         .redirectVector(redirectVector), // input
-        .taken(taken), // input 
+        .isMRET(isMRET), // input
+        .mepc(mepc), // input
+        .taken(taken), // input  
         .precalcAddress(precalcAddress), // input
         .readAddressA(lowFetchAddress), // input
         .readDataA(lowFetchData), // output
         .readAddressB(highFetchAddress), // input
+        .exceptionTaken(exceptionTaken), // input
+        .mtvec(mtvec), // input
         .readDataB(highFetchData) // output
     );
 

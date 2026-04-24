@@ -94,17 +94,23 @@ module DecodeIssue (
     // CSR Table Restore From ROB
     input CSRRestore_ csrBus1,
     input CSRRestore_ csrBus2,
-    input CSRRestore_ csrBus3
+    input CSRRestore_ csrBus3,
+
+    // Trap Detected
+    input logic exceptionForFrontend,
+    input logic exceptionTaken,
+
+    // Interrupt Interaction
+    input logic interrupt,
+    output logic interruptTaken
 
 );
 
     // Decode Producer 2
-    logic illegal2;
     UpperIssuerOperandPayload_ tempPayload2;
     logic [4:0] destinationRegister2;
 
     // Decode Producer 1
-    logic illegal1;
     UpperIssuerOperandPayload_ tempPayload1;
     logic [4:0] destinationRegister1;
 
@@ -146,7 +152,7 @@ module DecodeIssue (
     logic internalBadData;
 
     always_ff @(posedge clock) begin
-        if (reset || redirect || taken) begin
+        if (reset || redirect || taken || exceptionTaken) begin
             if (reset) begin
                 debugCycle <= 0;
             end
@@ -196,17 +202,28 @@ module DecodeIssue (
         .instruction(IR1),
         .programCounter(PC1),
         .payload(tempPayload1),
-        .destinationRegister(destinationRegister1),
-        .illegal(illegal1)
+        .destinationRegister(destinationRegister1)
     );
 
     Decoder decoder2 (
         .instruction(IR2),
         .programCounter(PC2),
         .payload(tempPayload2),
-        .destinationRegister(destinationRegister2),
-        .illegal(illegal2)
+        .destinationRegister(destinationRegister2)
     );
+
+    // Small Exception Stall FSM
+    // NOT DONE
+    logic exceptionPending;
+    always_ff @(posedge clock) begin
+        if (reset) begin
+            exceptionPending <= 1'b0;
+        end else if (!exceptionPending && redirect && exceptionForFrontend) begin
+            exceptionPending <= 1'b1;
+        end else if (exceptionPending && exceptionTaken) begin
+            exceptionPending <= 1'b0;
+        end
+    end
 
     // In Flight CSR FSM
     logic CSRStatus [0:rMCAUSE];
@@ -248,9 +265,31 @@ module DecodeIssue (
         end
     end
 
+    // Frontend-Visible Trap Overrides
+    TrapType_ effectiveTrap1;
+    TrapType_ effectiveTrap2;
+    always_comb begin
+        effectiveTrap1 = tempPayload1.trapType;
+        effectiveTrap2 = tempPayload2.trapType;
+
+        if (interrupt) begin
+            effectiveTrap1 = INTERRUPT;
+        end else if (PC1 < iLowerBound || PC1 >= iUpperBound) begin
+            effectiveTrap1 = ACCESS_INST;
+        end else if (PC1[1:0] != 2'b00) begin
+            effectiveTrap1 = MIS_INST;
+        end
+
+        if (PC2 < iLowerBound || PC2 >= iUpperBound) begin
+            effectiveTrap2 = ACCESS_INST;
+        end else if (PC2[1:0] != 2'b00) begin
+            effectiveTrap2 = MIS_INST;
+        end
+    end
+
     // Slot 0 Taken Signal
     logic slot0TakenHelper;
-    assign slot0TakenHelper = ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType == JUMP_JAL) && !illegal1) && taken;
+    assign slot0TakenHelper = ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType == JUMP_JAL) && (effectiveTrap1 == NONE)) && taken;
 
     // Issuer Helper Signals
     logic block1;
@@ -289,17 +328,6 @@ module DecodeIssue (
         reasonBackwardDependency = 1'b0;
         // Both Instructions Valid
         if (instructionsValid) begin
-            // FOR TESTING ONLY
-            if (illegal2) begin
-                block2 = 1'b1;
-                reasonIllegal2 = 1'b1;
-            end
-            // FOR TESTING ONLY
-            if (illegal1) begin
-                block1 = 1'b1;
-                block2 = 1'b1;
-                reasonIllegal1 = 1'b1;
-            end
             // Memory Ops Must Always Issue in Slot 0
             if (tempPayload2.memoryOperation != MEM_NONE) begin
                 block2 = 1'b1;
@@ -387,7 +415,18 @@ module DecodeIssue (
             && CSRStatus[tempPayload2.system.destinationCSR]) begin
                 block2 = 1'b1;
             end
-            // Still a problem on flush
+            if (tempPayload1.system.mret && CSRStatus[rMEPC]) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
+             end
+             if (tempPayload2.system.mret && CSRStatus[rMEPC]) begin
+                block2 = 1'b1;
+             end
+            // Block Issue While Exception Pending
+            if (exceptionPending) begin
+                block1 = 1'b1;
+                block2 = 1'b1;
+            end
         end else begin
             block1 = 1'b1;
             block2 = 1'b1;
@@ -432,14 +471,14 @@ module DecodeIssue (
         predictionSlot0 = '0;
         outputJal = '0;
         branchProgramCounter = '0;
-        if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType == JUMP_JAL) && !illegal1 && !block1) begin
+        if ((tempPayload1.branchType != BR_NONE || tempPayload1.jumpType == JUMP_JAL) && (effectiveTrap1 == NONE) && !block1) begin
             precalcAddress = target1;
             branchProgramCounter = PC1;
             predictionSlot0 = 1'b1;
             outputJal = (tempPayload1.jumpType == JUMP_JAL);
             slot0Taken = taken;
             validAddress = !stall;
-        end else if ((tempPayload2.branchType != BR_NONE || tempPayload2.jumpType == JUMP_JAL) && !illegal1 && !illegal2 && !block1 && !block2) begin
+        end else if ((tempPayload2.branchType != BR_NONE || tempPayload2.jumpType == JUMP_JAL) && (effectiveTrap1 == NONE) && (effectiveTrap2 == NONE) && !block1 && !block2) begin
             precalcAddress = target2;
             branchProgramCounter = PC2;
             predictionSlot0 = 1'b0;
@@ -525,6 +564,7 @@ module DecodeIssue (
             finalUpperPayload.predicted = taken ? (slot0Taken ? 1'b1 : 1'b0) : 1'b0;
             finalUpperPayload.staleVector = staleVector1;
             finalUpperPayload.staleVector2 = staleVector3;
+            finalUpperPayload.trapType = effectiveTrap1;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload Splice
             finalLowerPayload.programCounter = tempPayload2.programCounter;
@@ -533,6 +573,7 @@ module DecodeIssue (
             finalLowerPayload.sourceRegister2 = tempPayload2.sourceRegister2;
             finalLowerPayload.immediate = tempPayload2.immediate;
             finalLowerPayload.aluSource = tempPayload2.aluSource;
+            finalLowerPayload.trapType = effectiveTrap2;
             finalLowerPayload.branchType = tempPayload2.branchType;
             finalLowerPayload.aluOperation = tempPayload2.aluOperation;
             finalLowerPayload.jumpType = tempPayload2.jumpType;
@@ -553,6 +594,7 @@ module DecodeIssue (
                 finalLowerPayload.oldStatus.resultCommitted = 1'b0;
             end
             finalLowerPayload.predicted = taken ? (slot0Taken ? 1'b0 : 1'b1) : 1'b0;
+            finalLowerPayload.trapType = effectiveTrap2;
             finalLowerPayload.valid = 1'd1;
         end else if (instructionConsumed1) begin
             // Upper Payload
@@ -574,6 +616,7 @@ module DecodeIssue (
             end
             finalUpperPayload.ageTag = freeTag1;
             finalUpperPayload.predicted = taken ? (slot0Taken ? 1'b1 : 1'b0) : 1'b0;
+            finalUpperPayload.trapType = effectiveTrap1;
             finalUpperPayload.valid = 1'd1;
             // Lower Payload
             finalLowerPayload = '0;
@@ -640,6 +683,7 @@ module DecodeIssue (
             instructionPacket1.standardOp = standardOp1;
             instructionPacket1.CSRWriteIntent = tempPayload1.system.CSRWriteIntent;
             instructionPacket1.destinationCSR = tempPayload1.system.destinationCSR;
+            instructionPacket1.mret = tempPayload1.system.mret;
             instructionPacket1.confirm = 1'd1;
             // Instruction 2 to ROB
             instructionPacket2.programCounter = PC2;
@@ -648,6 +692,7 @@ module DecodeIssue (
             instructionPacket2.standardOp = standardOp2;
             instructionPacket2.CSRWriteIntent = tempPayload2.system.CSRWriteIntent;
             instructionPacket2.destinationCSR = tempPayload2.system.destinationCSR;
+            instructionPacket2.mret = tempPayload2.system.mret;
             instructionPacket2.confirm = 1'd1;
         end else if (instructionConsumed1) begin
             // Instruction 1 to ROB
@@ -657,6 +702,7 @@ module DecodeIssue (
             instructionPacket1.standardOp = standardOp1;
             instructionPacket1.CSRWriteIntent = tempPayload1.system.CSRWriteIntent;
             instructionPacket1.destinationCSR = tempPayload1.system.destinationCSR;
+            instructionPacket1.mret = tempPayload1.system.mret;
             instructionPacket1.confirm = 1'd1;
         end
     end
@@ -666,6 +712,14 @@ module DecodeIssue (
         if (!stall) begin
             payload1 <= finalUpperPayload;
             payload2 <= finalLowerPayload;
+        end
+    end
+
+    // Interrupt Acknowledge
+    always_comb begin
+        interruptTaken = 1'b0;
+        if (interrupt && instructionConsumed1) begin
+            interruptTaken = 1'd1;
         end
     end
 

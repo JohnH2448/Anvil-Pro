@@ -38,7 +38,15 @@ module WalkingWindow (
 
     // Branch Prediction
     input logic taken,
-    input logic [31:0] precalcAddress
+    input logic [31:0] precalcAddress,
+
+    // MRET Arbitration
+    input logic isMRET,
+    input logic [31:0] mepc,
+
+    // Exception Redirect Arbitration
+    input logic exceptionTaken,
+    input logic [31:0] mtvec
 
 );
 
@@ -53,12 +61,12 @@ module WalkingWindow (
 
     // PC Control Block
     always_ff @(posedge clock) begin
-        if (reset || redirect || taken) begin
+        if (reset || redirect || taken || exceptionTaken) begin
             if (reset) begin
                 debugCycle <= 0;
             end
             // PC Alteration on External Signal
-            programCounter <= reset ? resetVector : (redirect ? redirectVector : precalcAddress);
+            programCounter <= reset ? resetVector : (exceptionTaken ? mtvec : (redirect ? (isMRET ? mepc : redirectVector) : precalcAddress));
         end else begin
             debugCycle <= debugCycle + 1;
             // Logical PC Incriminting
@@ -75,9 +83,17 @@ module WalkingWindow (
         if (reset) begin
             lastLowWindow <= {resetVector[31:4], 4'b0000};
             lastHighWindow <= {resetVector[31:4], 4'b0000} + 32'd16;
+        end else if (exceptionTaken) begin
+            lastLowWindow <= {mtvec[31:4], 4'b0000};
+            lastHighWindow <= {mtvec[31:4], 4'b0000} + 32'd16;
         end else if (redirect) begin
-            lastLowWindow <= {redirectVector[31:4], 4'b0000};
-            lastHighWindow <= {redirectVector[31:4], 4'b0000} + 32'd16;
+            if (isMRET) begin
+                lastLowWindow <= {mepc[31:4], 4'b0000};
+                lastHighWindow <= {mepc[31:4], 4'b0000} + 32'd16;
+            end else begin
+                lastLowWindow <= {redirectVector[31:4], 4'b0000};
+                lastHighWindow <= {redirectVector[31:4], 4'b0000} + 32'd16;
+            end
         end else if (taken) begin
             lastLowWindow <= {precalcAddress[31:4], 4'b0000};
             lastHighWindow <= {precalcAddress[31:4], 4'b0000} + 32'd16;

@@ -61,7 +61,12 @@ module ReorderBuffer (
     // Restore State Buses to CSR
     output CSRRestore_ csrBus1,
     output CSRRestore_ csrBus2,
-    output CSRRestore_ csrBus3
+    output CSRRestore_ csrBus3,
+
+    // Exception Assertion
+    output logic exceptionTaken,
+    output logic [31:0] exceptionPC,
+    output TrapType_ exceptionType
     
 );
 
@@ -180,6 +185,7 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail].standardOp <= issuedInstruction1.standardOp;
                 reorderBuffer[redirectAdjustedTail].CSRWriteIntent <= issuedInstruction1.CSRWriteIntent;
                 reorderBuffer[redirectAdjustedTail].destinationCSR <= issuedInstruction1.destinationCSR;
+                reorderBuffer[redirectAdjustedTail].mret <= issuedInstruction1.mret;
                 reorderBuffer[redirectAdjustedTail].completed <= 1'b0;
             end
             if (issuedInstruction2.confirm) begin
@@ -189,6 +195,7 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail + 'd1].standardOp <= issuedInstruction2.standardOp;
                 reorderBuffer[redirectAdjustedTail + 'd1].CSRWriteIntent <= issuedInstruction2.CSRWriteIntent;
                 reorderBuffer[redirectAdjustedTail + 'd1].destinationCSR <= issuedInstruction2.destinationCSR;
+                reorderBuffer[redirectAdjustedTail + 'd1].mret <= issuedInstruction2.mret;
                 reorderBuffer[redirectAdjustedTail + 'd1].completed <= 1'b0;
             end
         end
@@ -203,9 +210,12 @@ module ReorderBuffer (
         retireCount = 2'b00;
         csrOut1 = '0;
         csrOut2 = '0;
+        exceptionTaken = 1'b0;
         if ((entries > 'd1)
-        && (reorderBuffer[headIndexer].completed || ((reorderBuffer[headIndexer].destinationRegister == 5'd0) && reorderBuffer[headIndexer].standardOp))
-        && (reorderBuffer[headIndexer+'d1].completed || ((reorderBuffer[headIndexer+'d1].destinationRegister == 5'd0) && reorderBuffer[headIndexer+'d1].standardOp))) begin
+        && (reorderBuffer[headIndexer].completed)
+        && reorderBuffer[headIndexer].trapType == NONE
+        && (reorderBuffer[headIndexer+'d1].completed)
+        && reorderBuffer[headIndexer+'d1].trapType == NONE) begin
             // Commit Slot 0 and 1
             retireCount = 2'b10;
             if ((reorderBuffer[headIndexer].destinationRegister != 5'd0) && (reorderBuffer[headIndexer].destinationRegister == reorderBuffer[headIndexer+1].destinationRegister)) begin
@@ -228,6 +238,7 @@ module ReorderBuffer (
                     csrOut1.csrResult = reorderBuffer[headIndexer].csrResult;
                     csrOut1.CSRWriteIntent = reorderBuffer[headIndexer].CSRWriteIntent;
                 end
+                csrOut1.mret = reorderBuffer[headIndexer].mret;
                 // Slot 1 Packet
                 if (reorderBuffer[headIndexer+'d1].destinationRegister != 5'd0) begin
                     resolvedInstruction2.ageTag = reorderBuffer[headIndexer+'d1].ageTag;
@@ -241,23 +252,31 @@ module ReorderBuffer (
                     csrOut2.csrResult = reorderBuffer[headIndexer+'d1].csrResult;
                     csrOut2.CSRWriteIntent = reorderBuffer[headIndexer+'d1].CSRWriteIntent;
                 end
+                csrOut2.mret = reorderBuffer[headIndexer+'d1].mret;
             end
         end else if ((entries > 'd0)
-        && (reorderBuffer[headIndexer].completed || ((reorderBuffer[headIndexer].destinationRegister == 5'd0) && reorderBuffer[headIndexer].standardOp))) begin
-            // Commit Slot 0
+        && (reorderBuffer[headIndexer].completed)) begin
             retireCount = 2'b01;
-            // Slot 0 Packet
-            if (reorderBuffer[headIndexer].destinationRegister != 5'd0) begin
-                resolvedInstruction1.ageTag = reorderBuffer[headIndexer].ageTag;
-                resolvedInstruction1.instructionResult = reorderBuffer[headIndexer].instructionResult;
-                resolvedInstruction1.destinationRegister = reorderBuffer[headIndexer].destinationRegister;
-                resolvedInstruction1.valid = 1'd1; 
-            end
-            // Slot 0 CSR Packet
-            if (reorderBuffer[headIndexer].CSRWriteIntent) begin
-                csrOut1.destinationCSR = reorderBuffer[headIndexer].destinationCSR;
-                csrOut1.csrResult = reorderBuffer[headIndexer].csrResult;
-                csrOut1.CSRWriteIntent = reorderBuffer[headIndexer].CSRWriteIntent;
+            if (reorderBuffer[headIndexer].trapType != NONE) begin
+                exceptionTaken = 1'b1;
+                exceptionPC = reorderBuffer[headIndexer].programCounter;
+                exceptionType = reorderBuffer[headIndexer].trapType;
+            end else begin
+                // Commit Slot 0
+                // Slot 0 Packet
+                if (reorderBuffer[headIndexer].destinationRegister != 5'd0) begin
+                    resolvedInstruction1.ageTag = reorderBuffer[headIndexer].ageTag;
+                    resolvedInstruction1.instructionResult = reorderBuffer[headIndexer].instructionResult;
+                    resolvedInstruction1.destinationRegister = reorderBuffer[headIndexer].destinationRegister;
+                    resolvedInstruction1.valid = 1'd1; 
+                end
+                // Slot 0 CSR Packet
+                if (reorderBuffer[headIndexer].CSRWriteIntent) begin
+                    csrOut1.destinationCSR = reorderBuffer[headIndexer].destinationCSR;
+                    csrOut1.csrResult = reorderBuffer[headIndexer].csrResult;
+                    csrOut1.CSRWriteIntent = reorderBuffer[headIndexer].CSRWriteIntent;
+                end
+                csrOut1.mret = reorderBuffer[headIndexer].mret;
             end
         end
     end
@@ -277,11 +296,13 @@ module ReorderBuffer (
             if (completedInstruction1.accept) begin
                 reorderBuffer[completedInstruction1.ageTag].instructionResult <= completedInstruction1.instructionResult;
                 reorderBuffer[completedInstruction1.ageTag].csrResult <= completedInstruction1.csrResult;
+                reorderBuffer[completedInstruction1.ageTag].trapType <= completedInstruction1.trapType;
                 reorderBuffer[completedInstruction1.ageTag].completed <= 1'b1;
             end
             if (completedInstruction2.accept) begin
                 reorderBuffer[completedInstruction2.ageTag].instructionResult <= completedInstruction2.instructionResult;
                 reorderBuffer[completedInstruction2.ageTag].csrResult <= completedInstruction2.csrResult;
+                reorderBuffer[completedInstruction2.ageTag].trapType <= completedInstruction2.trapType;
                 reorderBuffer[completedInstruction2.ageTag].completed <= 1'b1;
             end
             if (completedMemory.accept) begin
@@ -504,6 +525,12 @@ module ReorderBuffer (
                 end
                 default: begin end
             endcase
+        end
+    end
+
+    always_ff @(negedge clock) begin
+        if (!reset && debugMode && exceptionTaken) begin
+            $display("ROB Trap: pc=0x%08h type=%0d", exceptionPC, exceptionType);
         end
     end
     

@@ -9,8 +9,10 @@ module InstructionMemory (
     input logic reset,
     input logic redirect,
     input logic [31:0] redirectVector,
+    input logic isMRET,
+    input logic [31:0] mepc,
     input logic taken,
-    input logic [31:0] precalcAddress,
+    input logic [31:0] precalcAddress, 
 
     // Read Interface (Port A)
     input logic [31:0] readAddressA,
@@ -18,7 +20,12 @@ module InstructionMemory (
 
     // Read Interface (Port B)
     input logic [31:0] readAddressB,
-    output logic [127:0] readDataB
+    output logic [127:0] readDataB,
+
+    // Exception Redirect Arbitration
+    input logic exceptionTaken,
+    input logic [31:0] mtvec
+
 );
 
     // 256 x 128-bit instruction memory
@@ -31,7 +38,7 @@ module InstructionMemory (
     // Internal Next Window
     logic [31:0] redirectAddress;
     logic [31:0] nextAddress;
-    assign redirectAddress = reset ? resetVector : (redirect ? redirectVector : precalcAddress);
+    assign redirectAddress = reset ? resetVector : (exceptionTaken ? mtvec : (redirect ? (isMRET ? mepc : redirectVector) : precalcAddress));
     assign nextAddress = redirectAddress + 32'd16;
 
     // Memory Load for Sim
@@ -39,7 +46,7 @@ module InstructionMemory (
 
     // BRAM Inference
     always_ff @(posedge clock) begin
-        if (reset || redirect || taken) begin
+        if (reset || redirect || taken || exceptionTaken) begin
             readIndexA_q <= redirectAddress[11:4];
             readIndexB_q <= nextAddress[11:4];
             readDataA <= memory[redirectAddress[11:4]];

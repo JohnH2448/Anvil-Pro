@@ -41,7 +41,13 @@ module Execute (
     input logic outputValid,
     output logic [31:0] inputAddress,
     output logic [1:0] loadWidth,
-    output logic loadSigned
+    output logic loadSigned,
+
+    // MRET Special Case
+    output logic isMRET,
+
+    // Frontend Stall Indicator
+    output logic exceptionForFrontend
 
 );
 
@@ -52,25 +58,60 @@ module Execute (
     logic [31:0] redirectVector2;
     logic redirect1;
     logic redirect2;
-    logic illegal1;
-    logic illegal2;
     integer debugCycle;
     logic [31:0] PC1P4;
     logic [31:0] PC2P4;
     assign PC1P4 = exPayload1.programCounter + 32'd4;
     assign PC2P4 = exPayload2.programCounter + 32'd4;
 
+    // Address Validity Check
+    logic [2:0] accessBytes;
+    logic accessFault;
+    logic misAddress;
+    logic misTarget1;
+    logic misTarget2;
+    logic memTrap;
+
+    always_comb begin
+        unique case (exPayload1.memoryWidth)
+            2'b00: accessBytes = 3'd1; // byte
+            2'b01: accessBytes = 3'd2; // halfword
+            default: accessBytes = 3'd4; // word
+        endcase
+
+        accessFault = 1'b0;
+        if (result1 < dLowerBound) begin
+            accessFault = 1'b1;
+        end else if ((result1 + {29'd0, accessBytes}) > dUpperBound) begin
+            accessFault = 1'b1;
+        end
+
+        unique case (exPayload1.memoryWidth)
+            2'b00: misAddress = 1'b0;
+            2'b01: misAddress = result1[0];
+            default: misAddress = |result1[1:0];
+        endcase
+    end
+
+    // Legality
+    logic upperIllegal;
+    logic lowerIllegal;
+    assign upperIllegal = exPayload1.valid && ((exPayload1.trapType != NONE) || misTarget1 || memTrap);
+    assign lowerIllegal = exPayload2.valid && ((exPayload2.trapType != NONE) || misTarget2);
+    assign exceptionForFrontend = upperIllegal || lowerIllegal;
+
     // Redirect Priority Logic
-    assign mispredict1 = ((redirect1 != exPayload1.predicted) && !illegal1 && exPayload1.valid);
-    assign mispredict2 = ((redirect2 != exPayload2.predicted) && !illegal2 && !illegal1 && !mispredict1 && exPayload2.valid);
+    assign mispredict1 = upperIllegal || ((exPayload1.system.mret ? 1'b1 : (redirect1 != exPayload1.predicted)) && !upperIllegal && exPayload1.valid);
+    assign mispredict2 = !mispredict1 && (lowerIllegal || ((exPayload2.system.mret ? 1'b1 : (redirect2 != exPayload2.predicted)) && !lowerIllegal && !upperIllegal && exPayload2.valid));
+    assign isMRET = (mispredict1 && exPayload1.system.mret) || ((mispredict2 && exPayload2.system.mret) && !(mispredict1 && !exPayload1.system.mret));
     assign redirect = mispredict1 || mispredict2;
     assign redirectVector = mispredict1 ? (exPayload1.predicted ? PC1P4 : redirectVector1) : 
     (mispredict2 ? (exPayload2.predicted ? PC2P4 : redirectVector2) : 32'd0);
-    assign bpUpdateValid1 = exPayload1.valid && !illegal1 &&
+    assign bpUpdateValid1 = exPayload1.valid && !upperIllegal &&
         (exPayload1.branchType != BR_NONE);
     assign bpUpdatePC1 = exPayload1.programCounter;
     assign bpUpdateTaken1 = redirect1;
-    assign bpUpdateValid2 = exPayload2.valid && !illegal2 && !mispredict1 &&
+    assign bpUpdateValid2 = exPayload2.valid && !lowerIllegal && !mispredict1 &&
         (exPayload2.branchType != BR_NONE);
     assign bpUpdatePC2 = exPayload2.programCounter;
     assign bpUpdateTaken2 = redirect2;
@@ -88,7 +129,7 @@ module Execute (
     assign lowerOperand2 = !crossLaneExBypass ? exPayload2.operand2 : exPayload2.bypassEnable[1] ? writebackResult1 : exPayload2.operand2;
 
     // Memory Operation Signal for Capacity
-    assign exMemory = (exPayload1.memoryOperation != MEM_NONE) && exPayload1.valid && !illegal1;
+    assign exMemory = (exPayload1.memoryOperation != MEM_NONE) && exPayload1.valid && !upperIllegal;
 
     // Signal Drivers to Store Buffer
     assign inputAddress = result1;
@@ -132,8 +173,8 @@ module Execute (
 
     // Redirect Calculations
     always_comb begin
-        illegal1 = 1'd0;
-        illegal2 = 1'd0;
+        misTarget1 = 1'd0;
+        misTarget2 = 1'd0;
 
         // Upper Branch Eval, Illegal Gate, and JALR Mask
         redirect1 = 1'd0;
@@ -166,7 +207,7 @@ module Execute (
                 redirectVector1 = result1;
             end
             if (redirectVector1[1:0] != 2'b00) begin 
-                illegal1 = 1'b1;
+                misTarget1 = 1'b1;
             end
         end
 
@@ -201,8 +242,67 @@ module Execute (
                 redirectVector2 = result2;
             end
             if (redirectVector2[1:0] != 2'b00) begin 
-                illegal2 = 1'b1;
+                misTarget2 = 1'b1;
             end
+        end
+    end
+
+    // Memory Packet Construction
+    always_comb begin
+        memTrap = 1'b0;
+        if (exPayload1.valid && (exPayload1.trapType == NONE) && !(outputValid && exPayload1.memoryOperation == MEM_LOAD)) begin
+                unique case (exPayload1.memoryOperation)
+                    MEM_NONE: memPayload = '0;
+                    MEM_LOAD, MEM_STORE: begin
+                        // Address Validity Check
+                        if (!accessFault && !misAddress) begin
+                            // Payload
+                            memPayload.address = result1;
+                            memPayload.storeData = exPayload1.extraField;
+                            memPayload.memoryOperation = exPayload1.memoryOperation;
+                            memPayload.memoryWidth = exPayload1.memoryWidth;
+                            memPayload.memorySigned = exPayload1.memorySigned;
+                            memPayload.destinationRegister = exPayload1.destinationRegister;
+                            memPayload.ageTag = exPayload1.ageTag;
+                        end else begin
+                            memTrap = 1'b1;
+                        end
+                    end
+                endcase
+        end else begin
+            memPayload = '0;
+        end
+    end
+
+    // Final Trap Decision
+    TrapType_ finalTrap1;
+    TrapType_ finalTrap2;
+    always_comb begin
+        finalTrap1 = NONE;
+        finalTrap2 = NONE;
+        // Final Trap 1
+        if (exPayload1.trapType != NONE) begin
+            finalTrap1 = exPayload1.trapType;
+        end else if (misTarget1) begin
+            finalTrap1 = MIS_INST;
+        end else if (accessFault) begin
+            if (exPayload1.memoryOperation == MEM_LOAD) begin
+                finalTrap1 = ACCESS_LOAD;
+            end else if (exPayload1.memoryOperation == MEM_STORE) begin
+                finalTrap1 = ACCESS_STORE;
+            end
+        end else if (misAddress) begin
+            if (exPayload1.memoryOperation == MEM_LOAD) begin
+                finalTrap1 = MIS_LOAD;
+            end else if (exPayload1.memoryOperation == MEM_STORE) begin
+                finalTrap1 = MIS_STORE;
+            end
+        end
+        // Final Trap 2
+        if (exPayload2.trapType != NONE) begin
+            finalTrap2 = exPayload2.trapType;
+        end else if (misTarget2) begin
+            finalTrap2 = MIS_INST;
         end
     end
 
@@ -212,8 +312,9 @@ module Execute (
         resultPayload1 = '0;
         resultPayload1.ageTag = exPayload1.ageTag;
         resultPayload1.csrResult = result1;
+        resultPayload1.trapType = finalTrap1;
         if (!(outputValid && exPayload1.memoryOperation == MEM_LOAD)) begin
-            if (exPayload1.valid && !reset && (exPayload1.memoryOperation == MEM_NONE)) begin
+            if (exPayload1.valid && !reset && (exPayload1.memoryOperation == MEM_NONE || memTrap)) begin
                 resultPayload1.accept = 1'd1;
                 resultPayload1.destinationRegister = exPayload1.destinationRegister;
                 if (exPayload1.jumpType != JUMP_NONE || exPayload1.system.CSROp != CSR_NONE) begin
@@ -233,7 +334,8 @@ module Execute (
         resultPayload2 = '0;
         resultPayload2.ageTag = exPayload2.ageTag;
         resultPayload2.csrResult = result2;
-        if (exPayload2.valid && !(mispredict1) && !reset) begin
+        resultPayload2.trapType = finalTrap2;
+        if (exPayload2.valid && !(mispredict1) && !reset && !upperIllegal) begin
             resultPayload2.accept = 1'd1;
             resultPayload2.destinationRegister = exPayload2.destinationRegister;
             if (exPayload2.jumpType != JUMP_NONE || exPayload2.system.CSROp != CSR_NONE) begin
@@ -241,26 +343,6 @@ module Execute (
             end else begin
                 resultPayload2.instructionResult = result2;
             end
-        end
-    end
-
-    // Memory Packet Construction
-    always_comb begin
-        if (exPayload1.valid && !illegal1 && !(outputValid && exPayload1.memoryOperation == MEM_LOAD)) begin
-            unique case (exPayload1.memoryOperation)
-                MEM_NONE: memPayload = '0;
-                MEM_LOAD, MEM_STORE: begin
-                    memPayload.address = result1;
-                    memPayload.storeData = exPayload1.extraField;
-                    memPayload.memoryOperation = exPayload1.memoryOperation;
-                    memPayload.memoryWidth = exPayload1.memoryWidth;
-                    memPayload.memorySigned = exPayload1.memorySigned;
-                    memPayload.destinationRegister = exPayload1.destinationRegister;
-                    memPayload.ageTag = exPayload1.ageTag;
-                end
-            endcase
-        end else begin
-            memPayload = '0;
         end
     end
 

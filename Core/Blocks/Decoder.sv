@@ -6,8 +6,7 @@ module Decoder (
     input logic [31:0] instruction,
     input logic [31:0] programCounter,
     output UpperIssuerOperandPayload_ payload,
-    output logic [4:0] destinationRegister,
-    output logic illegal
+    output logic [4:0] destinationRegister
 );
 
     // Opcode Cast
@@ -19,7 +18,7 @@ module Decoder (
         // Zero Payloads
         payload = '0;
         payload.programCounter = programCounter;
-        illegal = 1'b0;
+        payload.trapType = NONE;
         destinationRegister = '0;
         payload.system.destinationCSR = rROZ;
 
@@ -41,7 +40,7 @@ module Decoder (
                     10'b0100000101: payload.aluOperation = ALU_SRA;
                     10'b0000000010: payload.aluOperation = ALU_SLT;
                     10'b0000000011: payload.aluOperation = ALU_SLTU;
-                    default: illegal = 1'b1;
+                    default: payload.trapType = ILLEGAL;
                 endcase
             end
 
@@ -54,7 +53,7 @@ module Decoder (
                     3'b001: begin
                         // NOP FENCE.I
                     end
-                    default: illegal = 1'b1;
+                    default: payload.trapType = ILLEGAL;
                 endcase
             end
 
@@ -76,7 +75,7 @@ module Decoder (
                         if (instruction[31:25] == 7'b0000000) begin
                             payload.aluOperation = ALU_SLL;
                         end else begin
-                            illegal = 1'b1;
+                            payload.trapType = ILLEGAL;
                         end
                     end
                     3'b101: begin
@@ -85,10 +84,10 @@ module Decoder (
                         end else if (instruction[31:25] == 7'b0100000) begin
                             payload.aluOperation = ALU_SRA;
                         end else begin
-                            illegal = 1'b1;
+                            payload.trapType = ILLEGAL;
                         end
                     end
-                    default: illegal = 1'b1;
+                    default: payload.trapType = ILLEGAL;
                 endcase
             end
 
@@ -120,7 +119,7 @@ module Decoder (
                         payload.memoryWidth = 2'b01;
                         payload.memorySigned = 1'b0;
                     end
-                    default: illegal = 1'b1;
+                    default: payload.trapType = ILLEGAL;
                 endcase
             end
 
@@ -135,7 +134,7 @@ module Decoder (
                     3'b000: payload.memoryWidth = 2'b00;
                     3'b001: payload.memoryWidth = 2'b01;
                     3'b010: payload.memoryWidth = 2'b11;
-                    default: illegal = 1'b1;
+                    default: payload.trapType = ILLEGAL;
                 endcase
             end
 
@@ -152,7 +151,7 @@ module Decoder (
                     3'b101: payload.branchType = BR_GE;
                     3'b110: payload.branchType = BR_LTU;
                     3'b111: payload.branchType = BR_GEU;
-                    default: illegal = 1'b1;
+                    default: payload.trapType = ILLEGAL;
                 endcase
             end
 
@@ -183,7 +182,7 @@ module Decoder (
                 payload.jumpType = JUMP_JALR;
                 payload.immediate = {{20{instruction[31]}},instruction[31:20]};
                 if (instruction[14:12] != 3'b000) begin
-                    illegal = 1'b1;
+                    payload.trapType = ILLEGAL;
                 end
             end
 
@@ -306,10 +305,10 @@ module Decoder (
                         MHPMEVENT29,
                         MHPMEVENT30,
                         MHPMEVENT31: payload.system.destinationCSR = rROZ;
-                        default: illegal = 1'b1;
+                        default: payload.trapType = ILLEGAL;
                     endcase
                     case (instruction[14:12]) // funct3
-                        default: illegal = 1'b1;
+                        default: payload.trapType = ILLEGAL;
                         3'b001: begin
                             payload.system.CSROp = CSR_RW;
                             payload.system.CSRWriteIntent = 1'b1;
@@ -358,30 +357,28 @@ module Decoder (
                         end // csrrci
                     endcase
                     if (payload.system.CSRWriteIntent && (payload.system.destinationCSR == rROZ)) begin // REWRITE
-                        illegal = 1'b1;
+                        payload.trapType = ILLEGAL;
                     end
                 end else begin
                     case (instruction)
-                        /*
-                        32'h00000073: payload.trapPayload.trapType = ECALL;
-                        32'h00100073: payload.trapPayload.trapType = EBREAK;
-                        */
+                        32'h00000073: payload.trapType = ECALL;
+                        32'h00100073: payload.trapType = EBREAK;
                         32'h30200073: begin
                             payload.system.mret = 1'd1;
                             payload.system.destinationCSR = rMEPC;
                         end
                         32'h10500073: ; // NOP
-                        default: illegal = 1'b1;
+                        default: payload.trapType = ILLEGAL;
                     endcase
                 end
             end // I-type   (CSR / ECALL / EBREAK / MRET / WFI (NOP))
 
             default: begin
-                illegal = 1'b1;
+                payload.trapType = ILLEGAL;
             end
 
         endcase
-        if (illegal) begin
+        if (payload.trapType == ILLEGAL) begin
             destinationRegister = 5'd0;
             payload.memoryOperation = MEM_NONE;
         end

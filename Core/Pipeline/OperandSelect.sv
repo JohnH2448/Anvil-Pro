@@ -359,6 +359,7 @@ module OperandSelect (
         exPayloadCandidate1.predicted = payload1.predicted;
         exPayloadCandidate1.ageTag = payload1.ageTag;
         exPayloadCandidate1.programCounter = payload1.programCounter;
+        exPayloadCandidate1.trapType = payload1.trapType;
         if (!reset && !redirect) begin
             exPayloadCandidate1.valid = payload1.valid;
         end else begin
@@ -374,6 +375,7 @@ module OperandSelect (
         exPayloadCandidate2.ageTag = payload2.ageTag;
         exPayloadCandidate2.predicted = payload2.predicted;
         exPayloadCandidate2.programCounter = payload2.programCounter;
+        exPayloadCandidate2.trapType = payload2.trapType;
         if (!reset && !redirect) begin
             exPayloadCandidate2.valid = payload2.valid;
         end else begin

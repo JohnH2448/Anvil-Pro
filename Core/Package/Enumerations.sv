@@ -193,7 +193,7 @@ package Enumerations;
         CSR_RC = 2'b11
     } CSROp_;
 
-    typedef enum logic [3:0] {
+    typedef enum logic [3:0] { 
         NONE = 4'b0000,
         ILLEGAL = 4'b0001,
         MIS_STORE = 4'b0010,
@@ -203,7 +203,8 @@ package Enumerations;
         EBREAK = 4'b0110,
         ACCESS_STORE = 4'b0111,
         ACCESS_LOAD = 4'b1000,
-        ACCESS_INST = 4'b1001
+        ACCESS_INST = 4'b1001,
+        INTERRUPT = 4'b1010
     } TrapType_; 
 
 endpackage
