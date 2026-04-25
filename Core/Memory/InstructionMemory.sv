@@ -28,12 +28,12 @@ module InstructionMemory (
 
 );
 
-    // 256 x 128-bit instruction memory
-    logic [127:0] memory [0:255];
+    // 2048 x 128-bit instruction memory
+    logic [127:0] memory [0:2047];
 
     // Registered indices
-    logic [7:0] readIndexA_q;
-    logic [7:0] readIndexB_q;
+    logic [10:0] readIndexA_q;
+    logic [10:0] readIndexB_q;
 
     // Internal Next Window
     logic [31:0] redirectAddress;
@@ -47,15 +47,15 @@ module InstructionMemory (
     // BRAM Inference
     always_ff @(posedge clock) begin
         if (reset || redirect || taken || exceptionTaken) begin
-            readIndexA_q <= redirectAddress[11:4];
-            readIndexB_q <= nextAddress[11:4];
-            readDataA <= memory[redirectAddress[11:4]];
-            readDataB <= memory[nextAddress[11:4]];
+            readIndexA_q <= redirectAddress[14:4];
+            readIndexB_q <= nextAddress[14:4];
+            readDataA <= memory[redirectAddress[14:4]];
+            readDataB <= memory[nextAddress[14:4]];
         end else begin
-            readIndexA_q <= readAddressA[11:4];
-            readIndexB_q <= readAddressB[11:4];
-            readDataA <= memory[readAddressA[11:4]];
-            readDataB <= memory[readAddressB[11:4]];
+            readIndexA_q <= readAddressA[14:4];
+            readIndexB_q <= readAddressB[14:4];
+            readDataA <= memory[readAddressA[14:4]];
+            readDataB <= memory[readAddressB[14:4]];
         end
     end
 

@@ -20,6 +20,7 @@ make -C Verilator -f VTop.mk -j"$(nproc)"
 
 riscv32-unknown-elf-gcc -S -O2 -march=rv32i -mabi=ilp32 -ffreestanding -nostdlib -fno-builtin -fno-pic -fomit-frame-pointer -fno-stack-protector -fno-asynchronous-unwind-tables -fno-unwind-tables Test/Code/Program1.c -o test.s
 
+make -C Software
 
 ==================================================
 
@@ -50,5 +51,37 @@ verilator -Wall -Wno-fatal \
   Core/Memory/*.sv \
   Core/Pipeline/*.sv \
   --top-module Top \
+  --exe Test/Harnesses/SoftwareHarness.cpp \
+  --Mdir Verilator
+
+============================================================
+
+verilator -Wall -Wno-fatal \
+  --cc \
+  Core/Package/Configuration.sv \
+  Core/Package/Enumerations.sv \
+  Core/Package/Payloads.sv \
+  Test/Subsystems/PipelineTest.sv \
+  Core/Blocks/*.sv \
+  Core/Control/*.sv \
+  Core/Memory/*.sv \
+  Core/Pipeline/*.sv \
+  --top-module Top \
   --exe Test/Harnesses/TraceStepHarness.cpp \
+  --Mdir Verilator
+
+========================================================
+
+verilator -Wall -Wno-fatal \
+  --cc \
+  Core/Package/Configuration.sv \
+  Core/Package/Enumerations.sv \
+  Core/Package/Payloads.sv \
+  Test/Subsystems/PipelineTest.sv \
+  Core/Blocks/*.sv \
+  Core/Control/*.sv \
+  Core/Memory/*.sv \
+  Core/Pipeline/*.sv \
+  --top-module Top \
+  --exe Test/Harnesses/SoftwareHarness.cpp \
   --Mdir Verilator

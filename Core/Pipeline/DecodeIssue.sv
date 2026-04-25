@@ -340,12 +340,13 @@ module DecodeIssue (
                     reasonSlotDependency = 1'b1;
                 end
             end else begin
-                // Ensures Slot 1 Isn't Used Load
-                if ((tempPayload1.memoryOperation == MEM_LOAD) 
-                && ((destinationRegister1 == tempPayload2.sourceRegister1)
-                || (destinationRegister1 == tempPayload2.sourceRegister2))) begin
-                    block2 = 1'b1;
-                end else begin
+            // Ensures Slot 1 Isn't Used Load
+            if ((tempPayload1.memoryOperation == MEM_LOAD) 
+            && ((destinationRegister1 == tempPayload2.sourceRegister1)
+            || (destinationRegister1 == tempPayload2.sourceRegister2))) begin
+                block2 = 1'b1;
+                reasonSlotDependency = 1'b1;
+            end else begin
                     // Ex/Ex Bypass Bits
                     if (tempPayload2.sourceRegister1 == destinationRegister1 && destinationRegister1 != 5'd0) begin
                         bypassEnable[0] = 1'd1;
@@ -373,6 +374,7 @@ module DecodeIssue (
             if (redirect) begin
                 block1 = 1'b1;
                 block2 = 1'b1;
+                reasonDualRedirect = 1'b1;
             end
             // This is fixable
             if (destRegLoad1) begin
@@ -401,6 +403,7 @@ module DecodeIssue (
             // No Issue on CSR WAW
             if (tempPayload1.system.CSROp != CSR_NONE && tempPayload2.system.CSROp != CSR_NONE && tempPayload1.system.destinationCSR == tempPayload2.system.destinationCSR) begin
                 block2 = 1'b1;
+                reasonWawConflict = 1'b1;
             end
             // Prevent all CSR Forwarding Cases
             if ((tempPayload1.system.CSROp != CSR_NONE)
@@ -416,9 +419,11 @@ module DecodeIssue (
             if (tempPayload1.system.mret && CSRStatus[rMEPC]) begin
                 block1 = 1'b1;
                 block2 = 1'b1;
+                reasonBackwardDependency = 1'b1;
              end
              if (tempPayload2.system.mret && CSRStatus[rMEPC]) begin
                 block2 = 1'b1;
+                reasonBackwardDependency = 1'b1;
              end
             // Block Issue While Exception Pending
             if (exceptionPending) begin
@@ -729,6 +734,9 @@ module DecodeIssue (
         if (reasonIllegal1) begin
             return "Illegal Instruction";
         end
+        if (exceptionPending) begin
+            return "Exception Pending";
+        end
         if (reasonRobFull) begin
             return "ROB Full";
         end
@@ -742,6 +750,9 @@ module DecodeIssue (
         end
         if ((tempPayload1.memoryOperation != MEM_NONE) && !memFreeSlot) begin
             return "Memory Queue Full";
+        end
+        if (tempPayload1.system.mret && CSRStatus[rMEPC]) begin
+            return "MRET Waiting on MEPC";
         end
         return "Unknown Stall";
     endfunction
@@ -765,6 +776,9 @@ module DecodeIssue (
         if (reasonIllegal2) begin
             return "Illegal Instruction";
         end
+        if (exceptionPending) begin
+            return "Exception Pending";
+        end
         if (reasonSlot1Memory) begin
             return "Memory Must Use Slot 0";
         end
@@ -772,6 +786,9 @@ module DecodeIssue (
             return "WAW Conflict";
         end
         if (reasonSlotDependency) begin
+            if (crossLaneExBypass && (tempPayload1.memoryOperation == MEM_LOAD)) begin
+                return "Slot 0 Load Dependency";
+            end
             return "Slot Dependency";
         end
         if (reasonDualRedirect) begin
@@ -792,12 +809,10 @@ module DecodeIssue (
         if (reasonLowerLoadHazard) begin
             return "Load-Owned rd";
         end
-        if (crossLaneExBypass && (tempPayload1.memoryOperation == MEM_LOAD)
-        && ((destinationRegister1 == tempPayload2.sourceRegister1)
-        || (destinationRegister1 == tempPayload2.sourceRegister2))) begin
-            return "Slot 0 Load Dependency";
-        end
         if (reasonBackwardDependency) begin
+            if ((tempPayload1.system.mret || tempPayload2.system.mret) && CSRStatus[rMEPC]) begin
+                return "MRET Waiting on MEPC";
+            end
             return "Backward Dependency";
         end
         if (tempPayload1.system.CSROp != CSR_NONE && tempPayload2.system.CSROp != CSR_NONE
@@ -821,7 +836,7 @@ module DecodeIssue (
     endfunction
 
     always_ff @(posedge clock) begin
-        if (!reset) begin
+        if (!reset && autoTest) begin
             if (instructionConsumed1) begin
                 $display("Issued 0x%08h", PC1);
             end else begin

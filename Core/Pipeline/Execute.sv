@@ -98,7 +98,10 @@ module Execute (
     logic lowerIllegal;
     assign upperIllegal = exPayload1.valid && ((exPayload1.trapType != NONE) || misTarget1 || memTrap);
     assign lowerIllegal = exPayload2.valid && ((exPayload2.trapType != NONE) || misTarget2);
-    assign exceptionForFrontend = upperIllegal || lowerIllegal;
+    assign exceptionForFrontend =
+        upperIllegal ||
+        (!mispredict1 && lowerIllegal);
+
 
     // Redirect Priority Logic
     assign mispredict1 = upperIllegal || ((exPayload1.system.mret ? 1'b1 : (redirect1 != exPayload1.predicted)) && !upperIllegal && exPayload1.valid);

@@ -3,13 +3,17 @@ import Payloads::*;
 import Enumerations::*;
 
 module PlaceholderDMEM #(
-    parameter int unsigned memoryWords = 1024,
+    parameter int unsigned memoryWords = 8192,
     parameter int unsigned ackDelay = 0
 ) (
 
     // Standard
     input logic clock,
     input logic reset,
+
+    // TEMP DEBUG
+    output logic [31:0] debugLogIndex,
+    output logic [8191:0] debugLogWindow,
 
     // Wishbone Bus
     input WishboneMaster_ memBusOut,
@@ -25,6 +29,21 @@ module PlaceholderDMEM #(
 
     WishboneSlave_ memBusInRegister;
     assign dmemBus = memBusInRegister;
+
+    // TEMP DEBUG
+    localparam int unsigned debugLogIndexWord = 32'h0000_73fc >> 2;
+    localparam int unsigned debugLogBaseWord = 32'h0000_7400 >> 2;
+    localparam int unsigned debugLogWords = 256;
+
+    assign debugLogIndex = memory[debugLogIndexWord];
+
+    genvar debugWord;
+    generate
+        for (debugWord = 0; debugWord < debugLogWords; debugWord++) begin : debugLogMirror
+            assign debugLogWindow[(debugWord * 32) +: 32] = memory[debugLogBaseWord + debugWord];
+        end
+    endgenerate
+
 
     logic requestPending;
     logic [31:0] latchedAddress;

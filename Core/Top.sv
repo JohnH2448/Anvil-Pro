@@ -10,8 +10,9 @@ module Top (
     input logic reset,
 
     // DEBUG
-    output logic [31:0] tohost
-    
+    output logic [31:0] tohost,
+    output logic [31:0] debugLogIndex,
+    output logic [8191:0] debugLogWindow
 );
 
     // Reorder Buffer Outputs
@@ -231,6 +232,8 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
         .memBusOut(memBusOut), // input
+        .debugLogIndex(debugLogIndex), // DEBUG
+        .debugLogWindow(debugLogWindow), // DEBUG
         .dmemBus(dmemBus) // output
     );
 
@@ -457,7 +460,7 @@ module Top (
         .acceptValid1(resultPayload1.accept), // input
         .acceptTag2(resultPayload2.ageTag), // input
         .acceptValid2(resultPayload2.accept), // input
-        .memReady(completedMemory.accept), // input
+        .memReady(completedMemory.accept), // input 
         .memAgeTag(completedMemory.ageTag), // input
         .loadData(completedMemory.instructionResult), // input
         .loadTag(completedMemory.ageTag), // input
@@ -711,3 +714,4 @@ module Top (
 
 endmodule
 
+// REMEMBER:  (global vs local design tradeof pipeline extraField example)
