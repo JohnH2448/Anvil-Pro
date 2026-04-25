@@ -10,7 +10,7 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - Dual-Issue Superscalar
 - In-Order Commit ROB
 - Latency Reordered Execution
-- M-Mode RV32I + Zicsr
+- M-Mode RV32I + Zicsr + Zifencei
 - Harvard Split BRAM IMEM + External DMEM
 - Branch Prediction
 - 256-Bit "Walking Window" Prefetch
