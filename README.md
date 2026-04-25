@@ -2,7 +2,7 @@
 ![Pipeline](Docs/Pipeline.png)
 
 ## Overview
-Anvil-Pro is a RISC-V RV32I + Zicsr softcore optimized for FPGA platforms. The core supports M-mode execution, strict Harvard memory architecture, and a Wishbone Classic data interface for external memory integration.
+Anvil-Pro is a RISC-V RV32I + Zicsr + Zifencei softcore optimized for FPGA platforms. The core supports M-mode execution, strict Harvard memory architecture, and a Wishbone Classic data interface for external memory integration.
 
 The design is optimized for efficient FPGA fabric utilization, competitive performance, and scalable off-chip data memory capacity. The core is provided as synthesizable SystemVerilog and is suitable for FPGA compute, architectural experimentation, simulation, and custom SoC system integration.
 
@@ -10,12 +10,12 @@ The design is optimized for efficient FPGA fabric utilization, competitive perfo
 - Dual-Issue Superscalar
 - In-Order Commit ROB
 - Latency Reordered Execution
-- M-Mode RV32I + Zicsr
+- M-Mode RV32I + Zicsr + Zifencei
 - Harvard Split BRAM IMEM + External DMEM
-- Branch Prediction
+- Two-Bit BTFNT Hybrid Branch Predictior
 - 256-Bit "Walking Window" Prefetch
 - FreeRTOS Compatable
-- MMIO Interfaceable CLINT
+- MMIO Programmable CLINT
 - Single LSU (Wishbone Classic)
 - 6-Stage Pipeline
 
