@@ -239,5 +239,6 @@ mtimeh: `0x8000_000C`
 ### TODO List
 - MCYCLEH/MINSTRETH
 - FreeRTOS Build
+- Full Wishbone Compliance
 - Better Verification
 - RCV Brute Force
