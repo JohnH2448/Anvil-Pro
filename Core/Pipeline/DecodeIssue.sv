@@ -707,7 +707,10 @@ module DecodeIssue (
 
     // Instruction Payload Assignment
     always_ff @(posedge clock) begin
-        if (!stall) begin
+        if (redirect) begin
+            payload1 <= '0;
+            payload2 <= '0;
+        end else if (!stall) begin
             payload1 <= finalUpperPayload;
             payload2 <= finalLowerPayload;
         end
