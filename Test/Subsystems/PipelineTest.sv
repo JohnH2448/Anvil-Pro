@@ -359,6 +359,9 @@ module Top (
         .memReg(completedMemory.destinationRegister), // input
         .memAgeTag(completedMemory.ageTag), // input
 
+        .exceptionRd(resolvedInstruction1.destinationRegister), // input
+        .exceptionTaken(exceptionTaken), // input 
+
         .retire1(resolvedInstruction1.valid), // input
         .retire2(resolvedInstruction2.valid), // input
         .retireRegister1(resolvedInstruction1.destinationRegister), // input

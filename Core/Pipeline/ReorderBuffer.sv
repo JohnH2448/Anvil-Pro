@@ -264,6 +264,7 @@ module ReorderBuffer (
                 exceptionTaken = 1'b1;
                 exceptionPC = reorderBuffer[headIndexer].programCounter;
                 exceptionType = reorderBuffer[headIndexer].trapType;
+                resolvedInstruction1.destinationRegister = reorderBuffer[headIndexer].destinationRegister;
             end else begin
                 // Commit Slot 0
                 // Slot 0 Packet

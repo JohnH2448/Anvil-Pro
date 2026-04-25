@@ -66,6 +66,9 @@ module RegisterStatusTable (
     input logic [4:0] memReg,
     input logic [reorderBufferIndexWidth-1:0] memAgeTag,
 
+    input logic [4:0] exceptionRd,
+    input logic exceptionTaken,
+
     // Restore State Buses from ROB
     input RestoreStateBus_ rstBus1,
     input RestoreStateBus_ rstBus2,
@@ -146,6 +149,10 @@ module RegisterStatusTable (
                     registerStatusTable[memReg].resultReady <= 1'd1;
                     registerStatusTable[memReg].resultCommitted <= 1'd0;
                 end
+            end
+            if (exceptionTaken) begin
+                registerStatusTable[exceptionRd].resultReady <= 1'd1;
+                registerStatusTable[exceptionRd].resultCommitted <= 1'd1;
             end
 
             if (retire2 &&

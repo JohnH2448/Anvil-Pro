@@ -94,6 +94,17 @@ module OperandSelect (
 
 );
 
+    typedef enum logic [2:0] {
+        SRC_ZERO,
+        SRC_CSR,
+        SRC_REGFILE,
+        SRC_ROB,
+        SRC_EX_LOWER,
+        SRC_EX_UPPER,
+        SRC_LOAD,
+        SRC_STALL
+    } OperandSource_;
+
     // Dummy Candidate Payloads
     UpperOperandExecutePayload_ exPayloadCandidate1;
     LowerOperandExecutePayload_ exPayloadCandidate2;
@@ -108,6 +119,10 @@ module OperandSelect (
     logic [31:0] upperOperand2;
     logic [31:0] lowerOperand1;
     logic [31:0] lowerOperand2;
+    OperandSource_ upperSource1Select;
+    OperandSource_ upperSource2Select;
+    OperandSource_ lowerSource1Select;
+    OperandSource_ lowerSource2Select;
 
     // Register Data From RST
     RegisterStatusOutput_ upperSource1Status;
@@ -142,6 +157,20 @@ module OperandSelect (
     logic [31:0] branchTarget1;
     logic [31:0] branchTarget2;
 
+    function automatic string operandSourceName(input OperandSource_ source);
+        case (source)
+            SRC_ZERO: return "ZERO";
+            SRC_CSR: return "CSR";
+            SRC_REGFILE: return "REG";
+            SRC_ROB: return "ROB";
+            SRC_EX_LOWER: return "EX1";
+            SRC_EX_UPPER: return "EX0";
+            SRC_LOAD: return "LOAD";
+            SRC_STALL: return "STALL";
+            default: return "UNK";
+        endcase
+    endfunction
+
     assign branchTarget1 = payload1.programCounter + payload1.immediate;
     assign branchTarget2 = payload2.programCounter + payload2.immediate;
 
@@ -158,6 +187,10 @@ module OperandSelect (
         upperOperand2 = '0;
         lowerOperand1 = '0;
         lowerOperand2 = '0;
+        upperSource1Select = SRC_ZERO;
+        upperSource2Select = SRC_ZERO;
+        lowerSource1Select = SRC_ZERO;
+        lowerSource2Select = SRC_ZERO;
         stall = '0;
 
         // Upper Source Register 1
@@ -165,29 +198,38 @@ module OperandSelect (
             // CSR Read
             if (payload1.system.CSROp == CSR_RW) begin
                 upperOperand1 = 32'd0;
+                upperSource1Select = SRC_ZERO;
             end else begin
                 upperOperand1 = CSRData1;
+                upperSource1Select = SRC_CSR;
             end
         end else if (payload1.sourceRegister1 == 5'd0) begin
             // Hardwire x0 to Zero
             upperOperand1 = 32'd0;
+            upperSource1Select = SRC_ZERO;
         end else if (upperSource1Status.resultCommitted) begin
             // Use Fresh Register Data
             upperOperand1 = upperData1;
+            upperSource1Select = SRC_REGFILE;
         end else if (upperSource1Status.resultReady) begin
             // Use ROB Forward Data
             upperOperand1 = upperROBData1;
+            upperSource1Select = SRC_ROB;
         end else if (!upperSource1Status.isLoad) begin
             if (lowerExTag == upperSource1Status.ageTag && lowerExValid) begin
                 // Use Slot 1 Execute Bypass Data
                 upperOperand1 = lowerExData;
+                upperSource1Select = SRC_EX_LOWER;
             end else if (upperExTag == upperSource1Status.ageTag) begin
                 // Use Slot 0 Execute Bypass Data
                 upperOperand1 = upperExData;
+                upperSource1Select = SRC_EX_UPPER;
             end
         end else if (acknowledge && (loadTag == upperSource1Status.ageTag)) begin
             upperOperand1 = loadData;
+            upperSource1Select = SRC_LOAD;
         end else begin
+            upperSource1Select = SRC_STALL;
             stall = 1;
         end
 
@@ -195,23 +237,30 @@ module OperandSelect (
         if (payload1.sourceRegister2 == 5'd0) begin
             // Hardwire x0 to Zero
             upperOperand2 = 32'd0;
+            upperSource2Select = SRC_ZERO;
         end else if (upperSource2Status.resultCommitted) begin
             // Use Fresh Register Data
             upperOperand2 = upperData2;
+            upperSource2Select = SRC_REGFILE;
         end else if (upperSource2Status.resultReady) begin
             // Use ROB Forward Data
             upperOperand2 = upperROBData2;
+            upperSource2Select = SRC_ROB;
         end else if (!upperSource2Status.isLoad) begin
             if (lowerExTag == upperSource2Status.ageTag && lowerExValid) begin
                 // Use Slot 1 Execute Bypass Data
                 upperOperand2 = lowerExData;
+                upperSource2Select = SRC_EX_LOWER;
             end else if (upperExTag == upperSource2Status.ageTag) begin
                 // Use Slot 0 Execute Bypass Data
                 upperOperand2 = upperExData;
+                upperSource2Select = SRC_EX_UPPER;
             end
         end else if (acknowledge && (loadTag == upperSource2Status.ageTag)) begin
             upperOperand2 = loadData;
+            upperSource2Select = SRC_LOAD;
         end else begin
+            upperSource2Select = SRC_STALL;
             stall = 1;
         end
 
@@ -220,29 +269,38 @@ module OperandSelect (
             // CSR Read
             if (payload2.system.CSROp == CSR_RW) begin
                 lowerOperand1 = 32'd0;
+                lowerSource1Select = SRC_ZERO;
             end else begin
                 lowerOperand1 = CSRData2;
+                lowerSource1Select = SRC_CSR;
             end
         end else if (payload2.sourceRegister1 == 5'd0) begin
             // Hardwire x0 to Zero
             lowerOperand1 = 32'd0;
+            lowerSource1Select = SRC_ZERO;
         end else if (lowerSource1Status.resultCommitted) begin
             // Use Fresh Register Data
             lowerOperand1 = lowerData1;
+            lowerSource1Select = SRC_REGFILE;
         end else if (lowerSource1Status.resultReady) begin
             // Use ROB Forward Data
             lowerOperand1 = lowerROBData1;
+            lowerSource1Select = SRC_ROB;
         end else if (!lowerSource1Status.isLoad) begin
             if (lowerExTag == lowerSource1Status.ageTag && lowerExValid) begin
                 // Use Slot 1 Execute Bypass Data
                 lowerOperand1 = lowerExData;
+                lowerSource1Select = SRC_EX_LOWER;
             end else if (upperExTag == lowerSource1Status.ageTag) begin
                 // Use Slot 0 Execute Bypass Data
                 lowerOperand1 = upperExData;
+                lowerSource1Select = SRC_EX_UPPER;
             end
         end else if (acknowledge && (loadTag == lowerSource1Status.ageTag)) begin
             lowerOperand1 = loadData;
+            lowerSource1Select = SRC_LOAD;
         end else begin
+            lowerSource1Select = SRC_STALL;
             stall = 1;
         end
 
@@ -250,23 +308,30 @@ module OperandSelect (
         if (payload2.sourceRegister2 == 5'd0) begin
             // Hardwire x0 to Zero
             lowerOperand2 = 32'd0;
+            lowerSource2Select = SRC_ZERO;
         end else if (lowerSource2Status.resultCommitted) begin
             // Use Fresh Register Data
             lowerOperand2 = lowerData2;
+            lowerSource2Select = SRC_REGFILE;
         end else if (lowerSource2Status.resultReady) begin
             // Use ROB Forward Data
             lowerOperand2 = lowerROBData2;
+            lowerSource2Select = SRC_ROB;
         end else if (!lowerSource2Status.isLoad) begin
             if (lowerExTag == lowerSource2Status.ageTag && lowerExValid) begin
                 // Use Slot 1 Execute Bypass Data
                 lowerOperand2 = lowerExData;
+                lowerSource2Select = SRC_EX_LOWER;
             end else if (upperExTag == lowerSource2Status.ageTag) begin
                 // Use Slot 0 Execute Bypass Data
                 lowerOperand2 = upperExData;
+                lowerSource2Select = SRC_EX_UPPER;
             end
         end else if (acknowledge && (loadTag == lowerSource2Status.ageTag)) begin
             lowerOperand2 = loadData;
+            lowerSource2Select = SRC_LOAD;
         end else begin
+            lowerSource2Select = SRC_STALL;
             stall = 1;
         end
 
@@ -392,20 +457,47 @@ module OperandSelect (
         end else begin
             debugCycle <= debugCycle + 1;
         end
+        if (!reset && debugMode) begin
+            if (payload1.valid || payload2.valid || exPayload1.valid || exPayload2.valid) begin
+                $display("[OS] cycle=%0d stall=%0b redirect=%0b ack=%0b loadTag=%0d loadData=%08h upperExTag=%0d upperExData=%08h lowerExTag=%0d lowerExData=%08h lowerExValid=%0b",
+                    debugCycle, stall, redirect, acknowledge, loadTag, loadData,
+                    upperExTag, upperExData, lowerExTag, lowerExData, lowerExValid);
+                $display("     lane0 pc=%08h tag=%0d rs1=x%0d(%s age=%0d c=%0b r=%0b l=%0b val=%08h) rs2=x%0d(%s age=%0d c=%0b r=%0b l=%0b val=%08h) -> cand(op1=%08h op2=%08h valid=%0b)",
+                    payload1.programCounter, payload1.ageTag,
+                    payload1.sourceRegister1, operandSourceName(upperSource1Select), upperSource1Status.ageTag,
+                    upperSource1Status.resultCommitted, upperSource1Status.resultReady, upperSource1Status.isLoad, upperOperand1,
+                    payload1.sourceRegister2, operandSourceName(upperSource2Select), upperSource2Status.ageTag,
+                    upperSource2Status.resultCommitted, upperSource2Status.resultReady, upperSource2Status.isLoad, upperOperand2,
+                    exPayloadCandidate1.operand1, exPayloadCandidate1.operand2, exPayloadCandidate1.valid);
+                $display("           presented: reg1=%08h reg2=%08h rob1=%08h rob2=%08h csr=%08h",
+                    upperData1, upperData2, upperROBData1, upperROBData2, CSRData1);
+                $display("     lane1 pc=%08h tag=%0d rs1=x%0d(%s age=%0d c=%0b r=%0b l=%0b val=%08h) rs2=x%0d(%s age=%0d c=%0b r=%0b l=%0b val=%08h) -> cand(op1=%08h op2=%08h valid=%0b)",
+                    payload2.programCounter, payload2.ageTag,
+                    payload2.sourceRegister1, operandSourceName(lowerSource1Select), lowerSource1Status.ageTag,
+                    lowerSource1Status.resultCommitted, lowerSource1Status.resultReady, lowerSource1Status.isLoad, lowerOperand1,
+                    payload2.sourceRegister2, operandSourceName(lowerSource2Select), lowerSource2Status.ageTag,
+                    lowerSource2Status.resultCommitted, lowerSource2Status.resultReady, lowerSource2Status.isLoad, lowerOperand2,
+                    exPayloadCandidate2.operand1, exPayloadCandidate2.operand2, exPayloadCandidate2.valid);
+                $display("           presented: reg1=%08h reg2=%08h rob1=%08h rob2=%08h csr=%08h",
+                    lowerData1, lowerData2, lowerROBData1, lowerROBData2, CSRData2);
+            end
+        end
         if (stall) begin
             exPayload1 <= '0;
             exPayload2 <= '0;
         end else begin
             exPayload1 <= exPayloadCandidate1;
             exPayload2 <= exPayloadCandidate2;
+            if (!reset && debugMode && (exPayloadCandidate1.valid || exPayloadCandidate2.valid)) begin
+                $display("[OS->EX] cycle=%0d lane0 pc=%08h tag=%0d op1=%08h op2=%08h valid=%0b lane1 pc=%08h tag=%0d op1=%08h op2=%08h valid=%0b",
+                    debugCycle,
+                    exPayloadCandidate1.programCounter, exPayloadCandidate1.ageTag,
+                    exPayloadCandidate1.operand1, exPayloadCandidate1.operand2, exPayloadCandidate1.valid,
+                    exPayloadCandidate2.programCounter, exPayloadCandidate2.ageTag,
+                    exPayloadCandidate2.operand1, exPayloadCandidate2.operand2, exPayloadCandidate2.valid);
+            end
         end
     end
 
 endmodule
 
-// clever idea to use handofs. os on stall latches its rst reads
-// into an old rst register. During stall, oldvector uses these. update
-// as they are updated in issuer. since oldvector is only used when
-// rd == rs, it guarentees it exists
-
-// Must somehow refresh old status when stall is active
