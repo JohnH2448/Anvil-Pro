@@ -50,6 +50,17 @@ Core/                              # Main RTL Folder
 │  └─ WalkingWindow.sv             # Feeds Decoders And Holds PC
 └─ Top.sv                          # Hirearchical Top Level Module
 ```
+## Performance
+| Test | IPC |
+|---|---:|
+| `optimized.hex` | 1.9563 |
+| `addi.hex` | 1.5359 |
+| `waw.hex` | 1.3654 |
+| `jal.hex` | 1.2973 |
+| `minnewlib.hex` | 1.1416 |
+| `prints.hex` | 1.0892 |
+| `heavyinterupts.hex` | 1.0246 |
+| `memstress.hex` | 0.7138 |
 
 ## Reference
 See `ARCHITECTURE.md` for technical reference, design philosophy, and performance microarchitecture rationale. For writing software, stay tuned. A full software-perspective interface guide will be provided with the first published release. 
