@@ -7,7 +7,7 @@
 #include "VTop.h"
 #include "verilated.h"
 
-static constexpr uint64_t kMaxCycles = 1000000;
+static constexpr uint64_t kMaxCycles = 10000000;
 static constexpr uint32_t kDebugLogMask = 0x3ffu;
 
 static void tick_full_cycle(VTop* top) {

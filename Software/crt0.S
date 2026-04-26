@@ -25,6 +25,8 @@ _start:
     la t0, __debug_log_index
     sw zero, 0(t0)
 
+    call __anvil_init_data
+
     call main
 
     beqz a0, 3f

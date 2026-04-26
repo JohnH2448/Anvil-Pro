@@ -3,8 +3,9 @@ ENTRY(_start)
 
 MEMORY
 {
-    IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 16K
+    IMEM (rx)  : ORIGIN = 0x00000000, LENGTH = 32K
     DMEM (rwx) : ORIGIN = 0x00004000, LENGTH = 16K
+    INIT (r)   : ORIGIN = 0x10000000, LENGTH = 64K
 }
 
 __stack_size = 0x800;
@@ -18,11 +19,32 @@ SECTIONS
         KEEP(*(.init))
         KEEP(*(.text.start))
         *(.text .text.*)
+        *(.plt)
         KEEP(*(.fini))
+        . = ALIGN(4);
+        __preinit_array_start = .;
+        KEEP(*(.preinit_array))
+        __preinit_array_end = .;
+        . = ALIGN(4);
+        __init_array_start = .;
+        KEEP(*(SORT_BY_INIT_PRIORITY(.init_array.*)))
+        KEEP(*(.init_array))
+        __init_array_end = .;
+        . = ALIGN(4);
+        __fini_array_start = .;
+        KEEP(*(SORT_BY_INIT_PRIORITY(.fini_array.*)))
+        KEEP(*(.fini_array))
+        __fini_array_end = .;
+        . = ALIGN(4);
+        *(.text.init_data)
         . = ALIGN(4);
     } > IMEM
 
-    .rodata : ALIGN(4)
+    .rodata
+#ifdef NOLOAD_INIT
+    (NOLOAD)
+#endif
+    : ALIGN(4)
     {
         __global_pointer$ = . + 0x800;
         __rodata_start = .;
@@ -30,16 +52,20 @@ SECTIONS
         *(.rodata .rodata.*)
         . = ALIGN(4);
         __rodata_end = .;
-    } > DMEM
+    } > DMEM AT> INIT
 
-    .data : ALIGN(4)
+    .data
+#ifdef NOLOAD_INIT
+    (NOLOAD)
+#endif
+    : ALIGN(4)
     {
         __data_start = .;
         *(.sdata .sdata.*)
         *(.data .data.*)
         . = ALIGN(4);
         __data_end = .;
-    } > DMEM
+    } > DMEM AT> INIT
 
     .bss (NOLOAD) : ALIGN(4)
     {
@@ -82,7 +108,4 @@ SECTIONS
         *(.eh_frame)
         *(.eh_frame_hdr)
     }
-
-    ASSERT(__rodata_start == __rodata_end, "Anvil runtime does not support preinitialized .rodata; build constants manually in .bss or generated startup code")
-    ASSERT(__data_start == __data_end, "Anvil runtime does not support preinitialized .data; build globals manually in .bss or generated startup code")
 }

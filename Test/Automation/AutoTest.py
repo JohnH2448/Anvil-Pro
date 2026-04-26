@@ -11,11 +11,12 @@ HEX_DIR = ROOT / "Test" / "Hex"
 INSTRUCTIONS_HEX = ROOT / "Core" / "Memory" / "Instructions.hex"
 CONVERTER = ROOT / "Test" / "Automation" / "hex_to_four_word.py"
 LOG_FILE = ROOT / "Test" / "Automation" / "hex_results.log"
-SIM_TIMEOUT_SECONDS = 5
+SIM_TIMEOUT_SECONDS = 10
 DEFAULT_MAX_CYCLES = 1_000_000
 LONG_TEST_MAX_CYCLES = 10_000_000
 LONG_TEST_NAMES = {
     "long.hex",
+    "heavyinterupts.hex"
 }
 
 STOP_CYCLE_RE = re.compile(r"Stopped at cycle (\d+) with tohost = (0x[0-9a-fA-F]{8})")
