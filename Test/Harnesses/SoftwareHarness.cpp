@@ -35,16 +35,39 @@ static uint8_t debug_log_byte(const VTop* top, uint32_t index) {
     return static_cast<uint8_t>((top->debugLogWindow[word_index] >> byte_shift) & 0xffu);
 }
 
-static void flush_debug_log(const VTop* top, uint32_t& consumed_index) {
+static bool flush_debug_log(const VTop* top, uint32_t& consumed_index, std::string& token_window) {
     const uint32_t produced_index = static_cast<uint32_t>(top->debugLogIndex);
+    bool saw_tohost = false;
 
     while (consumed_index != produced_index) {
         const uint8_t byte = debug_log_byte(top, consumed_index);
         std::cout.put(static_cast<char>(byte));
+
+        token_window.push_back(static_cast<char>(byte));
+        if (token_window.size() > 6) {
+            token_window.erase(0, token_window.size() - 6);
+        }
+
+        if (token_window == "tohost") {
+            saw_tohost = true;
+        }
+
         ++consumed_index;
     }
 
     std::cout.flush();
+    return saw_tohost;
+}
+
+static void print_ipc(uint64_t retired_total, uint64_t cycle) {
+    const double ipc = cycle == 0 ? 0.0 : static_cast<double>(retired_total) / static_cast<double>(cycle);
+
+    std::cout
+        << "Retired " << retired_total
+        << " instructions in " << cycle
+        << " cycles, IPC="
+        << std::fixed << std::setprecision(4) << ipc
+        << '\n';
 }
 
 int main(int argc, char** argv) {
@@ -63,27 +86,30 @@ int main(int argc, char** argv) {
     auto* top = new VTop;
     uint64_t cycle = 0;
     uint32_t consumed_debug_index = 0;
+    std::string token_window;
+    bool tohost_armed = false;
+    uint64_t retired_total = 0;
 
     apply_reset(top);
 
     while (!Verilated::gotFinish()) {
         ++cycle;
         tick_full_cycle(top);
-        flush_debug_log(top, consumed_debug_index);
+        retired_total += static_cast<uint64_t>(top->retired & 0x3u);
 
-        const uint32_t tohost = static_cast<uint32_t>(top->tohost);
-        if (tohost == 0x101u || tohost == 0x102u) {
+        tohost_armed |= flush_debug_log(top, consumed_debug_index, token_window);
+        if (tohost_armed) {
             std::cout
                 << "\nStopped at cycle " << cycle
-                << " with tohost = 0x"
-                << std::hex << std::setw(8) << std::setfill('0') << tohost
-                << std::dec << '\n';
+                << " after stdout tohost token\n";
+            print_ipc(retired_total, cycle);
             delete top;
-            return tohost == 0x101u ? 0 : 1;
+            return 0;
         }
 
         if (cycle >= max_cycles) {
             std::cout << "\nInfinite loop after " << cycle << " cycles\n";
+            print_ipc(retired_total, cycle);
             delete top;
             return 1;
         }

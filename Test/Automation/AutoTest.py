@@ -98,7 +98,7 @@ def classify_failed_simulation(stdout: str, stderr: str) -> tuple[str, int | Non
     return f"UNPARSED ({last_line})", None
 
 
-def run_single_test(hex_file: Path) -> str:
+def run_single_test(hex_file: Path) -> tuple[str, int]:
     INSTRUCTIONS_HEX.write_text(hex_file.read_text())
 
     run_command([sys.executable, str(CONVERTER), str(INSTRUCTIONS_HEX)], cwd=ROOT)
@@ -121,7 +121,7 @@ def run_single_test(hex_file: Path) -> str:
         stderr = exc.stderr or ""
         retired = count_retired_instructions(stdout)
         ipc = format_ipc(retired, None)
-        return f"{hex_file.name}: TIMEOUT, IPC={ipc}"
+        return f"{hex_file.name}: TIMEOUT, IPC={ipc}", retired
 
     retired = count_retired_instructions(stdout)
     last_line = extract_last_nonempty_line(stdout)
@@ -130,9 +130,9 @@ def run_single_test(hex_file: Path) -> str:
 
     if sim.returncode != 0:
         failed_status, failed_cycles = classify_failed_simulation(stdout, stderr)
-        return f"{hex_file.name}: {failed_status}, IPC={format_ipc(retired, failed_cycles)}"
+        return f"{hex_file.name}: {failed_status}, IPC={format_ipc(retired, failed_cycles)}", retired
 
-    return f"{hex_file.name}: {status}, IPC={ipc}"
+    return f"{hex_file.name}: {status}, IPC={ipc}", retired
 
 
 def main() -> int:
@@ -142,9 +142,11 @@ def main() -> int:
         return 1
 
     results: list[str] = []
+    total_retired = 0
     for hex_file in hex_files:
         try:
-            result = run_single_test(hex_file)
+            result, retired = run_single_test(hex_file)
+            total_retired += retired
         except subprocess.CalledProcessError as exc:
             details = extract_last_nonempty_line(exc.stderr) or extract_last_nonempty_line(exc.stdout)
             result = f"{hex_file.name}: ERROR ({details or 'command failed'})"
@@ -153,6 +155,7 @@ def main() -> int:
 
     LOG_FILE.write_text("\n".join(results) + "\n")
     print(f"Wrote summary log to {LOG_FILE}")
+    print(f"Total lines of code executed: {total_retired}")
     return 0
 
 

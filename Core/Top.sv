@@ -12,8 +12,13 @@ module Top (
     // DEBUG
     output logic [31:0] tohost,
     output logic [31:0] debugLogIndex,
-    output logic [8191:0] debugLogWindow
+    output logic [8191:0] debugLogWindow,
+    output logic [1:0] retired
 );
+
+    // DEBUG
+    logic [1:0] retireCount;
+    assign retired = retireCount;
 
     // Reorder Buffer Outputs
     RetiredInstruction_ resolvedInstruction1;
@@ -30,7 +35,7 @@ module Top (
     RestoreStateBus_ rstBus3;
     CSRFilePayload_ csrOut1;
     CSRFilePayload_ csrOut2;
-    logic [1:0] retireCount;
+    // logic [1:0] retireCount;
     CSRRestore_ csrBus1;
     CSRRestore_ csrBus2;
     CSRRestore_ csrBus3;

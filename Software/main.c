@@ -1,86 +1,132 @@
 #include <stdint.h>
 #include <stdio.h>
 
-static int32_t ilp_math(void)
+static uint32_t register_storm(uint32_t seed, uint32_t rounds)
 {
-    int32_t a = 1;
-    int32_t b = 2;
-    int32_t c = 3;
-    int32_t d = 4;
+    uint32_t a = seed + 0x10203040u;
+    uint32_t b = seed ^ 0x55667788u;
+    uint32_t c = seed + 0x13579bdfu;
+    uint32_t d = seed ^ 0x2468ace0u;
+    uint32_t e = seed + 0x0f1e2d3cu;
+    uint32_t f = seed ^ 0x4b5a6978u;
+    uint32_t g = seed + 0x89abcdefu;
+    uint32_t h = seed ^ 0xfedcba98u;
 
-    int32_t s0 = 0;
-    int32_t s1 = 0;
-    int32_t s2 = 0;
-    int32_t s3 = 0;
+    for (uint32_t i = 0; i < rounds; ++i) {
+        a += 0x11111111u;
+        b ^= 0x01010101u;
+        c += 0x33333333u;
+        d ^= 0x70707070u;
 
-    for (int i = 0; i < 100; ++i) {
-        int32_t x0 = a + i;
-        int32_t x1 = b + i;
-        int32_t x2 = c + i;
-        int32_t x3 = d + i;
+        e += a >> 3;
+        f ^= b << 5;
+        g += c >> 7;
+        h ^= d << 2;
 
-        int32_t r0 = x0 * 3 + 7;
-        int32_t r1 = x1 * 5 + 11;
-        int32_t r2 = x2 * 7 + 13;
-        int32_t r3 = x3 * 9 + 17;
+        a ^= e + i;
+        b += f ^ (i << 1);
+        c ^= g + (i << 2);
+        d += h ^ (i << 3);
 
-        s0 += r0;
-        s1 += r1;
-        s2 += r2;
-        s3 += r3;
+        e ^= a >> 11;
+        f += b << 1;
+        g ^= c >> 13;
+        h += d << 3;
 
-        a += 1;
-        b += 2;
-        c += 3;
-        d += 4;
+        a += g ^ 0x0000ffffu;
+        b ^= h + 0xffff0000u;
+        c += e ^ 0x00ff00ffu;
+        d ^= f + 0xff00ff00u;
     }
 
-    return s0 + s1 + s2 + s3;
+    return a ^ b ^ c ^ d ^ e ^ f ^ g ^ h;
 }
 
-static int32_t ilp_array(void)
+static uint32_t dependency_light(uint32_t seed, uint32_t rounds)
 {
-    int32_t data[16];
-    int32_t out[16];
+    uint32_t a0 = seed + 3u;
+    uint32_t a1 = seed + 5u;
+    uint32_t a2 = seed + 7u;
+    uint32_t a3 = seed + 11u;
+    uint32_t a4 = seed + 13u;
+    uint32_t a5 = seed + 17u;
+    uint32_t a6 = seed + 19u;
+    uint32_t a7 = seed + 23u;
 
-    for (int i = 0; i < 16; ++i) {
-        data[i] = i + 1;
-        out[i] = 0;
+    for (uint32_t i = 0; i < rounds; ++i) {
+        a0 = (a0 << 3) ^ (a0 >> 5) ^ i;
+        a1 = (a1 << 5) ^ (a1 >> 7) ^ (i + 1u);
+        a2 = (a2 << 7) ^ (a2 >> 9) ^ (i + 2u);
+        a3 = (a3 << 9) ^ (a3 >> 11) ^ (i + 3u);
+        a4 = (a4 << 11) ^ (a4 >> 13) ^ (i + 4u);
+        a5 = (a5 << 13) ^ (a5 >> 15) ^ (i + 5u);
+        a6 = (a6 << 15) ^ (a6 >> 17) ^ (i + 6u);
+        a7 = (a7 << 17) ^ (a7 >> 19) ^ (i + 7u);
+
+        a0 += a4;
+        a1 += a5;
+        a2 += a6;
+        a3 += a7;
+        a4 ^= a0 >> 3;
+        a5 ^= a1 >> 5;
+        a6 ^= a2 >> 7;
+        a7 ^= a3 >> 9;
     }
 
-    int32_t sum0 = 0;
-    int32_t sum1 = 0;
-    int32_t sum2 = 0;
-    int32_t sum3 = 0;
+    return a0 + a1 + a2 + a3 + a4 + a5 + a6 + a7;
+}
 
-    for (int i = 0; i < 16; i += 4) {
-        int32_t a0 = data[i + 0];
-        int32_t a1 = data[i + 1];
-        int32_t a2 = data[i + 2];
-        int32_t a3 = data[i + 3];
+static uint32_t branch_sparse(uint32_t seed, uint32_t rounds)
+{
+    uint32_t a = seed + 0x1001u;
+    uint32_t b = seed + 0x2002u;
+    uint32_t c = seed + 0x3003u;
+    uint32_t d = seed + 0x4004u;
 
-        int32_t r0 = a0 * 2 + 1;
-        int32_t r1 = a1 * 3 + 2;
-        int32_t r2 = a2 * 4 + 3;
-        int32_t r3 = a3 * 5 + 4;
+    for (uint32_t i = 0; i < rounds; ++i) {
+        a += b ^ (i << 2);
+        b ^= c + (i << 3);
+        c += d ^ (i << 4);
+        d ^= a + (i << 5);
 
-        out[i + 0] = r0;
-        out[i + 1] = r1;
-        out[i + 2] = r2;
-        out[i + 3] = r3;
-
-        sum0 += r0;
-        sum1 += r1;
-        sum2 += r2;
-        sum3 += r3;
+        if ((i & 63u) == 0u) {
+            a ^= d >> 1;
+            c += b << 1;
+        }
     }
 
-    return sum0 + sum1 + sum2 + sum3 + out[0] + out[5] + out[10] + out[15];
+    return a ^ b ^ c ^ d;
 }
 
 int main(void)
 {
     setvbuf(stdout, NULL, _IONBF, 0);
 
+    printf("register math start\n");
+
+    printf("storm begin\n");
+    uint32_t r0 = register_storm(0x00000001u, 1600);
+    uint32_t r1 = register_storm(0x00000055u, 1600);
+    printf("storm done\n");
+
+    printf("dependency light begin\n");
+    uint32_t r2 = dependency_light(0x00000101u, 1800);
+    uint32_t r3 = dependency_light(0x00000202u, 1800);
+    printf("dependency light done\n");
+
+    printf("branch sparse begin\n");
+    uint32_t r4 = branch_sparse(0x00000303u, 2200);
+    uint32_t r5 = branch_sparse(0x00000404u, 2200);
+    printf("branch sparse done\n");
+
+    volatile uint32_t result = r0 ^ r1 ^ r2 ^ r3 ^ r4 ^ r5;
+
+    if (result == 0x4c0e7e79u) {
+        printf("register math pass\n");
+    } else {
+        printf("register math fail\n");
+    }
+
+    printf("tohost");
     return 0;
 }
