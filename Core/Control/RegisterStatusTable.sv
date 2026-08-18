@@ -192,6 +192,16 @@ module RegisterStatusTable (
 
     // Large Index Block
     always_comb begin
+        upperSource1Status = '0;
+        upperSource2Status = '0;
+        lowerSource1Status = '0;
+        lowerSource2Status = '0;
+        oldUpperStatus = '0;
+        oldLowerStatus = '0;
+        upperInFlightLoad1 = 1'b0;
+        upperInFlightLoad2 = 1'b0;
+        lowerInFlightLoad1 = 1'b0;
+        lowerInFlightLoad2 = 1'b0;
         // Destination Register isLoad Check 1
         if (rstDestinationRegister1 != 5'd0) begin
             destRegLoad1 = registerStatusTable[rstDestinationRegister1].isLoad && !registerStatusTable[rstDestinationRegister1].resultReady;

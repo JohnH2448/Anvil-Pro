@@ -112,6 +112,7 @@ module InterruptController (
         end 
     end
 
+`ifndef SYNTHESIS
     always_ff @(negedge clock) begin
         if (!reset && debugMode) begin
             $display("\nCLINT");
@@ -121,5 +122,6 @@ module InterruptController (
             $display("timerFull=%b", timerFull);
         end
     end
+`endif
 
 endmodule

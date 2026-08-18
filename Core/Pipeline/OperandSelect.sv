@@ -177,6 +177,12 @@ module OperandSelect (
     // Memory Op Signal for Capacity
     assign osMemory = (payload1.memoryOperation != MEM_NONE) && payload1.valid;
 
+    logic upperUsesSource2;
+    logic lowerUsesSource2;
+    assign upperUsesSource2 = payload1.valid &&
+        ((payload1.aluSource == ALU_RS1_RS2) || (payload1.memoryOperation == MEM_STORE));
+    assign lowerUsesSource2 = payload2.valid && (payload2.aluSource == ALU_RS1_RS2);
+
     // Register Portion of Operand Mux
     always_comb begin
 
@@ -234,7 +240,7 @@ module OperandSelect (
         end
 
         // Upper Source Register 2
-        if (payload1.sourceRegister2 == 5'd0) begin
+        if (!upperUsesSource2 || payload1.sourceRegister2 == 5'd0) begin
             // Hardwire x0 to Zero
             upperOperand2 = 32'd0;
             upperSource2Select = SRC_ZERO;
@@ -305,7 +311,7 @@ module OperandSelect (
         end
 
         // Lower Source Register 2
-        if (payload2.sourceRegister2 == 5'd0) begin
+        if (!lowerUsesSource2 || payload2.sourceRegister2 == 5'd0) begin
             // Hardwire x0 to Zero
             lowerOperand2 = 32'd0;
             lowerSource2Select = SRC_ZERO;
@@ -457,6 +463,7 @@ module OperandSelect (
         end else begin
             debugCycle <= debugCycle + 1;
         end
+`ifndef SYNTHESIS
         if (!reset && debugMode) begin
             if (payload1.valid || payload2.valid || exPayload1.valid || exPayload2.valid) begin
                 $display("[OS] cycle=%0d stall=%0b redirect=%0b ack=%0b loadTag=%0d loadData=%08h upperExTag=%0d upperExData=%08h lowerExTag=%0d lowerExData=%08h lowerExValid=%0b",
@@ -482,12 +489,14 @@ module OperandSelect (
                     lowerData1, lowerData2, lowerROBData1, lowerROBData2, CSRData2);
             end
         end
+`endif
         if (stall) begin
             exPayload1 <= '0;
             exPayload2 <= '0;
         end else begin
             exPayload1 <= exPayloadCandidate1;
             exPayload2 <= exPayloadCandidate2;
+`ifndef SYNTHESIS
             if (!reset && debugMode && (exPayloadCandidate1.valid || exPayloadCandidate2.valid)) begin
                 $display("[OS->EX] cycle=%0d lane0 pc=%08h tag=%0d op1=%08h op2=%08h valid=%0b lane1 pc=%08h tag=%0d op1=%08h op2=%08h valid=%0b",
                     debugCycle,
@@ -496,6 +505,7 @@ module OperandSelect (
                     exPayloadCandidate2.programCounter, exPayloadCandidate2.ageTag,
                     exPayloadCandidate2.operand1, exPayloadCandidate2.operand2, exPayloadCandidate2.valid);
             end
+`endif
         end
     end
 

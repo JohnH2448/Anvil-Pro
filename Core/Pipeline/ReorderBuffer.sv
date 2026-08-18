@@ -2,7 +2,11 @@ import Configuration::*;
 import Payloads::*;
 import Enumerations::*;
 
-module ReorderBuffer (
+module ReorderBuffer #(
+    parameter logic preciseRestoreRetire = 1'b1,
+    parameter logic registerRestoreRequest = 1'b0,
+    parameter logic registerRestoreBuses = 1'b0
+) (
 
     // Standard
     input logic clock,
@@ -70,12 +74,14 @@ module ReorderBuffer (
     
 );
 
+`ifndef SYNTHESIS
     // Verifies Depth Parameter Value
     initial begin
         if ((reorderBufferEntries & (reorderBufferEntries - 1)) != 0) begin
             $fatal(1, "reorderBufferEntries must be a power of two");
         end
     end
+`endif
 
 
     int debugCycle;
@@ -159,10 +165,6 @@ module ReorderBuffer (
     // Reset Logic
     always_ff @(posedge clock) begin
         if (reset) begin
-            // For Loop Can Be Deleted
-            for (int unsigned i=0; i < reorderBufferEntries; i++) begin
-                reorderBuffer[i] <= '0;
-            end
             debugCycle <= 0;
             headPointer <= '0;
             tailPointer <= '0;
@@ -177,7 +179,11 @@ module ReorderBuffer (
     logic [reorderBufferIndexWidth-1:0] redirectAdjustedTail;
     assign redirectAdjustedTail = (redirect ? redirectTag : tailIndexer);
     always_ff @(posedge clock) begin
-        if (!reset) begin
+        if (reset) begin
+            for (int unsigned i=0; i < reorderBufferEntries; i++) begin
+                reorderBuffer[i] <= '0;
+            end
+        end else begin
             if (issuedInstruction1.confirm) begin
                 reorderBuffer[redirectAdjustedTail].programCounter <= issuedInstruction1.programCounter;
                 reorderBuffer[redirectAdjustedTail].destinationRegister <= issuedInstruction1.destinationRegister;
@@ -201,6 +207,25 @@ module ReorderBuffer (
                 reorderBuffer[redirectAdjustedTail + 'd1].completed <= 1'b0;
                 reorderBuffer[redirectAdjustedTail + 'd1].trapType <= NONE;
             end
+            if (completedInstruction1.accept) begin
+                reorderBuffer[completedInstruction1.ageTag].instructionResult <= completedInstruction1.instructionResult;
+                reorderBuffer[completedInstruction1.ageTag].csrResult <= completedInstruction1.csrResult;
+                reorderBuffer[completedInstruction1.ageTag].trapType <= completedInstruction1.trapType;
+                reorderBuffer[completedInstruction1.ageTag].completed <= 1'b1;
+            end
+            if (completedInstruction2.accept) begin
+                reorderBuffer[completedInstruction2.ageTag].instructionResult <= completedInstruction2.instructionResult;
+                reorderBuffer[completedInstruction2.ageTag].csrResult <= completedInstruction2.csrResult;
+                reorderBuffer[completedInstruction2.ageTag].trapType <= completedInstruction2.trapType;
+                reorderBuffer[completedInstruction2.ageTag].completed <= 1'b1;
+            end
+            if (completedMemory.accept) begin
+                reorderBuffer[completedMemory.ageTag].instructionResult <= completedMemory.instructionResult;
+                reorderBuffer[completedMemory.ageTag].completed <= 1'b1;
+            end
+            if (enqueuedStoreAccept == MEM_STORE) begin
+                reorderBuffer[enqueuedStoreTag].completed <= 1'b1;
+            end
         end
     end
 
@@ -214,6 +239,8 @@ module ReorderBuffer (
         csrOut1 = '0;
         csrOut2 = '0;
         exceptionTaken = 1'b0;
+        exceptionPC = '0;
+        exceptionType = NONE;
         if ((entries > 'd1)
         && (reorderBuffer[headIndexer].completed)
         && reorderBuffer[headIndexer].trapType == NONE
@@ -293,32 +320,6 @@ module ReorderBuffer (
         lowerForward2 = reorderBuffer[lowerTagIndex2].instructionResult;
     end
 
-    // Write Completed Instructions to ROB
-    always_ff @(posedge clock) begin
-        if (!reset) begin
-            // These Should Never Conflict
-            if (completedInstruction1.accept) begin
-                reorderBuffer[completedInstruction1.ageTag].instructionResult <= completedInstruction1.instructionResult;
-                reorderBuffer[completedInstruction1.ageTag].csrResult <= completedInstruction1.csrResult;
-                reorderBuffer[completedInstruction1.ageTag].trapType <= completedInstruction1.trapType;
-                reorderBuffer[completedInstruction1.ageTag].completed <= 1'b1;
-            end
-            if (completedInstruction2.accept) begin
-                reorderBuffer[completedInstruction2.ageTag].instructionResult <= completedInstruction2.instructionResult;
-                reorderBuffer[completedInstruction2.ageTag].csrResult <= completedInstruction2.csrResult;
-                reorderBuffer[completedInstruction2.ageTag].trapType <= completedInstruction2.trapType;
-                reorderBuffer[completedInstruction2.ageTag].completed <= 1'b1;
-            end
-            if (completedMemory.accept) begin
-                reorderBuffer[completedMemory.ageTag].instructionResult <= completedMemory.instructionResult;
-                reorderBuffer[completedMemory.ageTag].completed <= 1'b1;
-            end
-            if (enqueuedStoreAccept == MEM_STORE) begin
-                reorderBuffer[enqueuedStoreTag].completed <= 1'b1;
-            end
-        end
-    end
-
     // Calculate Flush Count 0-3
     logic [1:0] flushCount;
     logic [reorderBufferIndexWidth:0] untruncatedFlushCount;
@@ -329,23 +330,42 @@ module ReorderBuffer (
     logic [reorderBufferIndexWidth-1:0] redirectIndexer;
     assign redirectIndexer = redirectPointer[reorderBufferIndexWidth-1:0];
 
+    logic restoreRedirect;
+    logic [1:0] restoreFlushCount;
+    logic [reorderBufferIndexWidth-1:0] restoreRedirectIndexer;
+    logic [reorderBufferIndexWidth-1:0] restoreNextHeadIndexer;
+    logic [4:0] restoreFlushDest1;
+    logic [4:0] restoreFlushDest2;
+    logic [4:0] restoreFlushDest3;
+    logic restoreResolvedValid1;
+    logic restoreResolvedValid2;
+    logic [reorderBufferIndexWidth-1:0] restoreResolvedAgeTag1;
+    logic [reorderBufferIndexWidth-1:0] restoreResolvedAgeTag2;
+
+    RestoreStateBus_ rstBus1Next;
+    RestoreStateBus_ rstBus2Next;
+    RestoreStateBus_ rstBus3Next;
+    CSRRestore_ csrBus1Next;
+    CSRRestore_ csrBus2Next;
+    CSRRestore_ csrBus3Next;
+
     // CSR Restore
     always_comb begin
-        csrBus1 = '0;
-        csrBus2 = '0;
-        csrBus3 = '0;
-        if (redirect) begin
-            if (flushCount > 2'd0) begin
-                csrBus1.destinationCSR = reorderBuffer[redirectIndexer].destinationCSR;
-                csrBus1.restore = reorderBuffer[redirectIndexer].CSRWriteIntent;
+        csrBus1Next = '0;
+        csrBus2Next = '0;
+        csrBus3Next = '0;
+        if (restoreRedirect) begin
+            if (restoreFlushCount > 2'd0) begin
+                csrBus1Next.destinationCSR = reorderBuffer[restoreRedirectIndexer].destinationCSR;
+                csrBus1Next.restore = reorderBuffer[restoreRedirectIndexer].CSRWriteIntent;
             end
-            if (flushCount > 2'd1) begin
-                csrBus2.destinationCSR = reorderBuffer[redirectIndexer + 'd1].destinationCSR;
-                csrBus2.restore = reorderBuffer[redirectIndexer + 'd1].CSRWriteIntent;
+            if (restoreFlushCount > 2'd1) begin
+                csrBus2Next.destinationCSR = reorderBuffer[restoreRedirectIndexer + 'd1].destinationCSR;
+                csrBus2Next.restore = reorderBuffer[restoreRedirectIndexer + 'd1].CSRWriteIntent;
             end
-            if (flushCount > 2'd2) begin
-                csrBus3.destinationCSR = reorderBuffer[redirectIndexer + 'd2].destinationCSR;
-                csrBus3.restore = reorderBuffer[redirectIndexer + 'd2].CSRWriteIntent;
+            if (restoreFlushCount > 2'd2) begin
+                csrBus3Next.destinationCSR = reorderBuffer[restoreRedirectIndexer + 'd2].destinationCSR;
+                csrBus3Next.restore = reorderBuffer[restoreRedirectIndexer + 'd2].CSRWriteIntent;
             end
         end
     end
@@ -357,6 +377,52 @@ module ReorderBuffer (
     assign flushDest1 = reorderBuffer[redirectIndexer].destinationRegister;
     assign flushDest2 = reorderBuffer[redirectIndexer + 'd1].destinationRegister;
     assign flushDest3 = reorderBuffer[redirectIndexer + 'd2].destinationRegister;
+
+    generate
+        if (registerRestoreRequest) begin : REGISTERED_RESTORE_REQUEST
+            always_ff @(posedge clock) begin
+                if (reset) begin
+                    restoreRedirect <= 1'b0;
+                    restoreFlushCount <= '0;
+                    restoreRedirectIndexer <= '0;
+                    restoreNextHeadIndexer <= '0;
+                    restoreFlushDest1 <= '0;
+                    restoreFlushDest2 <= '0;
+                    restoreFlushDest3 <= '0;
+                    restoreResolvedValid1 <= 1'b0;
+                    restoreResolvedValid2 <= 1'b0;
+                    restoreResolvedAgeTag1 <= '0;
+                    restoreResolvedAgeTag2 <= '0;
+                end else begin
+                    restoreRedirect <= redirect;
+                    restoreFlushCount <= flushCount;
+                    restoreRedirectIndexer <= redirectIndexer;
+                    restoreNextHeadIndexer <= nextHeadIndexer;
+                    restoreFlushDest1 <= flushDest1;
+                    restoreFlushDest2 <= flushDest2;
+                    restoreFlushDest3 <= flushDest3;
+                    restoreResolvedValid1 <= resolvedInstruction1.valid;
+                    restoreResolvedValid2 <= resolvedInstruction2.valid;
+                    restoreResolvedAgeTag1 <= resolvedInstruction1.ageTag;
+                    restoreResolvedAgeTag2 <= resolvedInstruction2.ageTag;
+                end
+            end
+        end else begin : COMBINATIONAL_RESTORE_REQUEST
+            always_comb begin
+                restoreRedirect = redirect;
+                restoreFlushCount = flushCount;
+                restoreRedirectIndexer = redirectIndexer;
+                restoreNextHeadIndexer = nextHeadIndexer;
+                restoreFlushDest1 = flushDest1;
+                restoreFlushDest2 = flushDest2;
+                restoreFlushDest3 = flushDest3;
+                restoreResolvedValid1 = resolvedInstruction1.valid;
+                restoreResolvedValid2 = resolvedInstruction2.valid;
+                restoreResolvedAgeTag1 = resolvedInstruction1.ageTag;
+                restoreResolvedAgeTag2 = resolvedInstruction2.ageTag;
+            end
+        end
+    endgenerate
 
     // Positive Distance from New Tail to Every Entry. CAM Select Youngest
     logic [reorderBufferIndexWidth-1:0] sortGrid [0:reorderBufferEntries-1];
@@ -376,21 +442,21 @@ module ReorderBuffer (
             logic [reorderBufferIndexWidth-1:0] i;
             logic [reorderBufferIndexWidth-1:0] distance;
             i = loop[reorderBufferIndexWidth-1:0];
-            distance = redirectIndexer - i;
+            distance = restoreRedirectIndexer - i;
             sortGrid[i] = distance;
         end
         // Mask Grid Builder
         for (int j = 0; j < 3; j++) begin
             logic [4:0] rd;
             unique case (j)
-                0: rd = flushDest1;
-                1: rd = flushDest2;
-                2: rd = flushDest3;
+                0: rd = restoreFlushDest1;
+                1: rd = restoreFlushDest2;
+                2: rd = restoreFlushDest3;
             endcase
             for (int unsigned loop = 0; loop < reorderBufferEntries; loop++) begin
                 logic [reorderBufferIndexWidth-1:0] i;
                 i = loop[reorderBufferIndexWidth-1:0];
-                maskGrid[i][j] = ((i - nextHeadIndexer) < (redirectIndexer - nextHeadIndexer))
+                maskGrid[i][j] = ((i - restoreNextHeadIndexer) < (restoreRedirectIndexer - restoreNextHeadIndexer))
                 && (reorderBuffer[i].destinationRegister == (rd));
             end
         end
@@ -435,63 +501,96 @@ module ReorderBuffer (
 
     // Bus Driver
     always_comb begin
-        rstBus1 = '0;
-        rstBus2 = '0;
-        rstBus3 = '0;
+        rstBus1Next = '0;
+        rstBus2Next = '0;
+        rstBus3Next = '0;
         // Drive Buses When Flush Occurs
-        if (redirect) begin
+        if (restoreRedirect) begin
             // Bus 1
-            if (flushCount > 2'd0 && (flushDest1 != 5'd0)) begin
-                rstBus1.valid = 1'b1;
-                rstBus1.destinationRegister = flushDest1;
-                rstBus1.ageTag = minIndex1;
+            if (restoreFlushCount > 2'd0 && (restoreFlushDest1 != 5'd0)) begin
+                rstBus1Next.valid = 1'b1;
+                rstBus1Next.destinationRegister = restoreFlushDest1;
+                rstBus1Next.ageTag = minIndex1;
                 if (found1) begin
-                    if ((minIndex1 == resolvedInstruction1.ageTag && resolvedInstruction1.valid)
-                    || (minIndex1 == resolvedInstruction2.ageTag && resolvedInstruction2.valid)) begin
-                        rstBus1.ready = 1'b1;
-                        rstBus1.retired = 1'b1;
+                    if (preciseRestoreRetire && ((minIndex1 == restoreResolvedAgeTag1 && restoreResolvedValid1)
+                    || (minIndex1 == restoreResolvedAgeTag2 && restoreResolvedValid2))) begin
+                        rstBus1Next.ready = 1'b1;
+                        rstBus1Next.retired = 1'b1;
                     end else begin
-                        rstBus1.ready = 1'b1;
-                        rstBus1.retired = 1'b0;
+                        rstBus1Next.ready = 1'b1;
+                        rstBus1Next.retired = 1'b0;
                     end
                 end else begin
-                    rstBus1.ready = 1'b1;
-                    rstBus1.retired = 1'b1;
+                    rstBus1Next.ready = 1'b1;
+                    rstBus1Next.retired = 1'b1;
                 end
             end
             // Bus 2
-            if (flushCount > 2'd1 && (flushDest2 != 5'd0) 
-                && (flushDest1 != flushDest2)) begin
-                rstBus2.valid = 1'b1;
-                rstBus2.destinationRegister = flushDest2;
-                rstBus2.ageTag = minIndex2;
+            if (restoreFlushCount > 2'd1 && (restoreFlushDest2 != 5'd0) 
+                && (restoreFlushDest1 != restoreFlushDest2)) begin
+                rstBus2Next.valid = 1'b1;
+                rstBus2Next.destinationRegister = restoreFlushDest2;
+                rstBus2Next.ageTag = minIndex2;
                 if (found2) begin
-                    rstBus2.ready = 1'b1;
-                    rstBus2.retired = 1'b0;
+                    rstBus2Next.ready = 1'b1;
+                    rstBus2Next.retired = 1'b0;
                 end else begin
-                    rstBus2.ready = 1'b1;
-                    rstBus2.retired = 1'b1;
+                    rstBus2Next.ready = 1'b1;
+                    rstBus2Next.retired = 1'b1;
                 end
             end
             // Bus 3
-            if (flushCount > 2'd2 && (flushDest3 != 5'd0)
-                && (flushDest1 != flushDest3) && (flushDest2 != flushDest3)) begin
-                rstBus3.valid = 1'b1;
-                rstBus3.destinationRegister = flushDest3;
-                rstBus3.ageTag = minIndex3;
+            if (restoreFlushCount > 2'd2 && (restoreFlushDest3 != 5'd0)
+                && (restoreFlushDest1 != restoreFlushDest3) && (restoreFlushDest2 != restoreFlushDest3)) begin
+                rstBus3Next.valid = 1'b1;
+                rstBus3Next.destinationRegister = restoreFlushDest3;
+                rstBus3Next.ageTag = minIndex3;
                 if (found3) begin
-                    rstBus3.ready = 1'b1;
-                    rstBus3.retired = 1'b0;
+                    rstBus3Next.ready = 1'b1;
+                    rstBus3Next.retired = 1'b0;
                 end else begin
-                    rstBus3.ready = 1'b1;
-                    rstBus3.retired = 1'b1;
+                    rstBus3Next.ready = 1'b1;
+                    rstBus3Next.retired = 1'b1;
                 end
             end
         end
     end
+
+    generate
+        if (registerRestoreBuses) begin : REGISTERED_RESTORE_OUTPUTS
+            always_ff @(posedge clock) begin
+                if (reset) begin
+                    rstBus1 <= '0;
+                    rstBus2 <= '0;
+                    rstBus3 <= '0;
+                    csrBus1 <= '0;
+                    csrBus2 <= '0;
+                    csrBus3 <= '0;
+                end else begin
+                    rstBus1 <= rstBus1Next;
+                    rstBus2 <= rstBus2Next;
+                    rstBus3 <= rstBus3Next;
+                    csrBus1 <= csrBus1Next;
+                    csrBus2 <= csrBus2Next;
+                    csrBus3 <= csrBus3Next;
+                end
+            end
+        end else begin : COMBINATIONAL_RESTORE_OUTPUTS
+            always_comb begin
+                rstBus1 = rstBus1Next;
+                rstBus2 = rstBus2Next;
+                rstBus3 = rstBus3Next;
+                csrBus1 = csrBus1Next;
+                csrBus2 = csrBus2Next;
+                csrBus3 = csrBus3Next;
+            end
+        end
+    endgenerate
+
     // Can probably reuse this machinary and redirect line for illegal
     // Most stages function the same under illegal vs redirect
 
+`ifndef SYNTHESIS
     // ROB Debug Print
     always_ff @(negedge clock) begin
         if (!reset && debugMode) begin
@@ -538,6 +637,7 @@ module ReorderBuffer (
             $display("ROB Trap: pc=0x%08h type=%0d", exceptionPC, exceptionType);
         end
     end
+`endif
     
 
 endmodule

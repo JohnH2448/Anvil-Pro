@@ -6,6 +6,8 @@ module BusArbitrator (
 
     // Master Bus
     input WishboneMaster_ memBusOut,
+    input logic dmemSelect,
+    input logic clintSelect,
 
     // Slave Sources
     input WishboneSlave_ dmemBus,
@@ -19,10 +21,10 @@ module BusArbitrator (
     // Bus Decision
     always_comb begin
         memBusIn = '0;
-        if (!memBusOut.address[31]) begin
+        if (dmemSelect) begin
             // Data Memory
             memBusIn = dmemBus;
-        end else if (memBusOut.address >= 32'h8000_0000 && memBusOut.address <= 32'h8000_000F) begin
+        end else if (clintSelect) begin
             // CLINT
             memBusIn = clintBus;
         end

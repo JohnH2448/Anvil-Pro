@@ -3,22 +3,24 @@ import Payloads::*;
 import Enumerations::*;
 
 
-module Top (
+module SynthTop (
 
     // Standard
     input logic clock,
     input logic reset,
 
-    // DEBUG
-    output logic [31:0] tohost,
-    output logic [31:0] debugLogIndex,
-    output logic [8191:0] debugLogWindow,
-    output logic [1:0] retired
+    // External data memory Wishbone interface.
+    output logic [31:0] dmemAddress,
+    output logic [31:0] dmemStoreData,
+    output logic dmemWriteEnable,
+    output logic [3:0] dmemByteSelect,
+    output logic dmemCycle,
+    output logic dmemStrobe,
+    input logic [31:0] dmemLoadData,
+    input logic dmemAcknowledge
 );
 
-    // DEBUG
     logic [1:0] retireCount;
-    assign retired = retireCount;
 
     // Reorder Buffer Outputs
     RetiredInstruction_ resolvedInstruction1;
@@ -87,15 +89,13 @@ module Top (
 
     // Branch Predictor Outputs
     logic taken;
+    logic branchPredictorTaken;
     logic bpUpdateValid1;
     logic [31:0] bpUpdatePC1;
     logic bpUpdateTaken1;
     logic bpUpdateValid2;
     logic [31:0] bpUpdatePC2;
     logic bpUpdateTaken2;
-
-    // Top-Level Pipeline Trace
-    integer pipelineDebugCycle;
 
     // Operand Select Outputs
     UpperOperandExecutePayload_ exPayload1;
@@ -122,6 +122,7 @@ module Top (
     logic [31:0] upperSourceData2;
     logic [31:0] lowerSourceData1;
     logic [31:0] lowerSourceData2;
+    logic [31:0] unusedTohost;
 
     // Execute Outputs
     InputInstruction_ resultPayload1;
@@ -137,6 +138,25 @@ module Top (
     logic loadSigned;
     logic isMRET;
     logic exceptionForFrontend;
+    InputInstruction_ executeResultPayload1;
+    InputInstruction_ executeResultPayload2;
+    ExecuteMemoryPayload_ executeMemPayload;
+    logic executeRedirect;
+    logic [31:0] executeRedirectVector;
+    logic executeMispredict1;
+    logic executeMispredict2;
+    logic executeExMemory;
+    logic [31:0] executeInputAddress;
+    logic [1:0] executeLoadWidth;
+    logic executeLoadSigned;
+    logic executeIsMRET;
+    logic executeExceptionForFrontend;
+    logic executeBpUpdateValid1;
+    logic [31:0] executeBpUpdatePC1;
+    logic executeBpUpdateTaken1;
+    logic executeBpUpdateValid2;
+    logic [31:0] executeBpUpdatePC2;
+    logic executeBpUpdateTaken2;
     logic [31:0] executeBypassData1;
     logic [31:0] executeBypassData2;
     logic [reorderBufferIndexWidth-1:0] executeBypassTag1;
@@ -173,6 +193,14 @@ module Top (
     // Data Memory Outputs
     WishboneSlave_ dmemBus;
     WishboneSlave_ memBusIn;
+    assign dmemAddress = memBusOut.address;
+    assign dmemStoreData = memBusOut.storeData;
+    assign dmemWriteEnable = memBusOut.writeEnable;
+    assign dmemByteSelect = memBusOut.byteSelect;
+    assign dmemCycle = memBusOut.cycle && memBusDmemSelect;
+    assign dmemStrobe = memBusOut.strobe && memBusDmemSelect;
+    assign dmemBus.loadData = dmemLoadData;
+    assign dmemBus.acknowledge = dmemAcknowledge;
 
     // Instruction Memory Outputs
     logic [127:0] lowFetchData;
@@ -190,6 +218,50 @@ module Top (
     logic interrupt;
     logic timerFull;
     WishboneSlave_ clintBus;
+
+    always_ff @(posedge clock) begin
+        if (reset || redirect) begin
+            resultPayload1 <= '0;
+            resultPayload2 <= '0;
+            memPayload <= '0;
+            redirect <= 1'b0;
+            redirectVector <= '0;
+            mispredict1 <= 1'b0;
+            mispredict2 <= 1'b0;
+            exMemory <= 1'b0;
+            inputAddress <= '0;
+            loadWidth <= '0;
+            loadSigned <= 1'b0;
+            isMRET <= 1'b0;
+            exceptionForFrontend <= 1'b0;
+            bpUpdateValid1 <= 1'b0;
+            bpUpdatePC1 <= '0;
+            bpUpdateTaken1 <= 1'b0;
+            bpUpdateValid2 <= 1'b0;
+            bpUpdatePC2 <= '0;
+            bpUpdateTaken2 <= 1'b0;
+        end else begin
+            resultPayload1 <= executeResultPayload1;
+            resultPayload2 <= executeResultPayload2;
+            memPayload <= executeMemPayload;
+            redirect <= executeRedirect;
+            redirectVector <= executeRedirectVector;
+            mispredict1 <= executeMispredict1;
+            mispredict2 <= executeMispredict2;
+            exMemory <= executeExMemory;
+            inputAddress <= executeInputAddress;
+            loadWidth <= executeLoadWidth;
+            loadSigned <= executeLoadSigned;
+            isMRET <= executeIsMRET;
+            exceptionForFrontend <= executeExceptionForFrontend;
+            bpUpdateValid1 <= executeBpUpdateValid1;
+            bpUpdatePC1 <= executeBpUpdatePC1;
+            bpUpdateTaken1 <= executeBpUpdateTaken1;
+            bpUpdateValid2 <= executeBpUpdateValid2;
+            bpUpdatePC2 <= executeBpUpdatePC2;
+            bpUpdateTaken2 <= executeBpUpdateTaken2;
+        end
+    end
 
     MemoryQueue memoryQueue (
         .clock(clock), // input
@@ -239,15 +311,6 @@ module Top (
 
         .finalOutputData(finalOutputData), // output
         .outputValid(outputValid) // output
-    );
-
-    PlaceholderDMEM placeholderDMEM (
-        .clock(clock), // input
-        .reset(reset), // input
-        .memBusOut(memBusOut), // input
-        .debugLogIndex(debugLogIndex), // DEBUG
-        .debugLogWindow(debugLogWindow), // DEBUG
-        .dmemBus(dmemBus) // output
     );
 
     BusArbitrator busArbitrator (
@@ -327,7 +390,7 @@ module Top (
         .csrBus2(csrBus2), // output
         .csrBus3(csrBus3), // output
 
-        .exceptionTaken(exceptionTaken), // input
+        .exceptionTaken(exceptionTaken), // output
         .exceptionPC(exceptionPC), // input 
         .exceptionType(exceptionType), // input
 
@@ -404,7 +467,7 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
 
-        .tohost(tohost), // DEBUG
+        .tohost(unusedTohost), // DEBUG
 
         .upperSourceRegister1(upperAddress1), // input
         .upperSourceRegister2(upperAddress2), // input
@@ -497,42 +560,42 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
 
-        .redirect(redirect), // output 
-        .redirectVector(redirectVector), // output
+        .redirect(executeRedirect), // output 
+        .redirectVector(executeRedirectVector), // output
 
-        .mispredict1(mispredict1), // output
-        .mispredict2(mispredict2), // output
+        .mispredict1(executeMispredict1), // output
+        .mispredict2(executeMispredict2), // output
 
-        .bpUpdateValid1(bpUpdateValid1), // output
-        .bpUpdatePC1(bpUpdatePC1), // output
-        .bpUpdateTaken1(bpUpdateTaken1), // output
-        .bpUpdateValid2(bpUpdateValid2), // output
-        .bpUpdatePC2(bpUpdatePC2), // output
-        .bpUpdateTaken2(bpUpdateTaken2), // output
+        .bpUpdateValid1(executeBpUpdateValid1), // output
+        .bpUpdatePC1(executeBpUpdatePC1), // output
+        .bpUpdateTaken1(executeBpUpdateTaken1), // output
+        .bpUpdateValid2(executeBpUpdateValid2), // output
+        .bpUpdatePC2(executeBpUpdatePC2), // output
+        .bpUpdateTaken2(executeBpUpdateTaken2), // output
 
-        .exMemory(exMemory), // output
+        .exMemory(executeExMemory), // output
 
-        .isMRET(isMRET), // output
+        .isMRET(executeIsMRET), // output
 
         .exPayload1(exPayload1), // input
         .exPayload2(exPayload2), // input
 
-        .memPayload(memPayload), // output
+        .memPayload(executeMemPayload), // output
 
         .outputValid(outputValid), // input
         .finalOutputData(finalOutputData), // input
-        .loadSigned(loadSigned), // output
-        .loadWidth(loadWidth), // output
-        .inputAddress(inputAddress), // output
+        .loadSigned(executeLoadSigned), // output
+        .loadWidth(executeLoadWidth), // output
+        .inputAddress(executeInputAddress), // output
 
-        .exceptionForFrontend(exceptionForFrontend), // output
+        .exceptionForFrontend(executeExceptionForFrontend), // output
 
-        .resultPayload1(resultPayload1), // output
+        .resultPayload1(executeResultPayload1), // output
         .bypassData1(executeBypassData1), // output
         .bypassData2(executeBypassData2), // output
         .bypassTag1(executeBypassTag1), // output
         .bypassTag2(executeBypassTag2), // output
-        .resultPayload2(resultPayload2) // output
+        .resultPayload2(executeResultPayload2) // output
     );
 
     BranchPredictor branchPredictor (
@@ -540,10 +603,10 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
 
-        .precalcAddress(precalcAddress), // input
+        .precalcAddress(32'd0), // input
         .branchProgramCounter(branchProgramCounter), // input
         .predictionSlot0(predictionSlot0), // input
-        .taken(taken), // output
+        .taken(branchPredictorTaken), // output
         .outputJal(outputJal), // input
         .validAddress(validAddress), // input
 
@@ -663,7 +726,7 @@ module Top (
         .programCounter(programCounter), // output
         .taken(taken), // input 
         .mepc(mepc), // output
-        .precalcAddress(precalcAddress), // input
+        .precalcAddress(32'd0), // input
         .isMRET(isMRET), // input
         .requestPC1(requestPC1), // input
         .requestPC2(requestPC2), // input
@@ -672,68 +735,16 @@ module Top (
         .badData(badData) // output
     );
 
-    InstructionMemory instructionMemory (
+    assign taken = 1'b0;
+
+    (* dont_touch = "yes" *)
+    SynthTinyIMEM synthTinyIMEM (
         .clock(clock), // input
-        .reset(reset), // input
-        .redirect(redirect), // input
-        .redirectVector(redirectVector), // input
-        .isMRET(isMRET), // input
-        .mepc(mepc), // input
-        .taken(taken), // input  
-        .precalcAddress(precalcAddress), // input
         .readAddressA(lowFetchAddress), // input
         .readDataA(lowFetchData), // output
         .readAddressB(highFetchAddress), // input
-        .exceptionTaken(exceptionTaken), // input
-        .mtvec(mtvec), // input
         .readDataB(highFetchData) // output
     );
-
-    // Whole-pipeline snapshot to correlate frontend, decode/issue, OS, and EX.
-    always_ff @(negedge clock) begin
-        if (reset) begin
-            pipelineDebugCycle <= 0;
-        end else begin
-            pipelineDebugCycle <= pipelineDebugCycle + 1;
-            if (debugMode) begin
-                $display("\n[Top] Pipeline Snapshot");
-                $display("  ctrl : taken=%0b branchPC=%08h precalc=%08h redirect=%0b redirectVec=%08h badData=%0b",
-                    taken, branchProgramCounter, precalcAddress, redirect, redirectVector, badData);
-                $display("  fetch: pc=%08h req0=%08h req1=%08h cons0=%0b cons1=%0b",
-                    programCounter, requestPC1, requestPC2, instructionConsumed1, instructionConsumed2);
-                $display("         lowWin=%08h highWin=%08h",
-                    lowFetchAddress, highFetchAddress);
-                $display("  lane0: FE[pc=%08h ins=%08h] -> DI[iss=%0b pc=%08h tag=%0d] -> OS[v=%0b pc=%08h pred=%0b tag=%0d] -> EX[v=%0b pc=%08h pred=%0b tag=%0d]",
-                    requestPC1,
-                    instruction1,
-                    instructionPacket1.confirm,
-                    instructionPacket1.programCounter,
-                    instructionPacket1.ageTag,
-                    payload1.valid,
-                    payload1.programCounter,
-                    payload1.predicted,
-                    payload1.ageTag,
-                    exPayload1.valid,
-                    exPayload1.programCounter,
-                    exPayload1.predicted,
-                    exPayload1.ageTag);
-                $display("  lane1: FE[pc=%08h ins=%08h] -> DI[iss=%0b pc=%08h tag=%0d] -> OS[v=%0b pc=%08h pred=%0b tag=%0d] -> EX[v=%0b pc=%08h pred=%0b tag=%0d]",
-                    requestPC2,
-                    instruction2,
-                    instructionPacket2.confirm,
-                    instructionPacket2.programCounter,
-                    instructionPacket2.ageTag,
-                    payload2.valid,
-                    payload2.programCounter,
-                    payload2.predicted,
-                    payload2.ageTag,
-                    exPayload2.valid,
-                    exPayload2.programCounter,
-                    exPayload2.predicted,
-                    exPayload2.ageTag);
-            end
-        end
-    end
 
 endmodule
 

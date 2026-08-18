@@ -379,7 +379,6 @@ module Decoder (
 
         endcase
         if (payload.trapType == ILLEGAL) begin
-            destinationRegister = 5'd0;
             payload.memoryOperation = MEM_NONE;
         end
         // Age Tags + Valid Assigned By Issuer

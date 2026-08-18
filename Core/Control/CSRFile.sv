@@ -140,7 +140,9 @@ module CSRFile (
             CSRFile[rMTVEC] <= 32'h00000000;
             CSRFile[rMIP] <= 32'h00000000;
             CSRFile[rMIE] <= 32'h00000000;
+            CSRFile[rMCYCLE] <= 32'h00000000;
             CSRFile[rMCYCLEH] <= 32'h00000000;
+            CSRFile[rMINSTRET] <= 32'h00000000;
             CSRFile[rMINSTRETH] <= 32'h00000000;
             CSRFile[rMSCRATCH] <= 32'h00000000;
             CSRFile[rMEPC] <= 32'h00000000;
@@ -165,15 +167,7 @@ module CSRFile (
             end else if (csrOut2.mret) begin
                 CSRFile[rMSTATUS] <= mretMstatus2;
             end
-        end
-    end
 
-    // Hardware Increments
-    always_ff @(posedge clock) begin
-        if (reset) begin
-            CSRFile[rMCYCLE] <= 32'h00000000;
-            CSRFile[rMINSTRET] <= 32'h00000000;
-        end else begin
             // Cycle Counter
             if (!(csrOut1.CSRWriteIntent && csrOut1.destinationCSR == rMCYCLE) && !(csrOut2.CSRWriteIntent && csrOut2.destinationCSR == rMCYCLE)) begin
                 CSRFile[rMCYCLE] <= CSRFile[rMCYCLE] + 32'd1;
@@ -191,6 +185,7 @@ module CSRFile (
         end
     end
 
+`ifndef SYNTHESIS
     // Full CSR Debug Print
     always_ff @(negedge clock) begin
         if (!reset && debugMode) begin
@@ -203,5 +198,6 @@ module CSRFile (
                 CSRFile[rMSCRATCH], CSRFile[rMEPC], CSRFile[rMCAUSE], 32'h40000100);
         end
     end
+`endif
 
 endmodule

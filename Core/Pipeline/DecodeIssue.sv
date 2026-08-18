@@ -133,6 +133,14 @@ module DecodeIssue (
     // Final Payloads Passed to OS
     UpperIssuerOperandPayload_ finalUpperPayload;
     LowerIssuerOperandPayload_ finalLowerPayload;
+    UpperIssuerOperandPayload_ issueQueueUpper [0:1];
+    LowerIssuerOperandPayload_ issueQueueLower [0:1];
+    logic [1:0] issueQueueCount;
+    logic issueQueueFull;
+
+    assign payload1 = issueQueueUpper[0];
+    assign payload2 = issueQueueLower[0];
+    assign issueQueueFull = (issueQueueCount == 2'd2);
 
     // Registered Instructions and PCs for Decode 
     logic [31:0] IR1;
@@ -395,8 +403,8 @@ module DecodeIssue (
             if (slot0TakenHelper) begin
                 // Implimented At Latch Time
             end
-            // No Issue on Stall
-            if (stall) begin
+            // No Issue When the Issue-to-OperandSelect Queue is Full
+            if (issueQueueFull) begin
                 block1 = 1'b1;
                 block2 = 1'b1;
             end
@@ -630,34 +638,6 @@ module DecodeIssue (
         end
     end 
 
-    // Old Status Update on Stall
-    always_ff @(posedge clock) begin
-        if (stall) begin
-            if (((payload1.oldStatus.ageTag == retireTag1) && retireValid1)
-                || ((payload1.oldStatus.ageTag == retireTag2) && retireValid2)) begin
-                payload1.oldStatus.resultReady <= 1'b1;
-                payload1.oldStatus.resultCommitted <= 1'b1;
-            end else if ((((payload1.oldStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((payload1.oldStatus.ageTag == acceptTag2) && acceptValid2)
-                || ((payload1.oldStatus.ageTag == memAgeTag) && memReady)) &&
-                !payload1.oldStatus.resultCommitted) begin
-                payload1.oldStatus.resultReady <= 1'b1;
-                payload1.oldStatus.resultCommitted <= 1'b0;
-            end
-            if (((payload2.oldStatus.ageTag == retireTag1) && retireValid1)
-                || ((payload2.oldStatus.ageTag == retireTag2) && retireValid2)) begin
-                payload2.oldStatus.resultReady <= 1'b1;
-                payload2.oldStatus.resultCommitted <= 1'b1;
-            end else if ((((payload2.oldStatus.ageTag == acceptTag1) && acceptValid1)
-                || ((payload2.oldStatus.ageTag == acceptTag2) && acceptValid2)
-                || ((payload2.oldStatus.ageTag == memAgeTag) && memReady)) &&
-                !payload2.oldStatus.resultCommitted) begin
-                payload2.oldStatus.resultReady <= 1'b1;
-                payload2.oldStatus.resultCommitted <= 1'b0;
-            end
-        end
-    end
-    
     // Instruction Packet Construction
     logic standardOp1;
     logic standardOp2;
@@ -710,14 +690,80 @@ module DecodeIssue (
         end
     end
 
+    function automatic RegisterStatusOutput_ repairOldStatus(input RegisterStatusOutput_ status);
+        repairOldStatus = status;
+        if (((status.ageTag == retireTag1) && retireValid1)
+            || ((status.ageTag == retireTag2) && retireValid2)) begin
+            repairOldStatus.resultReady = 1'b1;
+            repairOldStatus.resultCommitted = 1'b1;
+        end else if ((((status.ageTag == acceptTag1) && acceptValid1)
+            || ((status.ageTag == acceptTag2) && acceptValid2)
+            || ((status.ageTag == memAgeTag) && memReady)) &&
+            !status.resultCommitted) begin
+            repairOldStatus.resultReady = 1'b1;
+            repairOldStatus.resultCommitted = 1'b0;
+        end
+    endfunction
+
     // Instruction Payload Assignment
     always_ff @(posedge clock) begin
-        if (redirect) begin
-            payload1 <= '0;
-            payload2 <= '0;
-        end else if (!stall) begin
-            payload1 <= finalUpperPayload;
-            payload2 <= finalLowerPayload;
+        logic dequeueIssueQueue;
+        logic enqueueIssueQueue;
+        logic [1:0] nextIssueQueueCount;
+        UpperIssuerOperandPayload_ nextUpper0;
+        UpperIssuerOperandPayload_ nextUpper1;
+        LowerIssuerOperandPayload_ nextLower0;
+        LowerIssuerOperandPayload_ nextLower1;
+
+        if (reset || redirect) begin
+            issueQueueUpper[0] <= '0;
+            issueQueueUpper[1] <= '0;
+            issueQueueLower[0] <= '0;
+            issueQueueLower[1] <= '0;
+            issueQueueCount <= '0;
+        end else begin
+            dequeueIssueQueue = !stall && (issueQueueCount != 2'd0);
+            enqueueIssueQueue = finalUpperPayload.valid || finalLowerPayload.valid;
+
+            nextIssueQueueCount = issueQueueCount;
+            nextUpper0 = issueQueueUpper[0];
+            nextUpper1 = issueQueueUpper[1];
+            nextLower0 = issueQueueLower[0];
+            nextLower1 = issueQueueLower[1];
+
+            if (issueQueueCount != 2'd0) begin
+                nextUpper0.oldStatus = repairOldStatus(issueQueueUpper[0].oldStatus);
+                nextLower0.oldStatus = repairOldStatus(issueQueueLower[0].oldStatus);
+            end
+            if (issueQueueCount == 2'd2) begin
+                nextUpper1.oldStatus = repairOldStatus(issueQueueUpper[1].oldStatus);
+                nextLower1.oldStatus = repairOldStatus(issueQueueLower[1].oldStatus);
+            end
+
+            if (dequeueIssueQueue) begin
+                nextUpper0 = nextUpper1;
+                nextLower0 = nextLower1;
+                nextUpper1 = '0;
+                nextLower1 = '0;
+                nextIssueQueueCount = nextIssueQueueCount - 2'd1;
+            end
+
+            if (enqueueIssueQueue) begin
+                if (nextIssueQueueCount == 2'd0) begin
+                    nextUpper0 = finalUpperPayload;
+                    nextLower0 = finalLowerPayload;
+                end else begin
+                    nextUpper1 = finalUpperPayload;
+                    nextLower1 = finalLowerPayload;
+                end
+                nextIssueQueueCount = nextIssueQueueCount + 2'd1;
+            end
+
+            issueQueueUpper[0] <= nextUpper0;
+            issueQueueUpper[1] <= nextUpper1;
+            issueQueueLower[0] <= nextLower0;
+            issueQueueLower[1] <= nextLower1;
+            issueQueueCount <= nextIssueQueueCount;
         end
     end
 
@@ -728,8 +774,8 @@ module DecodeIssue (
         if (redirect) begin
             return "Redirect Flush";
         end
-        if (stall) begin
-            return "Operand Select Stall";
+        if (issueQueueFull) begin
+            return "Issue Queue Full";
         end
         if (reasonIllegal1) begin
             return "Illegal Instruction";
@@ -764,8 +810,8 @@ module DecodeIssue (
         if (redirect) begin
             return "Redirect Flush";
         end
-        if (stall) begin
-            return "Operand Select Stall";
+        if (issueQueueFull) begin
+            return "Issue Queue Full";
         end
         if (slot0TakenHelper) begin
             return "Slot 0 Predicted";
@@ -835,6 +881,7 @@ module DecodeIssue (
         return "Unknown Stall";
     endfunction
 
+`ifndef SYNTHESIS
     always_ff @(posedge clock) begin
         if (!reset && autoTest) begin
             if (instructionConsumed1) begin
@@ -850,6 +897,7 @@ module DecodeIssue (
             end
         end
     end
+`endif
 
 endmodule
 

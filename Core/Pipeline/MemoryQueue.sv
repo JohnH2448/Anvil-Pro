@@ -14,6 +14,8 @@ module MemoryQueue (
     // Memory Bus
     output WishboneMaster_ memBusOut,
     input WishboneSlave_ memBusIn,
+    output logic dmemSelect,
+    output logic clintSelect,
 
     // Data to ROB
     output InputInstruction_ completedMemory,
@@ -98,6 +100,8 @@ module MemoryQueue (
     logic completed;
     assign completed = memBusIn.acknowledge;
     assign loadTag = queueEntry[0].ageTag;
+    assign dmemSelect = queueEntry[0].dmemSelect;
+    assign clintSelect = queueEntry[0].clintSelect;
 
     // Free Slot Calculation
     always_comb begin
@@ -113,6 +117,8 @@ module MemoryQueue (
     // Converts Width to Wishbone Format
     logic [3:0] byteSelectTransform;
     logic [31:0] alignedStoreData;
+    logic dmemSelectTransform;
+    logic clintSelectTransform;
     always_comb begin
         unique case (memPayload.memoryWidth)
             2'b00: byteSelectTransform = 4'b0001 << memPayload.address[1:0];
@@ -121,6 +127,9 @@ module MemoryQueue (
         endcase
         // Latched on Enqueue
         alignedStoreData = memPayload.storeData << (8 * memPayload.address[1:0]);
+        dmemSelectTransform = !memPayload.address[31];
+        clintSelectTransform = (memPayload.address >= 32'h8000_0000)
+            && (memPayload.address <= 32'h8000_000F);
     end
 
     // Drives Wishbone Bus
@@ -199,8 +208,9 @@ module MemoryQueue (
             end
             if (canAccept && (memPayload.memoryOperation != MEM_NONE)) begin
                 queueEntry[index].address <= memPayload.address;
-                queueEntry[index].address <= memPayload.address;
                 queueEntry[index].memoryOperation <= memPayload.memoryOperation;
+                queueEntry[index].dmemSelect <= dmemSelectTransform;
+                queueEntry[index].clintSelect <= clintSelectTransform;
                 queueEntry[index].memorySigned <= memPayload.memorySigned;
                 queueEntry[index].destinationRegister <= memPayload.destinationRegister;
                 queueEntry[index].ageTag <= memPayload.ageTag;
@@ -220,6 +230,7 @@ module MemoryQueue (
         end
     end 
 
+`ifndef SYNTHESIS
     // Memory Queue Debug Print
     always_ff @(negedge clock) begin
         if (!reset && debugMode) begin
@@ -247,6 +258,7 @@ module MemoryQueue (
             end
         end
     end
+`endif
 
 endmodule
 // mini single req store buffer with forwarding so you dont need to wait for ack

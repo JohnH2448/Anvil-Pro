@@ -36,6 +36,12 @@ module Execute (
     output InputInstruction_ resultPayload1,
     output InputInstruction_ resultPayload2,
 
+    // Same-cycle bypass to OperandSelect
+    output logic [31:0] bypassData1,
+    output logic [31:0] bypassData2,
+    output logic [reorderBufferIndexWidth-1:0] bypassTag1,
+    output logic [reorderBufferIndexWidth-1:0] bypassTag2,
+
     // Store Buffer Coms
     input logic [31:0] finalOutputData,
     input logic outputValid,
@@ -54,6 +60,7 @@ module Execute (
     logic [31:0] result1;
     logic [31:0] result2;
     logic [31:0] writebackResult1;
+    logic [31:0] writebackResult2;
     logic [31:0] redirectVector1;
     logic [31:0] redirectVector2;
     logic redirect1;
@@ -128,6 +135,12 @@ module Execute (
     // Ex/Ex Bypass Gen Logic
     assign writebackResult1 = (exPayload1.jumpType != JUMP_NONE || exPayload1.system.CSROp != CSR_NONE)
         ? exPayload1.extraField : result1;
+    assign writebackResult2 = (exPayload2.jumpType != JUMP_NONE || exPayload2.system.CSROp != CSR_NONE)
+        ? exPayload2.extraField : result2;
+    assign bypassData1 = writebackResult1;
+    assign bypassData2 = writebackResult2;
+    assign bypassTag1 = exPayload1.ageTag;
+    assign bypassTag2 = exPayload2.ageTag;
     assign lowerOperand1 = !crossLaneExBypass ? exPayload2.operand1 : (exPayload2.bypassEnable[0] && exPayload2.system.CSROp == CSR_NONE) ? writebackResult1 : exPayload2.operand1;
     assign lowerOperand2 = !crossLaneExBypass ? exPayload2.operand2 : exPayload2.bypassEnable[1] ? writebackResult1 : exPayload2.operand2;
 
@@ -252,10 +265,11 @@ module Execute (
 
     // Memory Packet Construction
     always_comb begin
+        memPayload = '0;
         memTrap = 1'b0;
         if (exPayload1.valid && (exPayload1.trapType == NONE) && !(outputValid && exPayload1.memoryOperation == MEM_LOAD)) begin
                 unique case (exPayload1.memoryOperation)
-                    MEM_NONE: memPayload = '0;
+                    MEM_NONE: ;
                     MEM_LOAD, MEM_STORE: begin
                         // Address Validity Check
                         if (!accessFault && !misAddress) begin
@@ -272,8 +286,6 @@ module Execute (
                         end
                     end
                 endcase
-        end else begin
-            memPayload = '0;
         end
     end
 

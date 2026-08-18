@@ -74,6 +74,7 @@ module RegisterFile (
         end
     end
     
+`ifndef SYNTHESIS
     always_ff @(negedge clock) begin
         if (!reset && autoTest) begin
             $display(
@@ -89,6 +90,7 @@ module RegisterFile (
             );
         end
     end
+`endif
     
 
 endmodule

@@ -137,6 +137,29 @@ module Top (
     logic loadSigned;
     logic isMRET;
     logic exceptionForFrontend;
+    InputInstruction_ executeResultPayload1;
+    InputInstruction_ executeResultPayload2;
+    ExecuteMemoryPayload_ executeMemPayload;
+    logic executeRedirect;
+    logic [31:0] executeRedirectVector;
+    logic executeMispredict1;
+    logic executeMispredict2;
+    logic executeExMemory;
+    logic [31:0] executeInputAddress;
+    logic [1:0] executeLoadWidth;
+    logic executeLoadSigned;
+    logic executeIsMRET;
+    logic executeExceptionForFrontend;
+    logic executeBpUpdateValid1;
+    logic [31:0] executeBpUpdatePC1;
+    logic executeBpUpdateTaken1;
+    logic executeBpUpdateValid2;
+    logic [31:0] executeBpUpdatePC2;
+    logic executeBpUpdateTaken2;
+    logic [31:0] executeBypassData1;
+    logic [31:0] executeBypassData2;
+    logic [reorderBufferIndexWidth-1:0] executeBypassTag1;
+    logic [reorderBufferIndexWidth-1:0] executeBypassTag2;
 
     // Walking Window Outputs
     logic [31:0] lowFetchAddress;
@@ -150,6 +173,8 @@ module Top (
     InputInstruction_ completedMemory;
     logic [reorderBufferIndexWidth-1:0] loadTag;
     WishboneMaster_ memBusOut;
+    logic memBusDmemSelect;
+    logic memBusClintSelect;
     logic memFreeSlot;
     StoreBus_ storeBus1;
     StoreBus_ storeBus2;
@@ -185,6 +210,50 @@ module Top (
     logic timerFull;
     WishboneSlave_ clintBus;
 
+    always_ff @(posedge clock) begin
+        if (reset || redirect) begin
+            resultPayload1 <= '0;
+            resultPayload2 <= '0;
+            memPayload <= '0;
+            redirect <= 1'b0;
+            redirectVector <= '0;
+            mispredict1 <= 1'b0;
+            mispredict2 <= 1'b0;
+            exMemory <= 1'b0;
+            inputAddress <= '0;
+            loadWidth <= '0;
+            loadSigned <= 1'b0;
+            isMRET <= 1'b0;
+            exceptionForFrontend <= 1'b0;
+            bpUpdateValid1 <= 1'b0;
+            bpUpdatePC1 <= '0;
+            bpUpdateTaken1 <= 1'b0;
+            bpUpdateValid2 <= 1'b0;
+            bpUpdatePC2 <= '0;
+            bpUpdateTaken2 <= 1'b0;
+        end else begin
+            resultPayload1 <= executeResultPayload1;
+            resultPayload2 <= executeResultPayload2;
+            memPayload <= executeMemPayload;
+            redirect <= executeRedirect;
+            redirectVector <= executeRedirectVector;
+            mispredict1 <= executeMispredict1;
+            mispredict2 <= executeMispredict2;
+            exMemory <= executeExMemory;
+            inputAddress <= executeInputAddress;
+            loadWidth <= executeLoadWidth;
+            loadSigned <= executeLoadSigned;
+            isMRET <= executeIsMRET;
+            exceptionForFrontend <= executeExceptionForFrontend;
+            bpUpdateValid1 <= executeBpUpdateValid1;
+            bpUpdatePC1 <= executeBpUpdatePC1;
+            bpUpdateTaken1 <= executeBpUpdateTaken1;
+            bpUpdateValid2 <= executeBpUpdateValid2;
+            bpUpdatePC2 <= executeBpUpdatePC2;
+            bpUpdateTaken2 <= executeBpUpdateTaken2;
+        end
+    end
+
     MemoryQueue memoryQueue (
         .clock(clock), // input
         .reset(reset), // input
@@ -195,6 +264,8 @@ module Top (
         .memPayload(memPayload), // input
         .memBusOut(memBusOut), // output
         .memBusIn(memBusIn), // input
+        .dmemSelect(memBusDmemSelect), // output
+        .clintSelect(memBusClintSelect), // output
         .completedMemory(completedMemory), // output
         .loadTag(loadTag), // output
         .memFreeSlot(memFreeSlot), // output
@@ -244,6 +315,8 @@ module Top (
 
     BusArbitrator busArbitrator (
         .memBusOut(memBusOut), // input
+        .dmemSelect(memBusDmemSelect), // input
+        .clintSelect(memBusClintSelect), // input
         .dmemBus(dmemBus), // input
         .clintBus(clintBus), // input
         .memBusIn(memBusIn) // output
@@ -270,7 +343,11 @@ module Top (
         .retire2Valid(retireCount[1]) // input
     );
 
-    ReorderBuffer reorderBuffer (
+    ReorderBuffer #(
+        .preciseRestoreRetire(1'b1),
+        .registerRestoreRequest(1'b1),
+        .registerRestoreBuses(1'b1)
+    ) reorderBuffer (
 
         .clock(clock), // input
         .reset(reset), // input
@@ -451,10 +528,10 @@ module Top (
         .lowerROBData1(lowerROBData1), // input
         .lowerROBData2(lowerROBData2), // input
 
-        .upperExData(resultPayload1.instructionResult), // input
-        .lowerExData(resultPayload2.instructionResult), // input
-        .upperExTag(resultPayload1.ageTag), // input
-        .lowerExTag(resultPayload2.ageTag), // input
+        .upperExData(executeBypassData1), // input
+        .lowerExData(executeBypassData2), // input
+        .upperExTag(executeBypassTag1), // input
+        .lowerExTag(executeBypassTag2), // input
         .lowerExValid(exPayload2.valid), // input
 
         .retireTag1(resolvedInstruction1.ageTag), // input
@@ -483,38 +560,42 @@ module Top (
         .clock(clock), // input
         .reset(reset), // input
 
-        .redirect(redirect), // output 
-        .redirectVector(redirectVector), // output
+        .redirect(executeRedirect), // output 
+        .redirectVector(executeRedirectVector), // output
 
-        .mispredict1(mispredict1), // output
-        .mispredict2(mispredict2), // output
+        .mispredict1(executeMispredict1), // output
+        .mispredict2(executeMispredict2), // output
 
-        .bpUpdateValid1(bpUpdateValid1), // output
-        .bpUpdatePC1(bpUpdatePC1), // output
-        .bpUpdateTaken1(bpUpdateTaken1), // output
-        .bpUpdateValid2(bpUpdateValid2), // output
-        .bpUpdatePC2(bpUpdatePC2), // output
-        .bpUpdateTaken2(bpUpdateTaken2), // output
+        .bpUpdateValid1(executeBpUpdateValid1), // output
+        .bpUpdatePC1(executeBpUpdatePC1), // output
+        .bpUpdateTaken1(executeBpUpdateTaken1), // output
+        .bpUpdateValid2(executeBpUpdateValid2), // output
+        .bpUpdatePC2(executeBpUpdatePC2), // output
+        .bpUpdateTaken2(executeBpUpdateTaken2), // output
 
-        .exMemory(exMemory), // output
+        .exMemory(executeExMemory), // output
 
-        .isMRET(isMRET), // output
+        .isMRET(executeIsMRET), // output
 
         .exPayload1(exPayload1), // input
         .exPayload2(exPayload2), // input
 
-        .memPayload(memPayload), // output
+        .memPayload(executeMemPayload), // output
 
         .outputValid(outputValid), // input
         .finalOutputData(finalOutputData), // input
-        .loadSigned(loadSigned), // output
-        .loadWidth(loadWidth), // output
-        .inputAddress(inputAddress), // output
+        .loadSigned(executeLoadSigned), // output
+        .loadWidth(executeLoadWidth), // output
+        .inputAddress(executeInputAddress), // output
 
-        .exceptionForFrontend(exceptionForFrontend), // output
+        .exceptionForFrontend(executeExceptionForFrontend), // output
 
-        .resultPayload1(resultPayload1), // output
-        .resultPayload2(resultPayload2) // output
+        .resultPayload1(executeResultPayload1), // output
+        .bypassData1(executeBypassData1), // output
+        .bypassData2(executeBypassData2), // output
+        .bypassTag1(executeBypassTag1), // output
+        .bypassTag2(executeBypassTag2), // output
+        .resultPayload2(executeResultPayload2) // output
     );
 
     BranchPredictor branchPredictor (

@@ -1,7 +1,6 @@
-import Enumerations::*;
-import Configuration::*;
-
 package Payloads;
+    import Enumerations::*;
+    import Configuration::*;
 
     // Scoreboard Entry
     typedef struct packed {
@@ -213,6 +212,8 @@ package Payloads;
         logic [31:0] address;
         logic [31:0] storeData;
         MemoryOperation_ memoryOperation;
+        logic dmemSelect;
+        logic clintSelect;
         logic [3:0] memoryBytes;
         logic [1:0] memoryWidth;
         logic memorySigned;
