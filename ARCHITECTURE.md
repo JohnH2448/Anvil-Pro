@@ -150,7 +150,7 @@ The Artix-7 flow lives under `Synthesis/`. Reports are checked in under `Synthes
 
 Current Artix-7 `-3` implementation data places the design at roughly 117 MHz routed with no setup margin. The limiting paths are not dominated by ALU logic; they are mostly routing-heavy backend control and operand-select paths. That result matches the design's main FPGA pressure point: Anvil-Pro trades a relatively simple backend protocol for a concentrated issue, restore, and forwarding network.
 
-## Performance
+## Performance (Numbers may be stale)
 The default parameters reflect the optimal balance between size and performance. Increasing reorder buffer entries and store buffer entries has the following affect on performance (data is outdated but indicative):
 | Test | SB=10 ROB=16 | SB=20 ROB=32 | Delta | % Change |
 |---|---:|---:|---:|---:|
